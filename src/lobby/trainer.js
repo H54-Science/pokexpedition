@@ -63,8 +63,9 @@ export class Trainer {
     this.base.map = t; this.over.map = t; this.base.needsUpdate = this.over.needsUpdate = true;
     this.skin = name;
   }
-  // speed : m/s ; t : ms
-  animate(dt, speed, t) {
+  land(k) { this.squash = 0.12 + 0.18 * k; }
+  // speed : m/s ; t : ms ; vy : vitesse verticale si en l'air (sinon null)
+  animate(dt, speed, t, vy = null) {
     this.speed += (speed - this.speed) * (1 - Math.exp(-dt / 90));
     const k = Math.min(1, this.speed / 5);
     this.phase += (dt / 1000) * (2.2 + this.speed * 1.5);
@@ -76,6 +77,20 @@ export class Trainer {
     P.armR.rotation.z = -0.06 - idle; P.armL.rotation.z = 0.06 + idle;
     this.rig.position.y = Math.abs(Math.cos(this.phase)) * 0.05 * k;
     P.head.rotation.x = Math.sin(t * 0.0013) * 0.03;
+    // pose en l'air : bras levés vers l'avant, une jambe pliée
+    this.airK = (this.airK || 0) + ((vy !== null ? 1 : 0) - (this.airK || 0)) * (1 - Math.exp(-dt / 60));
+    const a = this.airK;
+    if (a > 0.01) {
+      const up = vy !== null ? Math.max(-1, Math.min(1, vy / 7)) : 0;
+      P.armR.rotation.x = P.armR.rotation.x * (1 - a) + (-1.9 - up * 0.5) * a; P.armL.rotation.x = P.armL.rotation.x * (1 - a) + (-1.6 - up * 0.5) * a;
+      P.armR.rotation.z = P.armR.rotation.z * (1 - a) - 0.35 * a; P.armL.rotation.z = P.armL.rotation.z * (1 - a) + 0.35 * a;
+      P.legR.rotation.x = P.legR.rotation.x * (1 - a) - 0.6 * a; P.legL.rotation.x = P.legL.rotation.x * (1 - a) + 0.25 * a;
+      this.rig.position.y *= 1 - a;
+    }
+    // écrasement à l'atterrissage
+    this.squash = Math.max(0, (this.squash || 0) - dt / 1000 * 1.2);
+    const q = this.squash;
+    this.rig.scale.set(1 + q * 0.5, 1 - q, 1 + q * 0.5);
   }
 }
 

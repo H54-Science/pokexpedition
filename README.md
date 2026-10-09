@@ -4,7 +4,7 @@ Jeu 3D (navigateur PC + PWA mobile) en three.js. Le combat est inspiré de Honka
 
 ## Jouer
 `index.html` s'ouvre sur le **hall** (lobby 3D) : un théâtre-bibliothèque où l'on se déplace avec son dresseur et son Pokémon partenaire.
-- Commandes : ZQSD ou flèches pour se déplacer, Maj pour courir, glisser la souris pour la caméra, molette pour le zoom, F (ou E / Entrée, ou clic sur l'étiquette) pour interagir.
+- Commandes : ZQSD ou flèches pour se déplacer, Maj pour courir, Espace pour sauter (on peut monter sur la scène d'un bond), glisser la souris pour la caméra, molette pour le zoom, F (ou E / Entrée, ou clic sur l'étiquette) pour interagir.
 - Stations :
   - la **scène** ouvre les expéditions ;
   - **Garde-robe** : tenue du dresseur (skins de PNJ Pixelmon) ;

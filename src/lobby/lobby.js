@@ -185,6 +185,7 @@ export class Lobby {
     this.kd = (e) => {
       if (!this.active || this.paused) return;
       this.keys.add(e.code);
+      if (e.code === "Space") { e.preventDefault(); if (!e.repeat) this.jumpBuf = 0.15; }
       if ((e.code === "KeyF" || e.code === "KeyE" || e.code === "Enter") && this.near) { e.preventDefault(); this.trigger(this.near.st); }
     };
     this.ku = (e) => this.keys.delete(e.code);
@@ -234,11 +235,13 @@ export class Lobby {
     const sp = Math.hypot(this.vel.x, this.vel.z);
     if (sp > 0.3) { const tgt = Math.atan2(this.vel.x, this.vel.z); this.face = angLerp(this.face, tgt, 1 - Math.exp(-dt * 14)); }
     const gy = groundAt(this.pos.x, this.pos.z);
-    this.pos.y += (gy - this.pos.y) * (1 - Math.exp(-dt * 18));
+    this.updateJump(dt, gy);
     const T = this.trainer;
     T.root.position.copy(this.pos); T.root.rotation.y = this.face;
-    T.animate(real, sp, this.t);
+    T.animate(real, sp, this.t, this.air ? this.vy : null);
+    const hgt = Math.max(0, this.pos.y - gy);
     this.blob.position.set(this.pos.x, gy + 0.015, this.pos.z);
+    this.blob.scale.setScalar(Math.max(0.45, 1 - hgt * 0.45)); this.blob.material.opacity = 0.45 * Math.max(0.3, 1 - hgt * 0.5);
     this.updatePartner(dt, real);
     this.updateCamera(dt);
     this.updateStations(dt);
@@ -246,11 +249,31 @@ export class Lobby {
     this.composer.render();
   }
 
+  // Saut : impulsion, gravité, atterrissage. On peut monter sur la scène d'un bond.
+  updateJump(dt, gy) {
+    const G = 22, V0 = 7.2;
+    this.jumpBuf = Math.max(0, (this.jumpBuf || 0) - dt);
+    if (!this.air) {
+      if (this.jumpBuf > 0) {
+        this.jumpBuf = 0; this.air = true; this.vy = V0;
+        if (this.partner) this.partner.hopDelay = 0.14;
+      } else if (gy < this.pos.y - 0.25) { this.air = true; this.vy = 0; }   // chute d'une marche haute
+      else { this.pos.y += (gy - this.pos.y) * (1 - Math.exp(-dt * 18)); return; }
+    }
+    this.vy -= G * dt; this.pos.y += this.vy * dt;
+    if (this.pos.y <= gy && this.vy <= 0) {
+      this.pos.y = gy; this.air = false;
+      this.trainer.land(Math.min(1, -this.vy / 9));
+      if (this.jumpBuf > 0) this.updateJump(0, gy);   // rebond si Espace pressé juste avant l'atterrissage
+    }
+  }
+
   move(dx, dz) {
     const R = 0.32;
     const tryPos = (x, z) => {
       if (x < BOUNDS.x0 || x > BOUNDS.x1 || z < BOUNDS.z0 || z > BOUNDS.z1) return false;
-      if (groundAt(x, z) - groundAt(this.pos.x, this.pos.z) > 0.45) return false;
+      const top = Math.max(groundAt(x, z), groundAt(x + R, z), groundAt(x - R, z), groundAt(x, z + R), groundAt(x, z - R));
+      if (top - this.pos.y > 0.45) return false;
       for (const [bx, bz, br] of BLOCKERS) if (Math.hypot(x - bx, z - bz) < br + R) return false;
       return true;
     };
@@ -276,7 +299,12 @@ export class Lobby {
       const look = Math.atan2(this.pos.x - cur.x, this.pos.z - cur.z);
       P.pivot.rotation.y = angLerp(P.pivot.rotation.y, look, 1 - Math.exp(-dt * 3));
     }
-    const gy = groundAt(cur.x, cur.z); cur.y += (gy - cur.y) * (1 - Math.exp(-dt * 14));
+    const gy = groundAt(cur.x, cur.z);
+    P.baseY = (P.baseY ?? gy) + (gy - (P.baseY ?? gy)) * (1 - Math.exp(-dt * 14));
+    // petit saut du partenaire, juste après le dresseur
+    if (P.hopDelay > 0) { P.hopDelay -= dt; if (P.hopDelay <= 0) { P.hopV = 5.2; P.hopY = P.hopY || 0; } }
+    if (P.hopV !== undefined) { P.hopV -= 22 * dt; P.hopY += P.hopV * dt; if (P.hopY <= 0) { P.hopY = 0; P.hopV = undefined; } }
+    cur.y = P.baseY + (P.hopY || 0);
     if (P.walkClip) P.play(speed > 0.8 ? P.walkClip : "idle", { speed: speed > 0.8 ? Math.min(1.8, 0.7 + speed * 0.2) : 1 });
     P.mixer.update(real / 1000);
     if (!Object.keys(P.clips).length) P.body.position.y = Math.sin(this.t * 0.003) * 0.04;
