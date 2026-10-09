@@ -33,7 +33,12 @@ def build(src_root, key, rel, tmp):
     if os.path.exists(shiny):
         os.makedirs(os.path.join(OUT, 'shiny'), exist_ok=True)
         Image.open(shiny).save(os.path.join(OUT, 'shiny', key.lower() + '.webp'), 'WEBP', quality=90, method=6)
-    return {'anims': sorted(info['anims']), 'kb': os.path.getsize(dst) // 1024, 'shiny': os.path.exists(shiny)}
+    out = {'anims': sorted(info['anims']), 'kb': os.path.getsize(dst) // 1024, 'shiny': os.path.exists(shiny)}
+    # taille réelle (en blocs Minecraft) depuis data/pixelmon/species/<dossier>.json
+    sp = os.path.join(src_root, '..', '..', '..', '..', 'data', 'pixelmon', 'species', rel.split('/')[0] + '.json')
+    if os.path.exists(sp):
+        out['h'] = json.load(open(sp, encoding='utf-8'))['forms'][0]['dimensions']['height']
+    return out
 
 
 def main():

@@ -6,3 +6,5 @@ wrangler.jsonc
 tools
 README.md
 **/__pycache__
+tests
+package.json

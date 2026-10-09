@@ -1,0 +1,1 @@
+{ "name": "pokeimpact", "private": true, "type": "module", "scripts": { "test": "node tests/combat.test.js" } }

@@ -5,7 +5,8 @@
    "walk"
   ],
   "kb": 169,
-  "shiny": true
+  "shiny": true,
+  "h": 1.5
  },
  "altaria": {
   "anims": [
@@ -14,7 +15,8 @@
    "walk"
   ],
   "kb": 247,
-  "shiny": true
+  "shiny": true,
+  "h": 1.1
  },
  "applin": {
   "anims": [
@@ -22,7 +24,8 @@
    "walk"
   ],
   "kb": 29,
-  "shiny": true
+  "shiny": true,
+  "h": 0.34
  },
  "arcanine": {
   "anims": [
@@ -30,7 +33,8 @@
    "walk"
   ],
   "kb": 161,
-  "shiny": true
+  "shiny": true,
+  "h": 1.7
  },
  "azumarill": {
   "anims": [
@@ -38,7 +42,8 @@
    "walk"
   ],
   "kb": 62,
-  "shiny": true
+  "shiny": true,
+  "h": 0.8
  },
  "banette": {
   "anims": [
@@ -46,7 +51,8 @@
    "walk"
   ],
   "kb": 56,
-  "shiny": true
+  "shiny": true,
+  "h": 1.2
  },
  "beautifly": {
   "anims": [
@@ -54,7 +60,8 @@
    "walk"
   ],
   "kb": 77,
-  "shiny": true
+  "shiny": true,
+  "h": 1.0
  },
  "blaziken": {
   "anims": [
@@ -62,7 +69,8 @@
    "walk"
   ],
   "kb": 140,
-  "shiny": true
+  "shiny": true,
+  "h": 1.9
  },
  "blissey": {
   "anims": [
@@ -70,7 +78,8 @@
    "walk"
   ],
   "kb": 44,
-  "shiny": true
+  "shiny": true,
+  "h": 1.5
  },
  "breloom": {
   "anims": [
@@ -78,7 +87,8 @@
    "walk"
   ],
   "kb": 85,
-  "shiny": true
+  "shiny": true,
+  "h": 1.1
  },
  "cacnea": {
   "anims": [
@@ -86,7 +96,8 @@
    "walk"
   ],
   "kb": 47,
-  "shiny": true
+  "shiny": true,
+  "h": 0.5
  },
  "cacturne": {
   "anims": [
@@ -94,7 +105,8 @@
    "walk"
   ],
   "kb": 56,
-  "shiny": true
+  "shiny": true,
+  "h": 1.3
  },
  "camerupt": {
   "anims": [
@@ -102,7 +114,8 @@
    "walk"
   ],
   "kb": 102,
-  "shiny": true
+  "shiny": true,
+  "h": 1.3
  },
  "celebi": {
   "anims": [
@@ -110,7 +123,8 @@
    "idle"
   ],
   "kb": 72,
-  "shiny": true
+  "shiny": true,
+  "h": 0.8
  },
  "chandelure": {
   "anims": [
@@ -118,7 +132,8 @@
    "walk"
   ],
   "kb": 75,
-  "shiny": true
+  "shiny": true,
+  "h": 1.6
  },
  "charizard": {
   "anims": [
@@ -127,7 +142,8 @@
    "walk"
   ],
   "kb": 216,
-  "shiny": true
+  "shiny": true,
+  "h": 2.3
  },
  "claydol": {
   "anims": [
@@ -135,7 +151,8 @@
    "walk"
   ],
   "kb": 43,
-  "shiny": true
+  "shiny": true,
+  "h": 1.6
  },
  "darkrai": {
   "anims": [
@@ -143,7 +160,8 @@
    "walk"
   ],
   "kb": 232,
-  "shiny": true
+  "shiny": true,
+  "h": 1.8
  },
  "deerling": {
   "anims": [
@@ -151,7 +169,8 @@
    "walk"
   ],
   "kb": 106,
-  "shiny": true
+  "shiny": true,
+  "h": 1.2
  },
  "dragonite": {
   "anims": [
@@ -160,7 +179,8 @@
    "walk"
   ],
   "kb": 219,
-  "shiny": true
+  "shiny": true,
+  "h": 2.2
  },
  "dustox": {
   "anims": [
@@ -168,7 +188,8 @@
    "walk"
   ],
   "kb": 47,
-  "shiny": true
+  "shiny": true,
+  "h": 1.0
  },
  "electivire": {
   "anims": [
@@ -176,7 +197,8 @@
    "walk"
   ],
   "kb": 103,
-  "shiny": true
+  "shiny": true,
+  "h": 1.9
  },
  "emolga": {
   "anims": [
@@ -185,7 +207,8 @@
    "walk"
   ],
   "kb": 80,
-  "shiny": true
+  "shiny": true,
+  "h": 0.6
  },
  "exeggutor": {
   "anims": [
@@ -193,7 +216,8 @@
    "walk"
   ],
   "kb": 77,
-  "shiny": true
+  "shiny": true,
+  "h": 2.4
  },
  "florges": {
   "anims": [
@@ -201,7 +225,8 @@
    "walk"
   ],
   "kb": 255,
-  "shiny": false
+  "shiny": false,
+  "h": 1.0
  },
  "flygon": {
   "anims": [
@@ -209,7 +234,8 @@
    "walk"
   ],
   "kb": 189,
-  "shiny": true
+  "shiny": true,
+  "h": 1.7
  },
  "gengar": {
   "anims": [
@@ -217,7 +243,8 @@
    "walk"
   ],
   "kb": 94,
-  "shiny": true
+  "shiny": true,
+  "h": 1.5
  },
  "gourgeist": {
   "anims": [
@@ -225,7 +252,8 @@
    "walk"
   ],
   "kb": 125,
-  "shiny": true
+  "shiny": true,
+  "h": 1.2
  },
  "groudon": {
   "anims": [
@@ -233,7 +261,8 @@
    "walk"
   ],
   "kb": 114,
-  "shiny": true
+  "shiny": true,
+  "h": 4.0
  },
  "gyarados": {
   "anims": [
@@ -242,7 +271,8 @@
    "walk"
   ],
   "kb": 98,
-  "shiny": true
+  "shiny": true,
+  "h": 4.0
  },
  "heatran": {
   "anims": [
@@ -250,7 +280,8 @@
    "walk"
   ],
   "kb": 140,
-  "shiny": true
+  "shiny": true,
+  "h": 1.3
  },
  "hippowdon": {
   "anims": [
@@ -258,12 +289,14 @@
    "walk"
   ],
   "kb": 92,
-  "shiny": true
+  "shiny": true,
+  "h": 1.5
  },
  "kakuna": {
   "anims": [],
   "kb": 16,
-  "shiny": true
+  "shiny": true,
+  "h": 0.6
  },
  "kangaskhan": {
   "anims": [
@@ -271,7 +304,8 @@
    "walk"
   ],
   "kb": 118,
-  "shiny": true
+  "shiny": true,
+  "h": 1.9
  },
  "klang": {
   "anims": [
@@ -279,7 +313,8 @@
    "walk"
   ],
   "kb": 22,
-  "shiny": true
+  "shiny": true,
+  "h": 0.6
  },
  "krookodile": {
   "anims": [
@@ -287,7 +322,8 @@
    "walk"
   ],
   "kb": 98,
-  "shiny": true
+  "shiny": true,
+  "h": 1.9
  },
  "kyogre": {
   "anims": [
@@ -295,7 +331,8 @@
    "swim"
   ],
   "kb": 90,
-  "shiny": true
+  "shiny": true,
+  "h": 1.3
  },
  "lapras": {
   "anims": [
@@ -303,7 +340,8 @@
    "swim"
   ],
   "kb": 72,
-  "shiny": true
+  "shiny": true,
+  "h": 2.5
  },
  "lileep": {
   "anims": [
@@ -311,7 +349,8 @@
    "walk"
   ],
   "kb": 57,
-  "shiny": true
+  "shiny": true,
+  "h": 1.0
  },
  "litwick": {
   "anims": [
@@ -319,7 +358,8 @@
    "walk"
   ],
   "kb": 40,
-  "shiny": true
+  "shiny": true,
+  "h": 0.5
  },
  "machamp": {
   "anims": [
@@ -327,7 +367,8 @@
    "walk"
   ],
   "kb": 213,
-  "shiny": true
+  "shiny": true,
+  "h": 2.0
  },
  "magmar": {
   "anims": [
@@ -335,14 +376,16 @@
    "walk"
   ],
   "kb": 157,
-  "shiny": true
+  "shiny": true,
+  "h": 1.5
  },
  "magnemite": {
   "anims": [
    "idle"
   ],
   "kb": 32,
-  "shiny": true
+  "shiny": true,
+  "h": 0.7
  },
  "mewtwo": {
   "anims": [
@@ -351,7 +394,8 @@
    "walk"
   ],
   "kb": 161,
-  "shiny": true
+  "shiny": true,
+  "h": 2.1
  },
  "milotic": {
   "anims": [
@@ -360,7 +404,8 @@
    "walk"
   ],
   "kb": 166,
-  "shiny": true
+  "shiny": true,
+  "h": 2.0
  },
  "mimikyu": {
   "anims": [
@@ -368,7 +413,8 @@
    "walk"
   ],
   "kb": 50,
-  "shiny": true
+  "shiny": true,
+  "h": 0.45
  },
  "minun": {
   "anims": [
@@ -376,7 +422,8 @@
    "walk"
   ],
   "kb": 55,
-  "shiny": true
+  "shiny": true,
+  "h": 0.6
  },
  "mismagius": {
   "anims": [
@@ -384,7 +431,8 @@
    "walk"
   ],
   "kb": 75,
-  "shiny": true
+  "shiny": true,
+  "h": 1.4
  },
  "mudkip": {
   "anims": [
@@ -392,7 +440,8 @@
    "walk"
   ],
   "kb": 59,
-  "shiny": true
+  "shiny": true,
+  "h": 0.4
  },
  "murkrow": {
   "anims": [
@@ -400,7 +449,8 @@
    "walk"
   ],
   "kb": 93,
-  "shiny": true
+  "shiny": true,
+  "h": 0.5
  },
  "nidoking": {
   "anims": [
@@ -408,7 +458,8 @@
    "walk"
   ],
   "kb": 114,
-  "shiny": true
+  "shiny": true,
+  "h": 2.1
  },
  "noibat": {
   "anims": [
@@ -416,7 +467,8 @@
    "idle"
   ],
   "kb": 61,
-  "shiny": true
+  "shiny": true,
+  "h": 0.8
  },
  "noivern": {
   "anims": [
@@ -425,7 +477,8 @@
    "walk"
   ],
   "kb": 100,
-  "shiny": true
+  "shiny": true,
+  "h": 2.0
  },
  "pansage": {
   "anims": [
@@ -433,7 +486,8 @@
    "walk"
   ],
   "kb": 114,
-  "shiny": true
+  "shiny": true,
+  "h": 0.9
  },
  "pelipper": {
   "anims": [
@@ -442,7 +496,8 @@
    "walk"
   ],
   "kb": 58,
-  "shiny": true
+  "shiny": true,
+  "h": 0.8
  },
  "plusle": {
   "anims": [
@@ -450,7 +505,8 @@
    "walk"
   ],
   "kb": 54,
-  "shiny": true
+  "shiny": true,
+  "h": 0.6
  },
  "pumpkaboo": {
   "anims": [
@@ -458,7 +514,8 @@
    "walk"
   ],
   "kb": 126,
-  "shiny": true
+  "shiny": true,
+  "h": 0.7
  },
  "ralts": {
   "anims": [
@@ -466,7 +523,8 @@
    "walk"
   ],
   "kb": 37,
-  "shiny": true
+  "shiny": true,
+  "h": 0.4
  },
  "rayquaza": {
   "anims": [
@@ -474,14 +532,16 @@
    "idle"
   ],
   "kb": 159,
-  "shiny": true
+  "shiny": true,
+  "h": 3.0
  },
  "ribombee": {
   "anims": [
    "idle"
   ],
   "kb": 67,
-  "shiny": true
+  "shiny": true,
+  "h": 0.4
  },
  "rillaboom": {
   "anims": [
@@ -489,7 +549,8 @@
    "walk"
   ],
   "kb": 175,
-  "shiny": true
+  "shiny": true,
+  "h": 2.1
  },
  "rowlet": {
   "anims": [
@@ -497,7 +558,8 @@
    "walk"
   ],
   "kb": 80,
-  "shiny": true
+  "shiny": true,
+  "h": 1.1
  },
  "sableye": {
   "anims": [
@@ -505,7 +567,8 @@
    "walk"
   ],
   "kb": 118,
-  "shiny": true
+  "shiny": true,
+  "h": 0.85
  },
  "salandit": {
   "anims": [
@@ -513,7 +576,8 @@
    "walk"
   ],
   "kb": 195,
-  "shiny": true
+  "shiny": true,
+  "h": 0.35
  },
  "sandile": {
   "anims": [
@@ -521,7 +585,8 @@
    "walk"
   ],
   "kb": 139,
-  "shiny": true
+  "shiny": true,
+  "h": 0.5
  },
  "scolipede": {
   "anims": [
@@ -529,7 +594,8 @@
    "walk"
   ],
   "kb": 70,
-  "shiny": true
+  "shiny": true,
+  "h": 2.6
  },
  "skarmory": {
   "anims": [
@@ -538,7 +604,8 @@
    "walk"
   ],
   "kb": 164,
-  "shiny": true
+  "shiny": true,
+  "h": 1.7
  },
  "slakoth": {
   "anims": [
@@ -546,7 +613,8 @@
    "walk"
   ],
   "kb": 74,
-  "shiny": true
+  "shiny": true,
+  "h": 0.4
  },
  "slugma": {
   "anims": [
@@ -554,7 +622,8 @@
    "walk"
   ],
   "kb": 128,
-  "shiny": true
+  "shiny": true,
+  "h": 0.7
  },
  "squirtle": {
   "anims": [
@@ -563,7 +632,8 @@
    "walk"
   ],
   "kb": 112,
-  "shiny": true
+  "shiny": true,
+  "h": 0.4
  },
  "staraptor": {
   "anims": [
@@ -571,7 +641,8 @@
    "walk"
   ],
   "kb": 135,
-  "shiny": true
+  "shiny": true,
+  "h": 1.2
  },
  "steenee": {
   "anims": [
@@ -579,7 +650,8 @@
    "walk"
   ],
   "kb": 102,
-  "shiny": true
+  "shiny": true,
+  "h": 0.85
  },
  "swablu": {
   "anims": [
@@ -588,7 +660,8 @@
    "walk"
   ],
   "kb": 128,
-  "shiny": true
+  "shiny": true,
+  "h": 0.7
  },
  "sylveon": {
   "anims": [
@@ -596,7 +669,8 @@
    "walk"
   ],
   "kb": 139,
-  "shiny": true
+  "shiny": true,
+  "h": 1.2
  },
  "togekiss": {
   "anims": [
@@ -604,7 +678,8 @@
    "idle"
   ],
   "kb": 57,
-  "shiny": true
+  "shiny": true,
+  "h": 1.4
  },
  "trapinch": {
   "anims": [
@@ -612,7 +687,8 @@
    "walk"
   ],
   "kb": 67,
-  "shiny": true
+  "shiny": true,
+  "h": 0.6
  },
  "ursaring": {
   "anims": [
@@ -620,7 +696,8 @@
    "walk"
   ],
   "kb": 86,
-  "shiny": true
+  "shiny": true,
+  "h": 1.8
  },
  "voltorb": {
   "anims": [
@@ -628,7 +705,8 @@
    "walk"
   ],
   "kb": 26,
-  "shiny": true
+  "shiny": true,
+  "h": 0.5
  },
  "watchog": {
   "anims": [
@@ -636,7 +714,8 @@
    "walk"
   ],
   "kb": 137,
-  "shiny": true
+  "shiny": true,
+  "h": 1.1
  },
  "wooper": {
   "anims": [
@@ -644,7 +723,8 @@
    "walk"
   ],
   "kb": 47,
-  "shiny": true
+  "shiny": true,
+  "h": 0.4
  },
  "xerneas": {
   "anims": [
@@ -652,7 +732,8 @@
    "walk"
   ],
   "kb": 104,
-  "shiny": true
+  "shiny": true,
+  "h": 3.0
  },
  "xurkitree": {
   "anims": [
@@ -660,6 +741,7 @@
    "walk"
   ],
   "kb": 106,
-  "shiny": true
+  "shiny": true,
+  "h": 5.6
  }
 }
