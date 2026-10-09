@@ -1,7 +1,7 @@
 // État du compte (sérialisable) et utilitaires communs. Aucun accès au DOM.
 import { RNG } from "../combat/engine.js";
 import { CONFIG } from "./config.js";
-import SETS_JSON from "./sets.json" with { type: "json" };
+import SETS_JSON from "./sets.js";
 
 export const SETS = SETS_JSON;
 export const SET = Object.fromEntries(SETS.map((s) => [s.id, s]));

@@ -1,4 +1,6 @@
-[
+// Sets de capture (modifiables à la main). Généré au départ par tools/gen_sets.mjs.
+// Format : { id, name, legend, nice: [3], weak: [4] } ; uniquement des espèces avec modèle chromatique.
+export default [
   {
     "id": "abysses",
     "name": "Abysses",
@@ -63,4 +65,4 @@
       "APPLIN"
     ]
   }
-]
+];

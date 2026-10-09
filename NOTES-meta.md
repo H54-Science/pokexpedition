@@ -1,7 +1,7 @@
 # Boucle de progression — notes d'implémentation
 
 Code : `src/meta/` (logique pure, sans DOM). Page de debug : `meta.html`. Tests : `tests/meta.test.js` (dans `npm test`).
-Chiffres : `src/meta/config.js`. Sets : `src/meta/sets.json`, générés par `node tools/gen_sets.mjs` puis à corriger à la main.
+Chiffres : `src/meta/config.js`. Sets : `src/meta/sets.js`, générés par `node tools/gen_sets.mjs` puis à corriger à la main.
 Taux de victoire indicatifs : `node tools/balance_meta.mjs [n]`.
 
 ## Ce qui est codé (boucle minimale viable)

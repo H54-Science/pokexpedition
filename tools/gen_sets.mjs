@@ -1,4 +1,4 @@
-// Génère src/meta/sets.json : 4 sets de 8 (1 légendaire, 3 « sympa », 4 faibles).
+// Génère src/meta/sets.js : 4 sets de 8 (1 légendaire, 3 « sympa », 4 faibles).
 // Seules les espèces avec modèle chromatique sont utilisées. Le résultat est fait pour être retouché à la main.
 // node tools/gen_sets.mjs
 import fs from "fs";
@@ -33,5 +33,5 @@ for (const [role, tier, n] of [["nice", 3, 3], ["weak", 1, 4]]) {
     sets[i][role].push(c); used.add(c);
   }
 }
-fs.writeFileSync(new URL("../src/meta/sets.json", import.meta.url), JSON.stringify(sets, null, 2) + "\n");
+fs.writeFileSync(new URL("../src/meta/sets.js", import.meta.url), "// Sets de capture (modifiables à la main). Généré au départ par tools/gen_sets.mjs.\n// Format : { id, name, legend, nice: [3], weak: [4] } ; uniquement des espèces avec modèle chromatique.\nexport default " + JSON.stringify(sets, null, 2) + ";\n");
 for (const s of sets) console.log(s.name.padEnd(16), s.legend, "|", s.nice.join(" "), "|", s.weak.join(" "));
