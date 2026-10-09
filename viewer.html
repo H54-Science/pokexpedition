@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PokeImpact – modèles</title>
+<style>
+  :root { --bg:#10141c; --panel:#1a2130; --fg:#e8ecf3; --mute:#8a94a8; --acc:#ffcb3d; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:14px system-ui,sans-serif; }
+  #app { display:flex; flex-direction:column; height:100%; }
+  header { display:flex; gap:8px; padding:10px 16px; background:var(--panel); flex-wrap:wrap; align-items:center; }
+  select,button { background:#253048; color:var(--fg); border:1px solid #34405a; border-radius:8px; padding:8px 10px; font:inherit; }
+  button.on { border-color:var(--acc); color:var(--acc); }
+  #info { color:var(--mute); margin-left:auto; }
+  canvas { flex:1; display:block; width:100%; min-height:0; touch-action:none; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <select id="sp"></select>
+    <select id="anim"></select>
+    <button id="shiny">Chromatique</button>
+    <span id="info"></span>
+  </header>
+  <canvas id="c"></canvas>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+ "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+const $ = (id) => document.getElementById(id);
+const canvas = $('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x10141c);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 2.2));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(3, 5, 4); scene.add(sun);
+const grid = new THREE.GridHelper(4, 16, 0x34405a, 0x222b3d); scene.add(grid);
+const cam = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
+const ctl = new OrbitControls(cam, canvas); ctl.enableDamping = true;
+const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+const texLoader = new THREE.TextureLoader();
+const clock = new THREE.Clock();
+
+let cur = null, mixer = null, clips = [], baseMap = null, shinyMap = null, shinyOn = false;
+const HEIGHT = 1.6; // hauteur cible normalisée
+
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+function material() {
+  let m = null; cur.traverse((o) => { if (o.isMesh) m = o.material; }); return m;
+}
+
+async function load(key, meta) {
+  if (cur) scene.remove(cur);
+  const g = await loader.loadAsync(`models/${key}.glb`);
+  cur = g.scene; clips = g.animations; scene.add(cur);
+  mixer = new THREE.AnimationMixer(cur);
+  // normalisation : on mesure la boîte sur la 1re image de l'animation de repos
+  const idle = clips.find((c) => c.name === 'idle') || clips[0];
+  if (idle) { mixer.clipAction(idle).play(); mixer.update(0); }
+  cur.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(cur, true);
+  const s = HEIGHT / Math.max(box.max.y - box.min.y, 1e-3);
+  cur.scale.setScalar(s); cur.position.y = -box.min.y * s;
+  const k = 1 / Math.min(1, cam.aspect); // recule en portrait
+  cam.position.set(2.6 * k, 1.4 + 0.3 * k, 2.6 * k); ctl.target.set(0, HEIGHT / 2, 0);
+  $('anim').innerHTML = clips.map((c) => `<option>${c.name}</option>`).join('') || '<option>(aucune)</option>';
+  if (idle) $('anim').value = idle.name;
+  baseMap = material()?.map || null; shinyMap = null; shinyOn = false;
+  $('shiny').classList.remove('on'); $('shiny').disabled = !meta.shiny;
+  $('info').textContent = `${meta.kb} Ko · ${clips.length} anim.`;
+}
+
+function play(name) {
+  mixer.stopAllAction();
+  const c = clips.find((x) => x.name === name); if (c) mixer.clipAction(c).play();
+}
+
+$('anim').onchange = (e) => play(e.target.value);
+$('shiny').onclick = async () => {
+  const m = material(); if (!m) return;
+  shinyOn = !shinyOn; $('shiny').classList.toggle('on', shinyOn);
+  if (shinyOn && !shinyMap) {
+    shinyMap = await texLoader.loadAsync(`models/shiny/${$('sp').value}.webp`);
+    shinyMap.flipY = false; shinyMap.colorSpace = THREE.SRGBColorSpace;
+    shinyMap.magFilter = shinyMap.minFilter = THREE.NearestFilter;
+  }
+  m.map = shinyOn ? shinyMap : baseMap; m.needsUpdate = true;
+};
+
+const index = await (await fetch('models/index.json')).json();
+const keys = Object.keys(index);
+$('sp').innerHTML = keys.map((k) => `<option value="${k}">${k}</option>`).join('');
+$('sp').onchange = (e) => load(e.target.value, index[e.target.value]);
+resize();
+await load(keys[0], index[keys[0]]);
+
+renderer.setAnimationLoop(() => {
+  const dt = clock.getDelta(); if (mixer) mixer.update(dt);
+  ctl.update(); renderer.render(scene, cam);
+});
+</script>
+</body>
+</html>

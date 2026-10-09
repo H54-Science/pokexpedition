@@ -1,0 +1,7 @@
+# Sources Pixelmon et conversions brutes : jamais dans le dépôt
+*.jar
+pixelmon_extrait/
+raw/
+all/
+__pycache__/
+node_modules/

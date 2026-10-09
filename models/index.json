@@ -1,0 +1,665 @@
+{
+ "alakazam": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 169,
+  "shiny": true
+ },
+ "altaria": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 247,
+  "shiny": true
+ },
+ "applin": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 29,
+  "shiny": true
+ },
+ "arcanine": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 161,
+  "shiny": true
+ },
+ "azumarill": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 62,
+  "shiny": true
+ },
+ "banette": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 56,
+  "shiny": true
+ },
+ "beautifly": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 77,
+  "shiny": true
+ },
+ "blaziken": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 140,
+  "shiny": true
+ },
+ "blissey": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 44,
+  "shiny": true
+ },
+ "breloom": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 85,
+  "shiny": true
+ },
+ "cacnea": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 47,
+  "shiny": true
+ },
+ "cacturne": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 56,
+  "shiny": true
+ },
+ "camerupt": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 102,
+  "shiny": true
+ },
+ "celebi": {
+  "anims": [
+   "fly",
+   "idle"
+  ],
+  "kb": 72,
+  "shiny": true
+ },
+ "chandelure": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 75,
+  "shiny": true
+ },
+ "charizard": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 216,
+  "shiny": true
+ },
+ "claydol": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 43,
+  "shiny": true
+ },
+ "darkrai": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 232,
+  "shiny": true
+ },
+ "deerling": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 106,
+  "shiny": true
+ },
+ "dragonite": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 219,
+  "shiny": true
+ },
+ "dustox": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 47,
+  "shiny": true
+ },
+ "electivire": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 103,
+  "shiny": true
+ },
+ "emolga": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 80,
+  "shiny": true
+ },
+ "exeggutor": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 77,
+  "shiny": true
+ },
+ "florges": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 255,
+  "shiny": false
+ },
+ "flygon": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 189,
+  "shiny": true
+ },
+ "gengar": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 94,
+  "shiny": true
+ },
+ "gourgeist": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 125,
+  "shiny": true
+ },
+ "groudon": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 114,
+  "shiny": true
+ },
+ "gyarados": {
+  "anims": [
+   "idle",
+   "swim",
+   "walk"
+  ],
+  "kb": 98,
+  "shiny": true
+ },
+ "heatran": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 140,
+  "shiny": true
+ },
+ "hippowdon": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 92,
+  "shiny": true
+ },
+ "kakuna": {
+  "anims": [],
+  "kb": 16,
+  "shiny": true
+ },
+ "kangaskhan": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 118,
+  "shiny": true
+ },
+ "klang": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 22,
+  "shiny": true
+ },
+ "krookodile": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 98,
+  "shiny": true
+ },
+ "kyogre": {
+  "anims": [
+   "idle",
+   "swim"
+  ],
+  "kb": 90,
+  "shiny": true
+ },
+ "lapras": {
+  "anims": [
+   "idle",
+   "swim"
+  ],
+  "kb": 72,
+  "shiny": true
+ },
+ "lileep": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 57,
+  "shiny": true
+ },
+ "litwick": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 40,
+  "shiny": true
+ },
+ "machamp": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 213,
+  "shiny": true
+ },
+ "magmar": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 157,
+  "shiny": true
+ },
+ "magnemite": {
+  "anims": [
+   "idle"
+  ],
+  "kb": 32,
+  "shiny": true
+ },
+ "mewtwo": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 161,
+  "shiny": true
+ },
+ "milotic": {
+  "anims": [
+   "idle",
+   "swim",
+   "walk"
+  ],
+  "kb": 166,
+  "shiny": true
+ },
+ "mimikyu": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 50,
+  "shiny": true
+ },
+ "minun": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 55,
+  "shiny": true
+ },
+ "mismagius": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 75,
+  "shiny": true
+ },
+ "mudkip": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 59,
+  "shiny": true
+ },
+ "murkrow": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 93,
+  "shiny": true
+ },
+ "nidoking": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 114,
+  "shiny": true
+ },
+ "noibat": {
+  "anims": [
+   "fly",
+   "idle"
+  ],
+  "kb": 61,
+  "shiny": true
+ },
+ "noivern": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 100,
+  "shiny": true
+ },
+ "pansage": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 114,
+  "shiny": true
+ },
+ "pelipper": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 58,
+  "shiny": true
+ },
+ "plusle": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 54,
+  "shiny": true
+ },
+ "pumpkaboo": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 126,
+  "shiny": true
+ },
+ "ralts": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 37,
+  "shiny": true
+ },
+ "rayquaza": {
+  "anims": [
+   "fly",
+   "idle"
+  ],
+  "kb": 159,
+  "shiny": true
+ },
+ "ribombee": {
+  "anims": [
+   "idle"
+  ],
+  "kb": 67,
+  "shiny": true
+ },
+ "rillaboom": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 175,
+  "shiny": true
+ },
+ "rowlet": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 80,
+  "shiny": true
+ },
+ "sableye": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 118,
+  "shiny": true
+ },
+ "salandit": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 195,
+  "shiny": true
+ },
+ "sandile": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 139,
+  "shiny": true
+ },
+ "scolipede": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 70,
+  "shiny": true
+ },
+ "skarmory": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 164,
+  "shiny": true
+ },
+ "slakoth": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 74,
+  "shiny": true
+ },
+ "slugma": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 128,
+  "shiny": true
+ },
+ "squirtle": {
+  "anims": [
+   "idle",
+   "swim",
+   "walk"
+  ],
+  "kb": 112,
+  "shiny": true
+ },
+ "staraptor": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 135,
+  "shiny": true
+ },
+ "steenee": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 102,
+  "shiny": true
+ },
+ "swablu": {
+  "anims": [
+   "fly",
+   "idle",
+   "walk"
+  ],
+  "kb": 128,
+  "shiny": true
+ },
+ "sylveon": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 139,
+  "shiny": true
+ },
+ "togekiss": {
+  "anims": [
+   "fly",
+   "idle"
+  ],
+  "kb": 57,
+  "shiny": true
+ },
+ "trapinch": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 67,
+  "shiny": true
+ },
+ "ursaring": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 86,
+  "shiny": true
+ },
+ "voltorb": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 26,
+  "shiny": true
+ },
+ "watchog": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 137,
+  "shiny": true
+ },
+ "wooper": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 47,
+  "shiny": true
+ },
+ "xerneas": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 104,
+  "shiny": true
+ },
+ "xurkitree": {
+  "anims": [
+   "idle",
+   "walk"
+  ],
+  "kb": 106,
+  "shiny": true
+ }
+}
