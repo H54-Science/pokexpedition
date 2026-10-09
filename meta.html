@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PokeImpact — boucle (debug)</title>
+<style>
+  :root { --bg: #14101c; --panel: #1f1830; --ink: #f2ecf7; --mute: #a596b5; --gold: #ffd36a; --ok: #7fe0a0; --bad: #ff8a8a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+  section { background: var(--panel); border-radius: 10px; padding: 12px 14px; }
+  section.wide { grid-column: 1 / -1; }
+  h1 { font-size: 20px; margin: 0; } h2 { font-size: 15px; margin: 0 0 8px; color: var(--gold); }
+  header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .res { display: flex; flex-wrap: wrap; gap: 10px; color: var(--mute); } .res b { color: var(--ink); }
+  button { background: #3a2d55; color: var(--ink); border: 1px solid #5a4880; border-radius: 6px; padding: 4px 9px; cursor: pointer; font: inherit; }
+  button:hover:not(:disabled) { background: #4c3a70; } button:disabled { opacity: .4; cursor: default; }
+  button.main { background: #6a3fc0; border-color: #8a62e0; }
+  table { width: 100%; border-collapse: collapse; } td, th { padding: 4px 6px; border-bottom: 1px solid #2e2442; text-align: left; } th { color: var(--mute); font-weight: 600; }
+  .shiny { color: var(--gold); } .ok { color: var(--ok); } .bad { color: var(--bad); } .mute { color: var(--mute); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0; }
+  .card { border: 1px solid #4a3a66; border-radius: 8px; padding: 6px 10px; }
+  .card.new { border-color: var(--ok); } .card.pick { outline: 2px solid var(--gold); }
+  #log { max-height: 220px; overflow: auto; font: 12px ui-monospace, monospace; color: var(--mute); white-space: pre-wrap; }
+  #err { color: var(--bad); min-height: 1.2em; }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Boucle de progression (debug)</h1><div class="res" id="res"></div><button id="reset">Réinitialiser</button><span id="err"></span></header>
+  <section><h2>Expéditions</h2><div id="exp"></div></section>
+  <section><h2>Run de capture</h2><div id="run"></div></section>
+  <section class="wide"><h2>Collection</h2><div id="coll"></div></section>
+  <section class="wide"><h2>Journal</h2><div id="log"></div></section>
+</main>
+<script type="module" src="src/meta/debug.js"></script>
+</body>
+</html>
