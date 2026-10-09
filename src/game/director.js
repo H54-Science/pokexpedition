@@ -32,7 +32,7 @@ export class Director {
   // ───────── mise en place ─────────
   async load(progress) {
     const cfg = this.cfg;
-    this.b = new Combat({ seed: cfg.seed, allies: cfg.allies, enemies: cfg.enemies, pool: cfg.pool, danger: cfg.danger });
+    this.b = new Combat({ seed: cfg.seed, allies: cfg.allies, enemies: cfg.enemies, pool: cfg.pool, danger: cfg.danger, bossHp: cfg.bossHp, bossPow: cfg.bossPow, mods: cfg.mods });
     const units = this.b.units;
     const species = [...new Set(units.map((u) => u.k).concat(cfg.pool || []))];
     let done = 0; const total = units.length + species.length;
@@ -567,12 +567,16 @@ export class Director {
     } else { Sfx.music(null); Sfx.play("defeat"); st.shot("wide", { k: 1 }); }
     await sleep(1400);
     const L = b.log;
+    if (this.onEnd) { this.onEnd({ win: b.win, turns: b.turnNo, log: L }); return { win: b.win }; }
     this.hud.result({ win: b.win, stats: [[b.turnNo, "tours"], [L.perfect, "frappes parfaites"], [L.parry, "parades"], [L.reactions, "réactions"], [L.maxHit, "plus gros coup"]], onRetry: () => this.onRetry && this.onRetry() });
   }
 
   dispose() {
     removeEventListener("keydown", this.onKey);
     this.stage.canvas.removeEventListener("pointerdown", this.onPointer);
+    this.stage.onFrame = null;
+    this.stage.clearUnits();
+    Clock.scale = 1;
   }
 }
 

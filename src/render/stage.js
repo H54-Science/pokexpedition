@@ -177,6 +177,17 @@ export class Stage {
     this.units.set(id, U);
     return U;
   }
+  // Retire toutes les unités (entre deux combats).
+  clearUnits() {
+    for (const U of this.units.values()) {
+      this.scene.remove(U.P.pivot);
+      U.P.mixer.stopAllAction();
+      U.P.pivot.traverse((o) => { if (o.isMesh && o.material) o.material.dispose(); });
+    }
+    this.units.clear();
+    this.activeId = this.targetId = null; this.showArrow = false;
+    this.overPass.enabled = false; this.dimTarget = 0;
+  }
   // Rangées : alliés devant la caméra (z > 0), ennemis en face (z < 0).
   layout(side, ids, anim = false) {
     const n = ids.length, z = side === "ally" ? 2.9 : -2.9;

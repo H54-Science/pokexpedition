@@ -2,10 +2,23 @@
 
 Jeu 3D (navigateur PC + PWA mobile) en three.js. Le combat est inspiré de Honkai Star Rail et repris de Récolte. Les modèles viennent de Pixelmon, convertis en glTF.
 
-## Jouer (prototype de combat raid)
-`index.html` : combat 3D sur PC, **3 alliés contre 1 boss**. Par défaut : Dracaufeu, Lokhlass et Ectoplasma (N.20) contre Groudon.
-Le niveau du boss dépend de sa rareté (légendaire −4, rare −3, peu commun +6, commun +8). Le boss a 12 fois plus de PV et 70 % de puissance, et enrage sous 50 % de PV.
+## Jouer
+`index.html` : accueil → **expédition** (choix de la zone et de la difficulté → troupe de 6 à 10 Pokémon → actes) ou **combat rapide**.
 
+### Expédition (inspirée du Théâtre de Genshin) — `src/game/run.js`, logique pure et déterministe
+- Difficulté : Facile (6 actes), Normal (7), Difficile (8), Infini (sans fin, record enregistré). Le gardien de la zone est au dernier acte, et deux « adversaires principaux » arrivent vers 40 % et 70 % du parcours.
+- À chaque acte, des cartes d'incident : 2 combats (normal ou difficile), ou le combat clé, et 2 incidents de boutique payés en fleurs ✿ :
+  - recrue d'un type : un Pokémon rejoint la troupe ;
+  - bénédiction : 1 au choix parmi 3, reprises des reliques de Récolte ;
+  - entracte : +1 vigueur à toute la troupe.
+- 2 relances des incidents par expédition.
+- Combat : on choisit 3 Pokémon de la troupe (1 = gauche, 2 = centre, 3 = droite). Chacun perd 1 vigueur, sur 4 au départ. Les PV sont restaurés à chaque combat et les adversaires montent d'acte en acte.
+- Types favorisés de la zone : +15 % de stats. Bénédiction offerte après un adversaire principal.
+- Défaite : on retente tant qu'il reste des rappels (3, 2 ou 1 selon la difficulté).
+- Sauvegarde automatique dans le navigateur : l'expédition peut être reprise, et chaque victoire débloque la zone suivante.
+- `npm test` simule aussi des expéditions complètes avec un joueur automatique. Taux de victoire : Facile ~97 %, Normal ~73 %, Difficile ~10 %.
+
+### Combat
 | Touche | Action |
 |---|---|
 | Q | Attaque (+1 énergie) |
@@ -17,7 +30,7 @@ Le niveau du boss dépend de sa rareté (légendaire −4, rare −3, peu commun
 | A / X | Auto / vitesse ×2 |
 
 Paramètres d'URL :
-- `?team=CHARIZARD,LAPRAS,GENGAR` pour l'équipe
+- `?quick=1` lance directement un combat rapide ; ensuite `&team=CHARIZARD,LAPRAS,GENGAR` pour l'équipe
 - `&boss=GYARADOS` pour le boss
 - `&lv=20` pour le niveau de l'équipe
 - `&flv=16` pour forcer le niveau du boss

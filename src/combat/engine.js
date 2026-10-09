@@ -54,7 +54,7 @@ export class Combat {
   constructor(cfg) {
     this.cfg = cfg;
     this.rng = RNG(cfg.seed ?? 1);
-    this.rm = mergeMods(cfg.mods ? [cfg.mods] : []);
+    this.rm = mergeMods(Array.isArray(cfg.mods) ? cfg.mods : cfg.mods ? [cfg.mods] : []);
     this.maxPts = MAX_EN;
     this.pts = Math.min(MAX_EN, 3 + n0(this.rm.startPts));
     this.units = [];
