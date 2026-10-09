@@ -1,0 +1,66 @@
+[
+  {
+    "id": "abysses",
+    "name": "Abysses",
+    "legend": "KYOGRE",
+    "nice": [
+      "LAPRAS",
+      "GYARADOS",
+      "MILOTIC"
+    ],
+    "weak": [
+      "MUDKIP",
+      "SQUIRTLE",
+      "WOOPER",
+      "SWABLU"
+    ]
+  },
+  {
+    "id": "terres",
+    "name": "Terres brûlées",
+    "legend": "GROUDON",
+    "nice": [
+      "KROOKODILE",
+      "FLYGON",
+      "ARCANINE"
+    ],
+    "weak": [
+      "TRAPINCH",
+      "SANDILE",
+      "SLUGMA",
+      "SALANDIT"
+    ]
+  },
+  {
+    "id": "nuit",
+    "name": "Nuit sans fin",
+    "legend": "DARKRAI",
+    "nice": [
+      "GENGAR",
+      "MIMIKYU",
+      "CHANDELURE"
+    ],
+    "weak": [
+      "LITWICK",
+      "PUMPKABOO",
+      "MURKROW",
+      "KAKUNA"
+    ]
+  },
+  {
+    "id": "feerie",
+    "name": "Féerie",
+    "legend": "XERNEAS",
+    "nice": [
+      "SYLVEON",
+      "TOGEKISS",
+      "RILLABOOM"
+    ],
+    "weak": [
+      "RALTS",
+      "CACNEA",
+      "PANSAGE",
+      "APPLIN"
+    ]
+  }
+]

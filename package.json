@@ -1,1 +1,1 @@
-{ "name": "pokexpedition", "private": true, "type": "module", "scripts": { "test": "node tests/combat.test.js && node tests/run.test.js" } }
+{ "name": "pokexpedition", "private": true, "type": "module", "scripts": { "test": "node tests/combat.test.js && node tests/run.test.js && node tests/meta.test.js" } }
