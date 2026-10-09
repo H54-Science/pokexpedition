@@ -14,14 +14,33 @@ export class Screens {
   hide() { this.root.style.display = "none"; this.root.innerHTML = ""; }
 
   // ───────── accueil ─────────
-  hub({ hasRun, best, onNew, onResume, onQuick }) {
+  hub({ hasRun, best, onNew, onResume, onQuick, onBack }) {
     this.show(h("div", { class: "s-box s-center" },
-      h("h1", null, "POKEIMPACT"),
-      h("p", null, "Théâtre des expéditions"),
+      h("h1", null, "EXPÉDITIONS"),
+      h("p", null, "Le Théâtre des expéditions"),
       hasRun ? h("button", { class: "s-btn main", onclick: onResume }, "Reprendre l'expédition") : null,
       h("button", { class: "s-btn" + (hasRun ? "" : " main"), onclick: onNew }, "Nouvelle expédition"),
-      h("button", { class: "s-btn", onclick: onQuick }, "Combat rapide (test)"),
-      best ? h("p", { class: "s-mute" }, `Record en mode infini : ${best} combats`) : null));
+      onQuick ? h("button", { class: "s-btn", onclick: onQuick }, "Combat rapide (test)") : null,
+      best ? h("p", { class: "s-mute" }, `Record en mode infini : ${best} combats`) : null,
+      onBack ? h("button", { class: "s-btn", onclick: onBack }, "Retour au hall") : null));
+  }
+
+  // ───────── lobby : garde-robe et partenaire ─────────
+  wardrobe({ skins, current, thumb, onPick, onBack }) {
+    const grid = h("div", { class: "s-grid" });
+    for (const n of skins) {
+      const img = h("img", { alt: n });
+      thumb(n).then((u) => (img.src = u)).catch(() => {});
+      grid.append(h("button", { class: "s-skin" + (n === current ? " on" : ""), onclick: () => onPick(n) }, img, n.replace(/^trainer_gym_/, "").replace(/^leader_gym_/, "champion ").replace(/_/g, " ")));
+    }
+    this.show(h("div", { class: "s-box" }, h("h2", null, "Garde-robe"), h("p", { class: "s-mute" }, "Tenue du dresseur (d'autres tenues viendront avec les cosmétiques)."), grid,
+      h("div", { class: "s-row" }, h("button", { class: "s-btn", onclick: onBack }, "Retour"))));
+  }
+  partner({ list, current, onPick, onBack }) {
+    const grid = h("div", { class: "s-grid" });
+    for (const k of list) grid.append(h("button", { class: "s-skin" + (k === current ? " on" : ""), onclick: () => onPick(k) }, h("b", null, fr(k)), h("span", null, ...SPECIES[k].t.map(tchip))));
+    this.show(h("div", { class: "s-box" }, h("h2", null, "Partenaire"), h("p", { class: "s-mute" }, "Le Pokémon qui te suit dans le hall."), grid,
+      h("div", { class: "s-row" }, h("button", { class: "s-btn", onclick: onBack }, "Retour"))));
   }
 
   // ───────── zone + difficulté ─────────

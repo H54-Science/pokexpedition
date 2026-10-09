@@ -3,7 +3,18 @@
 Jeu 3D (navigateur PC + PWA mobile) en three.js. Le combat est inspiré de Honkai Star Rail et repris de Récolte. Les modèles viennent de Pixelmon, convertis en glTF.
 
 ## Jouer
-`index.html` : accueil → **expédition** (choix de la zone et de la difficulté → troupe de 6 à 10 Pokémon → actes) ou **combat rapide**.
+`index.html` s'ouvre sur le **hall** (lobby 3D) : un théâtre-bibliothèque où l'on se déplace avec son dresseur et son Pokémon partenaire.
+- Commandes : ZQSD ou flèches pour se déplacer, Maj pour courir, glisser la souris pour la caméra, molette pour le zoom, F (ou E / Entrée, ou clic sur l'étiquette) pour interagir.
+- Stations :
+  - la **scène** ouvre les expéditions ;
+  - **Garde-robe** : tenue du dresseur (skins de PNJ Pixelmon) ;
+  - **Partenaire** : Pokémon qui suit le dresseur ;
+  - **Entraînement** : combat rapide ;
+  - **Vœux** (gacha) et **Coop** : à venir.
+- Code : `src/lobby/lobby.js` (salle, caméra, collisions, stations) et `src/lobby/trainer.js` (dresseur en boîtes texturées par un skin 64×64, marche procédurale). Pendant le lobby, `Stage` délègue son rendu via `stage.override`.
+- Modèle : `models/lobby/hall.glb`, construit par script dans Blender (fichier source `hall.blend` hors dépôt), exporté puis compressé avec `gltf-transform optimize --compress meshopt --texture-compress webp`. Les lumières sont recréées dans three.js et ne viennent pas du .glb.
+
+Depuis le hall, **expédition** (choix de la zone et de la difficulté → troupe de 6 à 10 Pokémon → actes) ou **combat rapide**.
 
 ### Expédition (inspirée du Théâtre de Genshin) — `src/game/run.js`, logique pure et déterministe
 - Difficulté : Facile (6 actes), Normal (7), Difficile (8), Infini (sans fin, record enregistré). Le gardien de la zone est au dernier acte, et deux « adversaires principaux » arrivent vers 40 % et 70 % du parcours.

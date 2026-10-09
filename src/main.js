@@ -1,4 +1,4 @@
-// Point d'entrée : accueil → zone → troupe → actes (cartes d'incident) → combats 3 contre 1.
+// Point d'entrée : hall (lobby 3D) → scène = expéditions → zone → troupe → actes (cartes d'incident) → combats 3 contre 1.
 // Combat rapide pour tester : bouton de l'accueil, ou ?quick=1&team=CHARIZARD,LAPRAS,GENGAR&boss=GROUDON
 import { Stage } from "./render/stage.js";
 import { Hud } from "./ui/hud.js";
@@ -9,6 +9,8 @@ import { SPECIES } from "./data/data.js";
 import { ZONES } from "./data/zones.js";
 import { Sfx } from "./audio.js";
 import * as R from "./game/run.js";
+import { Lobby } from "./lobby/lobby.js";
+import { SKINS, skinThumb } from "./lobby/trainer.js";
 
 const q = new URLSearchParams(location.search);
 const store = {
@@ -16,12 +18,13 @@ const store = {
   set(k, v) { try { if (v == null) localStorage.removeItem("pokeimpact." + k); else localStorage.setItem("pokeimpact." + k, JSON.stringify(v)); } catch (e) {} },
 };
 
-let stage, scr, index;
+let stage, scr, index, lobby;
 const has = (k) => !!index[k.toLowerCase()];
 const hudRoot = () => document.getElementById("hud");
 
 // Lance un combat avec la scène 3D et rend { win }.
 async function fight(cfg) {
+  lobby && lobby.leave();
   scr.loading("Chargement du combat…");
   hudRoot().style.display = "";
   const hud = new Hud(hudRoot(), stage);
@@ -35,14 +38,38 @@ async function fight(cfg) {
   return res;
 }
 
-// ───────── accueil ─────────
+// ───────── hall ─────────
+// spawn : "door" (entrée), "stage" (sur la scène, après une expédition), "keep" (là où on était)
+function toLobby(spawn = "keep") { scr.hide(); lobby.enter({ spawn }); }
+const back = () => toLobby("keep");
+
+function lobbyAction(id) {
+  lobby.pause(true);
+  if (id === "expedition") return hub();
+  if (id === "training") return quick();
+  if (id === "wardrobe") {
+    return scr.wardrobe({
+      skins: SKINS, current: lobby.trainer.skin, thumb: skinThumb, onBack: back,
+      onPick: async (n) => { store.set("skin", n); await lobby.setSkin(n); back(); },
+    });
+  }
+  if (id === "partner") {
+    return scr.partner({
+      list: Object.keys(SPECIES).filter(has), current: lobby.partnerKey, onBack: back,
+      onPick: async (k) => { store.set("partner", k); scr.loading("Ton partenaire arrive…"); await lobby.setPartner(k); back(); },
+    });
+  }
+  const soon = { gacha: ["Vœux", "Le gacha de Pokémon arrive bientôt."], coop: ["Coop", "Inviter des amis et partir en expédition à plusieurs : bientôt."] }[id];
+  scr.message({ title: soon ? soon[0] : "Bientôt", lines: [soon ? soon[1] : ""], btn: "Retour", onOk: back });
+}
+
 function hub() {
   const prog = store.get("prog", { unlocked: 1, best: 0 });
   scr.hub({
     hasRun: !!store.get("run", null), best: prog.best,
     onNew: () => pickZone(),
-    onResume: () => act(store.get("run")),
-    onQuick: () => quick(),
+    onResume: () => { lobby.leave(); act(store.get("run")); },
+    onBack: back,
   });
 }
 
@@ -56,7 +83,7 @@ async function quick() {
     enemies: [{ k: boss, L: +q.get("flv") || lv + (BL[SPECIES[boss].tier] || 0), boss: true }],
     pool: [], bossHp: +q.get("hp") || 12, bossPow: +q.get("pow") || 0.7,
   });
-  scr.message({ title: res.win ? "Victoire !" : "K.O.", onOk: hub });
+  scr.message({ title: res.win ? "Victoire !" : "K.O.", btn: "Retour au hall", onOk: () => toLobby("keep") });
 }
 
 // ───────── préparation ─────────
@@ -70,6 +97,7 @@ function pickTroupe(zone, diff) {
     onBack: pickZone,
     onStart: (troupe) => {
       store.set("lastTroupe", troupe);
+      lobby.leave();
       const state = R.createRun({ zone, diff, troupe, seed: (Math.random() * 2 ** 31) | 0 });
       act(state);
     },
@@ -129,7 +157,7 @@ function endRun(state) {
   scr.message({
     title: state.won ? "Expédition réussie !" : "Fin de l'expédition",
     lines: [`Combats gagnés : ${state.cleared}`, `Bénédictions : ${state.boons.length}`, state.won && isFinite(state.nActs) ? "Zone suivante débloquée." : ""],
-    btn: "Accueil", onOk: hub,
+    btn: "Retour au hall", onOk: () => toLobby("stage"),
   });
 }
 const confirmQuit = () => window.confirm("Abandonner l'expédition en cours ?");
@@ -144,12 +172,20 @@ async function start() {
   stage.shot("wide", { snap: true });
   scr = new Screens(document.getElementById("screens"));
   hudRoot().style.display = "none";
-  window.__game = { stage, scr, R };
+  // hall : modèle, dresseur, partenaire
+  const bar = document.querySelector("#loading .bar i");
+  lobby = new Lobby(stage, { onAction: lobbyAction });
+  await lobby.load((p) => { if (bar) bar.style.width = Math.round(p * 80) + "%"; });
+  await lobby.setSkin(store.get("skin", SKINS[0]));
+  const partner = [store.get("partner", null), store.get("lastTeam", [])[0], "MUDKIP"].find((k) => k && SPECIES[k] && has(k));
+  await lobby.setPartner(partner);
+  if (bar) bar.style.width = "100%";
+  window.__game = { stage, scr, R, lobby };
   msg.textContent = "CLIC OU TOUCHE POUR COMMENCER";
   await new Promise((r) => { const go = () => { removeEventListener("pointerdown", go); removeEventListener("keydown", go); r(); }; addEventListener("pointerdown", go); addEventListener("keydown", go); if (q.has("autostart")) r(); });
   Sfx.unlock();
   document.getElementById("loading").classList.add("out");
   if (q.has("quick")) return quick();
-  hub();
+  toLobby("door");
 }
 start().catch((e) => { console.error(e); const m = document.querySelector("#loading small"); if (m) m.textContent = "Erreur : " + e.message; });

@@ -288,6 +288,7 @@ export class Stage {
     const now = performance.now();
     const real = Math.min(this.maxDt || 50, now - this.last); this.last = now;
     Clock.step(real);
+    if (this.override) { this.override(real, now); return; } // lobby : rendu délégué
     const frozen = now < Clock.freezeUntil;
     const dt = frozen ? 0 : real * Clock.scale;
     const t = now;
