@@ -244,38 +244,42 @@ export class Hud {
     this.root.appendChild(el); setTimeout(() => el.remove(), 950);
   }
 
-  // ───────── frappe rythmée ─────────
-  timing(getPos, { kind = "atk", color, D = 720 } = {}) {
+  // ───────── frappe rythmée : jauge ─────────
+  // Un curseur traverse la jauge : zone verte (petite) = excellent, jaune = bien, rouge = rien.
+  // Résout 2 (excellent), 1 (bien) ou 0.
+  timing(getPos, { kind = "atk", D = 720 } = {}) {
     return new Promise((res) => {
-      const ring = h("div", { class: "ring" }), core = h("div", { class: "core" });
-      const lbl = h("div", { class: "lbl" }, kind === "atk" ? "ESPACE : FRAPPE" : "ESPACE : PARADE");
-      const el = h("div", { class: "qte " + kind, style: { "--c": color || "#ffd36a" } }, ring, core, lbl);
+      const dur = Math.max(900, D * 1.35);
+      const c = 0.42 + Math.random() * 0.4;           // centre des zones
+      const gw = 0.22, bw = 0.07;                       // largeurs : jaune, verte
+      const cur = h("div", { class: "cur" });
+      const track = h("div", { class: "track" },
+        h("div", { class: "good", style: { left: (c - gw / 2) * 100 + "%", width: gw * 100 + "%" } }),
+        h("div", { class: "best", style: { left: (c - bw / 2) * 100 + "%", width: bw * 100 + "%" } }),
+        cur);
+      const el = h("div", { class: "gauge " + kind },
+        h("div", { class: "lbl" }, h("span", null, kind === "atk" ? "FRAPPE" : "PARADE"), h("small", null, "ESPACE OU CLIC")), track);
       this.root.appendChild(el);
       const t0 = performance.now();
-      let done = false;
-      const follow = () => { const s = this.stage.toScreen(getPos()); el.style.transform = `translate(${s.x}px, ${s.y}px)`; };
-      follow();
+      let done = false, x = 0;
       const tick = () => {
         if (done) return;
-        const t = (performance.now() - t0) / D;
-        const sc = Math.max(0, 3.2 - 2.2 * t);
-        ring.style.width = ring.style.height = 70 * sc + "px";
-        ring.style.opacity = Math.min(1, t * 3);
-        follow();
-        if (t > 1.25) finish(0); else requestAnimationFrame(tick);
+        x = (performance.now() - t0) / dur;
+        cur.style.left = Math.min(1, x) * 100 + "%";
+        if (x >= 1.02) finish(0); else requestAnimationFrame(tick);
       };
       const finish = (q) => {
         if (done) return; done = true;
         removeEventListener("keydown", onKey, true); removeEventListener("pointerdown", onTap, true);
-        el.remove(); this.qte = null;
-        this.stamp(getPos(), q === 2 ? (kind === "atk" ? "PARFAIT !" : "PARADE !") : q === 1 ? "BIEN" : "RATÉ", q === 2 ? "" : q === 1 ? "good" : "miss");
+        setTimeout(() => el.remove(), 180);
+        this.stamp(getPos(), q === 2 ? (kind === "atk" ? "EXCELLENT !" : "PARADE !") : q === 1 ? "BIEN" : "RATÉ", q === 2 ? "" : q === 1 ? "good" : "miss");
         res(q);
       };
-      const judge = () => { const e = Math.abs((performance.now() - t0) / D - 1); finish(e < 0.09 ? 2 : e < 0.22 ? 1 : 0); };
+      const judge = () => { const d = Math.abs(x - c); finish(d <= bw / 2 ? 2 : d <= gw / 2 ? 1 : 0); };
       const onKey = (e) => { if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); e.stopPropagation(); judge(); } };
       const onTap = (e) => { if (e.button === 0) { e.stopPropagation(); judge(); } };
       addEventListener("keydown", onKey, true); addEventListener("pointerdown", onTap, true);
-      this.qte = { follow };
+      this.qte = null;
       requestAnimationFrame(tick);
     });
   }

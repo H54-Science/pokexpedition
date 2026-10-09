@@ -55,7 +55,7 @@ export class Director {
   buildTopbar() {
     const s = this.settings;
     this.hud.buttons([
-      { id: "qte", label: "Frappes rythmées", on: s.qte, onclick: () => this.toggle("qte"), title: "Anneau à valider au bon moment : +30 % de dégâts ou −55 % subis" },
+      { id: "qte", label: "Frappes rythmées", on: s.qte, onclick: () => this.toggle("qte"), title: "Jauge : zone verte = excellent (+30 % de dégâts ou −55 % subis), jaune = bien" },
       { id: "speed", label: "×" + s.speed, on: s.speed > 1, key: "X", onclick: () => this.toggle("speed") },
       { id: "auto", label: "Auto", on: s.auto, key: "A", onclick: () => this.toggle("auto") },
     ]);

@@ -102,14 +102,16 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ───────── commandes (bas droite) ───────── */
-.cmdzone { position: absolute; right: 26px; bottom: 22px; width: 330px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; transition: transform .26s cubic-bezier(.2, .9, .3, 1.1), opacity .2s; }
+.cmdzone { position: absolute; left: 54%; bottom: 13vh; width: 330px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; transition: transform .26s cubic-bezier(.2, .9, .3, 1.1), opacity .2s; }
 .cmdzone.off { transform: translateX(120%); opacity: 0; }
-.cmds { width: 100%; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; transition: transform .26s cubic-bezier(.2, .9, .3, 1.1), opacity .2s; }
+.cmds { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; transition: transform .26s cubic-bezier(.2, .9, .3, 1.1), opacity .2s; }
 .cmdzone.mv .cmds { transform: translateX(120%); opacity: 0; pointer-events: none; position: absolute; }
 .cmd { --c1: #555; --c2: #333; pointer-events: auto; position: relative; width: 100%; height: 50px; display: flex; align-items: center; padding: 0 14px 0 0; border-radius: 7px; transform: skewX(var(--sk)); background: linear-gradient(100deg, var(--c1), var(--c2)); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .3), inset 0 -3px 0 rgba(0, 0, 0, .25), 0 4px 0 rgba(0, 0, 0, .35), 0 8px 18px rgba(0, 0, 0, .45); overflow: hidden; transition: transform .12s, filter .12s; }
-.cmd:nth-child(1) { width: 82%; }
-.cmd:nth-child(2) { width: 88%; }
-.cmd:nth-child(3) { width: 94%; }
+.cmd { width: 290px; margin-left: var(--x, 0); }
+.cmd:nth-child(1) { --x: 0px; }
+.cmd:nth-child(2) { --x: 34px; }
+.cmd:nth-child(3) { --x: 68px; }
+.cmd:nth-child(4) { --x: 102px; }
 .cmd > * { transform: skewX(calc(var(--sk) * -1)); position: relative; }
 .cmd:hover:not(.off) { transform: skewX(var(--sk)) translateX(-6px); filter: brightness(1.12); }
 .cmd:active:not(.off) { transform: skewX(var(--sk)) translateY(2px) scale(.98); }
@@ -127,7 +129,7 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 .cmds.enter .cmd .shine { animation: shine .7s .3s ease-out; }
 @keyframes cmdin { from { opacity: 0; transform: skewX(var(--sk)) translateX(80px); } }
 @keyframes shine { from { left: -40%; } to { left: 130%; } }
-.cmd.atk { --c1: #ff6a4a; --c2: #b81c2c; height: 58px; }
+.cmd.atk { --c1: #ff6a4a; --c2: #b81c2c; height: 58px; width: 310px; }
 .cmd.atk b { font-size: 25px; }
 .cmd.moves { --c1: #4a9aff; --c2: #2238a8; }
 .cmd.items { --c1: #ffc83a; --c2: #c8640e; }
@@ -144,7 +146,8 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 @keyframes rainbow { to { background-position: 300% 0; } }
 
 /* capacités : liste */
-.mvpanel { width: 400px; display: none; flex-direction: column; gap: 8px; }
+.mvpanel { width: 420px; display: none; flex-direction: column; gap: 10px; }
+.mvpanel .mcard:nth-child(2) { margin-left: 30px; } .mvpanel .mcard:nth-child(3) { margin-left: 60px; }
 .cmdzone.mv .mvpanel { display: flex; }
 .mcard { --c: #999; pointer-events: auto; position: relative; display: flex; align-items: center; gap: 10px; min-height: 70px; padding: 6px 12px 6px 16px; text-align: left; border-radius: 9px; transform: skewX(-8deg); background: linear-gradient(100deg, color-mix(in srgb, var(--c) 92%, #fff) 0%, color-mix(in srgb, var(--c) 60%, #140a1c) 36%, rgba(20, 12, 28, .97) 100%); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .25), inset 0 0 0 1px rgba(255, 255, 255, .12), 0 4px 0 rgba(0, 0, 0, .35), 0 8px 18px rgba(0, 0, 0, .45); animation: mcin .3s cubic-bezier(.2, .9, .3, 1.1) backwards; transition: transform .12s, filter .12s; }
 .mcard:nth-child(2) { animation-delay: .04s; } .mcard:nth-child(3) { animation-delay: .08s; }
@@ -165,7 +168,7 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 .mvback { pointer-events: auto; align-self: flex-end; padding: 7px 18px; transform: skewX(var(--sk)); border-radius: 4px; background: rgba(18, 10, 24, .9); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18); font: 700 13px var(--px); color: #d8cce0; }
 
 /* énergie */
-.ebar { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 14px; transform: skewX(var(--sk)); border-radius: 4px; background: linear-gradient(90deg, rgba(8, 14, 32, .45), rgba(8, 14, 32, .92)); box-shadow: inset 0 0 0 1px rgba(140, 200, 255, .16); }
+.ebar { margin-left: 150px; display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 14px; transform: skewX(var(--sk)); border-radius: 4px; background: linear-gradient(90deg, rgba(8, 14, 32, .45), rgba(8, 14, 32, .92)); box-shadow: inset 0 0 0 1px rgba(140, 200, 255, .16); }
 .ebar > * { transform: skewX(calc(var(--sk) * -1)); }
 .eb-lbl { display: flex; flex-direction: column; line-height: 1; align-items: flex-start; }
 .eb-lbl b { font: 900 22px var(--sans); color: #fff; text-shadow: 0 0 10px #6ad0ff; }
@@ -224,13 +227,15 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 #hud.cine .timeline, #hud.cine .party, #hud.cine .cmdzone, #hud.cine .topbar, #hud.cine .bossbar, #hud.cine .banner { opacity: 0; transition: opacity .2s; }
 #hud .timeline, #hud .party, #hud .topbar, #hud .bossbar { transition: opacity .3s; }
 
-/* ───────── frappe rythmée ───────── */
-.qte { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 8; }
-.qte .ring, .qte .core { position: absolute; left: 50%; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
-.qte .core { width: 70px; height: 70px; border: 3px solid rgba(255, 255, 255, .95); box-shadow: 0 0 16px rgba(255, 255, 255, .5), inset 0 0 12px rgba(255, 255, 255, .35); }
-.qte .ring { width: 70px; height: 70px; border: 5px solid var(--c, var(--gold)); box-shadow: 0 0 18px var(--c, var(--gold)); }
-.qte.def .core { border-color: #8ad8ff; }
-.qte .lbl { position: absolute; left: 50%; top: 56px; transform: translateX(-50%); font: 700 13px var(--px); letter-spacing: 2px; white-space: nowrap; color: #fff; text-shadow: 0 2px 0 #000; }
+/* ───────── frappe rythmée : jauge ───────── */
+.gauge { position: absolute; left: 50%; bottom: 34vh; width: 460px; transform: translateX(-50%); z-index: 8; animation: fadeIn .15s; }
+.gauge .lbl { display: flex; justify-content: space-between; margin: 0 10px 6px; font: 700 13px var(--px); letter-spacing: 2px; color: #fff; text-shadow: 0 2px 0 #000; }
+.gauge .lbl small { font: 700 11px var(--px); color: var(--mute); }
+.gauge .track { position: relative; height: 26px; transform: skewX(var(--sk)); border-radius: 4px; background: linear-gradient(180deg, #ff6a5a, #b8202c); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .85), 0 4px 0 rgba(0, 0, 0, .4), 0 0 24px rgba(0, 0, 0, .5); overflow: hidden; }
+.gauge .good { position: absolute; top: 0; bottom: 0; background: linear-gradient(180deg, #fff2a0, #ffcc2a); }
+.gauge .best { position: absolute; top: 0; bottom: 0; background: linear-gradient(180deg, #c8ffb0, #3ad05a); box-shadow: 0 0 12px #6aff8a; }
+.gauge .cur { position: absolute; top: -6px; bottom: -6px; width: 6px; margin-left: -3px; background: #fff; box-shadow: 0 0 10px #fff, 0 0 0 2px #1a1018; border-radius: 2px; }
+.gauge.def .track { box-shadow: inset 0 0 0 2px #8ad8ff, 0 4px 0 rgba(0, 0, 0, .4), 0 0 24px rgba(0, 0, 0, .5); }
 .stamp { position: absolute; transform: translate(-50%, -50%); font: 700 36px var(--px); font-style: italic; letter-spacing: 2px; color: var(--gold); text-shadow: 0 3px 0 rgba(0, 0, 0, .6); animation: stamp .9s ease-out forwards; z-index: 8; }
 .stamp.good { color: #bfe8ff; font-size: 28px; }
 .stamp.miss { color: #c8c8d8; font-size: 22px; }
@@ -254,6 +259,6 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 /* écrans plus étroits */
 @media (max-width: 1400px) {
   .card { width: 230px; } .card.now { width: 256px; }
-  .cmdzone { width: 290px; } .mvpanel { width: 360px; }
+  .cmdzone { left: 50%; } .cmd { width: 250px; } .cmd.atk { width: 270px; } .mvpanel { width: 380px; }
   .cmd b { font-size: 19px; } .cmd.atk b { font-size: 22px; }
 }

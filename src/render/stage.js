@@ -224,14 +224,23 @@ export class Stage {
     else if (name === "intro") { pos = V(-8, 7.5, 15); look = V(0, 1.2, -2.5); fov = 36; }
     else if (name === "victory") { pos = V(4.5, 2.4, 8.2); look = V(0, 1.2, 2.6); fov = 38; }
     else if (name === "shoulder") {
-      // derrière l'allié actif, légèrement décalé, regard vers la cible
-      // derrière l'allié actif, décalé vers l'extérieur et en hauteur pour passer au-dessus des voisins
+      // Tour d'un allié, selon sa place dans la rangée :
+      //  · au centre : vue de dos, le boss en face ;
+      //  · sur les côtés : contre-plongée, l'allié à gauche de l'image et le boss immense.
       const a = this.units.get(o.id), t = o.target ? this.units.get(o.target) : null;
       const ap = a.home.clone(), tp = t ? t.home.clone() : V(0, 0, -3);
-      const H = a.P.height, sgn = ap.x >= 0 ? 1 : -1;
-      pos = V(ap.x * 0.6 + sgn * (1.35 + H * 0.4), 1.2 + H * 0.6, ap.z + 1.7 + H * 0.85);
-      look = ap.clone().lerp(tp, 0.62).add(V(0, 0.55 + (t ? t.P.height * 0.42 : 0.5), 0));
-      fov = 50;
+      const H = a.P.height, TH = t ? t.P.height : 2;
+      const dir = tp.clone().sub(ap).setY(0).normalize();
+      const right = V(-dir.z, 0, dir.x);
+      if (Math.abs(ap.x) < 0.6) {
+        pos = ap.clone().addScaledVector(dir, -(1.9 + H * 0.9)).add(V(0, 1.0 + H * 0.55, 0));
+        look = tp.clone().add(V(0, TH * 0.5, 0));
+        fov = 48;
+      } else {
+        pos = ap.clone().addScaledVector(dir, -(1.2 + H * 0.5)).addScaledVector(right, 1.05 + H * 0.45).add(V(0, 0.32 + H * 0.12, 0));
+        look = tp.clone().add(V(0, TH * 0.62, 0)).addScaledVector(right, -0.4);
+        fov = 58;
+      }
     } else if (name === "enemy") {
       // tour ennemi : vue depuis le camp allié vers l'ennemi actif
       const e = this.units.get(o.id);

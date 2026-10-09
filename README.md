@@ -13,7 +13,7 @@ Le niveau du boss dépend de sa rareté (légendaire −4, rare −3, peu commun
 | U | Ultime de l'allié actif |
 | 1 à 3 (menu fermé) ou clic sur une carte | Ultime de cet allié (jauge pleine, ne coûte pas le tour) |
 | Échap | Fermer le menu des capacités |
-| Espace ou clic | Frappe rythmée : PARFAIT = +30 % de dégâts, PARADE = −55 % subis |
+| Espace ou clic | Frappe rythmée : arrêter le curseur de la jauge. Vert = excellent (+30 % de dégâts ou −55 % subis), jaune = bien, rouge = rien |
 | A / X | Auto / vitesse ×2 |
 
 Paramètres d'URL :
