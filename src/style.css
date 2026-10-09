@@ -336,3 +336,19 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 .s-skin { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 8px; cursor: pointer; background: rgba(255, 255, 255, .06); border: 2px solid transparent; color: var(--ink); font: 11px var(--sans); }
 .s-skin img { width: 48px; height: 96px; image-rendering: pixelated; }
 .s-skin.on, .s-skin:hover { border-color: var(--gold); background: rgba(255, 211, 106, .12); }
+
+/* ───────── boucle de progression ───────── */
+.lb-res { margin-top: 8px; font: 600 13px var(--sans); color: var(--ink); text-shadow: 0 1px 2px #000; }
+.lb-res b { color: var(--gold); }
+.m-res { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--mute); }
+.m-res b { color: var(--gold); }
+.m-mat { margin-right: 6px; }
+.m-num { width: 70px; padding: 4px 6px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, .25); background: rgba(0, 0, 0, .3); color: var(--ink); font: inherit; }
+.m-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+.m-table th { text-align: left; color: var(--mute); font-weight: 600; padding: 4px 6px; }
+.m-table td { padding: 5px 6px; border-top: 1px solid rgba(255, 255, 255, .08); vertical-align: middle; }
+.m-table tr.m-team td { background: rgba(255, 211, 106, .08); }
+.m-acts { display: flex; flex-wrap: wrap; gap: 4px; }
+.m-star, .m-sh { color: var(--gold); white-space: nowrap; }
+.m-msg { color: var(--gold); font-weight: 700; }
+.s-card.m-shiny { box-shadow: 0 0 0 2px var(--gold), 0 0 24px rgba(255, 211, 106, .5); }

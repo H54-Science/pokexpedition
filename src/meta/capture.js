@@ -2,7 +2,7 @@
 // le reste devient fragments de set (et éclats chroma pour les chromatiques non gardés).
 import { CONFIG } from "./config.js";
 import { SET, withRng, seedFrom, owns, isNewFor, addCopy, levelCap, log } from "./state.js";
-import { simulate, alliesOf } from "./battle.js";
+import { simulate, alliesOf, combatConfig } from "./battle.js";
 
 const C = () => CONFIG.capture;
 
@@ -54,14 +54,28 @@ export function startRun(save, { set, level }) {
   return save.run;
 }
 
-// Combat suivant. Renvoie { win, foe, captured, legend? }.
-export function fightNext(save) {
+// Prépare le combat suivant du run (pour la scène 3D) : configuration du moteur.
+export function nextFightConfig(save) {
   const run = save.run;
   if (!run || run.phase !== "fight") throw new Error("Pas de combat en attente.");
   const f = run.foes[run.i];
   const foe = { k: f.k, L: run.level, hp: C().foeHp[f.role], pow: C().foePow[f.role] };
   const seed = withRng(save, (r) => seedFrom(r));
-  const { win } = simulate({ seed, allies: alliesOf(save), foe });
+  return combatConfig({ seed, allies: alliesOf(save), foe });
+}
+
+// Combat suivant en simulation. Renvoie { win, foe, captured, legend? }.
+export function fightNext(save) {
+  const cfg = nextFightConfig(save);
+  const { win } = simulate({ seed: cfg.seed, allies: cfg.allies, foe: { k: cfg.enemies[0].k, L: cfg.enemies[0].L, hp: cfg.bossHp, pow: cfg.bossPow } });
+  return resolveFight(save, win);
+}
+
+// Applique le résultat du combat en cours (simulé ou joué en 3D).
+export function resolveFight(save, win) {
+  const run = save.run;
+  if (!run || run.phase !== "fight") throw new Error("Pas de combat en attente.");
+  const f = run.foes[run.i];
   const out = { win, foe: f.k, role: f.role, captured: false };
   if (win) {
     if (f.role !== "legend") { run.captures.push({ k: f.k, shiny: f.shiny, role: f.role }); out.captured = true; }

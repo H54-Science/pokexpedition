@@ -11,9 +11,14 @@ export function alliesOf(save, team = save.team) {
   });
 }
 
+// Configuration du moteur (même format que la scène 3D / Director).
+export function combatConfig({ seed, allies, foe, mods = [] }) {
+  return { seed, allies, enemies: [{ k: foe.k, L: foe.L, boss: true }], pool: [], bossHp: foe.hp, bossPow: foe.pow, mods };
+}
+
 // foe : { k, L, hp, pow } ; renvoie { win, turns }
 export function simulate({ seed, allies, foe, mods = [], q = CONFIG.simQuality }) {
-  const b = new Combat({ seed, allies, enemies: [{ k: foe.k, L: foe.L, boss: true }], pool: [], bossHp: foe.hp, bossPow: foe.pow, mods });
+  const b = new Combat(combatConfig({ seed, allies, foe, mods }));
   b.begin();
   let g = 0;
   while (!b.over && g++ < 600) {

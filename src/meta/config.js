@@ -4,7 +4,7 @@ export const CONFIG = {
   save: { key: "pokeimpact.meta", version: 1 },
 
   // Départ : 3 Pokémon faibles (pris dans des sets différents pour avoir leurs fragments), quelques vœux.
-  start: { voeux: 20, starters: ["MUDKIP", "LITWICK", "TRAPINCH"], level: 8 },
+  start: { voeux: 20, starters: ["MUDKIP", "LITWICK", "TRAPINCH"], level: 20 },
 
   // ───── expéditions (source de vœux et de matériaux) ─────
   expedition: {

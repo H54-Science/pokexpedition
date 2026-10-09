@@ -32,12 +32,12 @@ export function groundAt(x, z) {
 
 // Stations : position au sol, rayon d'activation, couleur.
 export const STATIONS = [
-  { id: "expedition", label: "Expéditions", sub: "Monter sur scène", pos: [0, 21.6], r: 2.2, color: "#ffcf6a" },
-  { id: "gacha", label: "Vœux", sub: "Bientôt", pos: [0, -6.5], r: 1.5, color: "#c58bff" },
+  { id: "expedition", label: "Expéditions", sub: "Vœux et matériaux", pos: [0, 21.6], r: 2.2, color: "#ffcf6a" },
+  { id: "capture", label: "Vœux", sub: "Run de capture", pos: [0, -6.5], r: 1.5, color: "#c58bff" },
   { id: "wardrobe", label: "Garde-robe", sub: "Tenue du dresseur", pos: [-8, 2.5], r: 1.5, color: "#7fe0ff" },
-  { id: "partner", label: "Partenaire", sub: "Pokémon qui te suit", pos: [-8, 13.5], r: 1.5, color: "#8dff9a" },
+  { id: "collection", label: "Collection", sub: "Équipe, élévation", pos: [-8, 13.5], r: 1.5, color: "#8dff9a" },
   { id: "coop", label: "Coop", sub: "Bientôt", pos: [8, 2.5], r: 1.5, color: "#ff8fb3" },
-  { id: "training", label: "Entraînement", sub: "Combat rapide", pos: [8, 13.5], r: 1.5, color: "#ff9a5a" },
+  { id: "training", label: "Entraînement", sub: "Monter de niveau", pos: [8, 13.5], r: 1.5, color: "#ff9a5a" },
 ];
 
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
