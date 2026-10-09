@@ -1,0 +1,6 @@
+{
+  // Site statique servi par Cloudflare (Workers Static Assets)
+  "name": "pokeimpact",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "." }
+}

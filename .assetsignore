@@ -1,0 +1,8 @@
+.git
+.gitignore
+.gitattributes
+.assetsignore
+wrangler.jsonc
+tools
+README.md
+**/__pycache__

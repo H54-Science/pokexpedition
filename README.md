@@ -6,7 +6,7 @@ Jeu 3D (navigateur PC + PWA mobile) en three.js. Le combat est inspiré de Honka
 - `models/` : 82 espèces de Récolte en `.glb` compressé (meshopt + WebP), 11 Mo au total
   - `models/index.json` : animations disponibles, taille, chromatique oui/non
   - `models/shiny/<espece>.webp` : texture chromatique, à appliquer sur le même maillage
-- `viewer.html` : visualiseur (choix de l'espèce, de l'animation, chromatique)
+- `index.html` : visualiseur (choix de l'espèce, de l'animation, chromatique)
 - `tools/` : chaîne de conversion
 
 ## Regénérer ou ajouter des modèles
@@ -31,7 +31,7 @@ Le repère source est celui de Blender (Z en haut) ; la racine est tournée de �
 
 ## Points connus
 - Images par seconde des animations : 24 supposé, pas vérifié.
-- L'échelle varie selon l'espèce : il faut normaliser par la hauteur (c'est ce que fait `viewer.html`).
+- L'échelle varie selon l'espèce : il faut normaliser par la hauteur (c'est ce que fait `index.html`).
 - La pose de liaison n'est pas jouable (Léviator est à l'horizontale, les lianes de Bulbizarre sont sorties) : toujours jouer une animation.
 - Kakuna n'a pas d'animation : il lui faudra un mouvement procédural.
 - Ogerpon n'a pas de modèle dans Pixelmon. Florges n'a pas de texture chromatique dans la forme utilisée (`red`).
