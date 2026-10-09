@@ -19,7 +19,7 @@ export async function loadIndex() {
 export function displayHeight(key, boss) {
   const h = (INDEX && INDEX[key] && INDEX[key].h) || 1;
   const v = Math.min(3.1, Math.max(0.85, 0.9 * Math.pow(h, 0.45) + 0.35));
-  return boss ? v * 1.55 : v;
+  return boss ? Math.min(5.2, v * 1.9) : v;
 }
 
 function loadGltf(key) {

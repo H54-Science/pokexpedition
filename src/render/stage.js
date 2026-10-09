@@ -220,7 +220,7 @@ export class Stage {
   // Plans prédéfinis. Les positions sont calculées à partir des unités.
   shot(name, o = {}) {
     const c = this.cam; let pos, look, fov = 42, k = o.k || 3.2;
-    if (name === "wide") { pos = V(0, 5.2, 11.5); look = V(0, 1.1, -0.6); fov = 40; }
+    if (name === "wide") { pos = V(0, 4.6, 10.5); look = V(0, 1.6, -1.2); fov = 42; }
     else if (name === "intro") { pos = V(-8, 7.5, 15); look = V(0, 1.2, -2.5); fov = 36; }
     else if (name === "victory") { pos = V(4.5, 2.4, 8.2); look = V(0, 1.2, 2.6); fov = 38; }
     else if (name === "shoulder") {
@@ -230,7 +230,7 @@ export class Stage {
       const ap = a.home.clone(), tp = t ? t.home.clone() : V(0, 0, -3);
       const H = a.P.height, sgn = ap.x >= 0 ? 1 : -1;
       pos = V(ap.x * 0.6 + sgn * (1.35 + H * 0.4), 1.2 + H * 0.6, ap.z + 1.7 + H * 0.85);
-      look = ap.clone().lerp(tp, 0.62).add(V(0, 0.55 + (t ? t.P.height * 0.3 : 0.5), 0));
+      look = ap.clone().lerp(tp, 0.62).add(V(0, 0.55 + (t ? t.P.height * 0.42 : 0.5), 0));
       fov = 50;
     } else if (name === "enemy") {
       // tour ennemi : vue depuis le camp allié vers l'ennemi actif

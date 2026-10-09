@@ -1,43 +1,49 @@
-// Interface de combat en HTML par-dessus la scène 3D.
+// Interface de combat « raid » (3 alliés contre 1 boss), en HTML par-dessus la scène 3D.
+// Barre du boss en haut, frise à gauche, équipe en bas à gauche, pile de commandes en bas à droite.
 import { h, clamp } from "../core.js";
 import { SPECIES, TYPE_COLOR, STATUS, describe, fr } from "../data/data.js";
 import { MAX_EN, SLOT_NAME } from "../data/moves.js";
 
 const AURA_G = { Feu: "♨", Eau: "≈", Plante: "❦", Électrik: "ϟ", Glace: "❄" };
-const KEYS_MV = ["Q", "W", "E", "R"];
+const SVG = (d) => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); const p = document.createElementNS("http://www.w3.org/2000/svg", "path"); p.setAttribute("d", d); s.appendChild(p); return s; };
+const ICON = {
+  atk: "M21 3l-1.2 4.8-9.3 9.3-3.6-3.6 9.3-9.3zM4.6 12.6l6.8 6.8-1.6 1.6-2.2-2.2L4.3 22 2 19.7l3.2-3.3L3 14.2z",
+  moves: "M12 1.5l2.8 7.7 7.7 2.8-7.7 2.8L12 22.5l-2.8-7.7L1.5 12l7.7-2.8z",
+  items: "M8 7V6a4 4 0 0 1 8 0v1h3.5l1 14.5h-17L4.5 7zm2 0h4V6a2 2 0 0 0-4 0zM9 12h6v2H9z",
+  ult: "M12 1l2.3 6.2L20.5 4l-3.2 5.9L23 12l-5.7 2.1 3.2 5.9-6.2-3.2L12 23l-2.3-6.2-6.2 3.2 3.2-5.9L1 12l5.7-2.1L3.5 4l6.2 3.2z",
+};
+const SEG_HUE = [190, 205, 222, 250, 275]; // cyan → bleu → violet
 
 export class Hud {
   constructor(root, stage) {
     this.root = root; this.stage = stage;
-    this.disp = {};      // état affiché par unité (suit les événements, pas le moteur)
-    this.pics = {};      // portraits
-    this.plates = {}; this.cards = {};
+    this.disp = {}; this.pics = {}; this.cards = {}; this.boss = null;
     this.pts = 3;
     root.innerHTML = "";
     root.classList.add("letterbox");
+    this.fxl = h("div", { class: "fx" });
     this.tl = h("div", { class: "timeline" });
-    this.title = h("div", { class: "title" });
     this.top = h("div", { class: "topbar" });
+    this.bossEl = h("div", { class: "bossbar" });
     this.party = h("div", { class: "party" });
-    this.energy = h("div", { class: "energy" });
-    this.moves = h("div", { class: "moves" });
-    this.hint = h("div", { class: "hint" });
-    this.actions = h("div", { class: "actions off" }, this.hint, this.energy, this.moves);
-    this.layer = h("div", { style: { position: "absolute", inset: "0" } });
+    this.cmds = h("div", { class: "cmds" });
+    this.mvpanel = h("div", { class: "mvpanel" });
+    this.ebar = h("div", { class: "ebar" });
+    this.cmdzone = h("div", { class: "cmdzone off" }, this.cmds, this.mvpanel, this.ebar);
     this.flashEl = h("div", { class: "flash" });
-    root.append(this.layer, this.tl, this.title, this.top, this.party, this.actions, this.flashEl);
+    root.append(this.fxl, this.tl, this.bossEl, this.top, this.party, this.cmdzone, this.flashEl);
+    this.setPts(3);
   }
 
   setPortraits(p) { this.pics = p; }
   pic(k) { return this.pics[k] || ""; }
-  setTitle(t) { this.title.textContent = t; }
+  setTitle() {}
 
-  // ───────── barre du haut ─────────
+  // ───────── outils (haut droite) ─────────
   buttons(list) {
-    this.top.innerHTML = "";
-    this.btn = {};
+    this.top.innerHTML = ""; this.btn = {};
     for (const b of list) {
-      const el = h("button", { class: "tbtn" + (b.on ? " on" : ""), onclick: b.onclick, title: b.title || "" }, b.label, b.key ? h("kbd", null, b.key) : null);
+      const el = h("button", { class: "tbtn" + (b.on ? " on" : ""), onclick: b.onclick, title: b.title || "" }, h("span", null, b.label), b.key ? h("kbd", null, b.key) : null);
       this.btn[b.id] = el; this.top.appendChild(el);
     }
   }
@@ -46,137 +52,180 @@ export class Hud {
   // ───────── unités ─────────
   addUnit(u) {
     this.disp[u.id] = { id: u.id, k: u.k, L: u.L, side: u.side, boss: u.boss, hp: u.hp, maxHp: u.maxHp, shield: u.shield, charge: u.charge, alive: true, aura: null, st: [] };
+    const sp = SPECIES[u.k];
     if (u.side === "enemy") {
-      const el = h("div", { class: "plate" + (u.boss ? " boss" : "") },
-        h("div", { class: "nm" }, h("span", null, fr(u.k)), h("small", null, (u.boss ? "Gardien · " : u.elite ? "Élite · " : "") + "N." + u.L)),
-        h("div", { class: "hpbar" }, h("s"), h("b"), h("u")),
-        h("div", { class: "tags" }));
-      this.layer.appendChild(el); this.plates[u.id] = el;
+      this.boss = u.id;
+      this.bossEl.innerHTML = "";
+      this.bossEl.append(
+        h("div", { class: "row" },
+          h("span", { class: "nm" }, fr(u.k)),
+          h("span", { class: "lv" }, "N." + u.L),
+          h("span", { class: "types" }, ...sp.t.map((t) => h("span", { class: "tchip", style: { "--c": TYPE_COLOR[t] } }, t))),
+          h("span", { class: "tags" })),
+        h("div", { class: "bhp" }, h("s"), h("b"), h("u"), u.boss ? h("i", { title: "Rage sous 50 %" }) : null),
+        h("div", { class: "num" }),
+        h("div", { class: "intentwrap" }));
     } else {
       const i = Object.keys(this.cards).length;
-      const sp = SPECIES[u.k];
       const el = h("div", { class: "card", style: { "--c": TYPE_COLOR[sp.t[0]] }, onclick: () => this.onCard && this.onCard(u.id) },
-        h("div", { class: "pt" }, h("span", { style: { backgroundImage: `url(${this.pic(u.k)})` } })),
-        h("kbd", null, String(i + 1)),
-        h("div", { class: "nm" }, fr(u.k)),
-        h("div", { class: "lv" }, "N." + u.L + " · " + sp.t.join(" / ")),
-        h("div", { class: "hpbar" }, h("s"), h("b"), h("u")),
-        h("div", { class: "hpn" }),
-        h("div", { class: "tags" }));
+        h("div", { class: "pt" }, h("span", { style: { backgroundImage: `url(${this.pic(u.k)})` } }), h("em", null, String(u.L))),
+        h("div", { class: "info" },
+          h("div", { class: "top" }, h("span", { class: "nm" }, fr(u.k)), h("span", { class: "hpn" })),
+          h("div", { class: "hpbar" }, h("s"), h("b"), h("u")),
+          h("div", { class: "tags" })),
+        h("kbd", null, String(i + 1)));
       this.party.appendChild(el); this.cards[u.id] = el;
     }
     this.refreshUnit(u.id);
   }
-  removeUnit(id) { this.plates[id] && this.plates[id].remove(); delete this.plates[id]; }
-  // Applique un instantané d'unité reçu dans un événement.
+  removeUnit() {}
   apply(snap) {
     if (!snap) return;
     const d = this.disp[snap.id]; if (!d) return;
     Object.assign(d, snap);
     this.refreshUnit(snap.id);
   }
+  tagsOf(d) {
+    const out = [];
+    if (d.aura) out.push(h("span", { class: "tag", style: { color: TYPE_COLOR[d.aura] }, title: "Aura " + d.aura }, AURA_G[d.aura] || "•"));
+    for (const k of d.st || []) if (STATUS[k]) out.push(h("span", { class: "tag", style: { color: STATUS[k].color }, title: STATUS[k].name }, STATUS[k].icon));
+    return out;
+  }
   refreshUnit(id) {
     const d = this.disp[id]; if (!d) return;
-    const el = this.plates[id] || this.cards[id]; if (!el) return;
+    const p = clamp(d.hp / d.maxHp, 0, 1);
+    if (d.side === "enemy") {
+      const el = this.bossEl, bar = el.querySelector(".bhp"); if (!bar) return;
+      bar.querySelector("b").style.width = `calc(${p * 100}% - 6px)`;
+      bar.querySelector("s").style.width = `calc(${p * 100}% - 6px)`;
+      bar.querySelector("u").style.width = clamp(d.shield / d.maxHp, 0, 1) * 100 + "%";
+      bar.classList.toggle("mid", p <= 0.5 && p > 0.2); bar.classList.toggle("low", p <= 0.2);
+      el.querySelector(".num").textContent = `${Math.ceil(d.hp)} / ${d.maxHp}` + (d.shield ? `  (+${d.shield})` : "");
+      const tags = el.querySelector(".row .tags"); tags.innerHTML = ""; tags.append(...this.tagsOf(d));
+      return;
+    }
+    const el = this.cards[id]; if (!el) return;
     const bar = el.querySelector(".hpbar");
-    const p = clamp(d.hp / d.maxHp, 0, 1) * 100;
-    bar.querySelector("b").style.width = p + "%";
-    bar.querySelector("s").style.width = p + "%";
+    bar.querySelector("b").style.width = p * 100 + "%";
+    bar.querySelector("s").style.width = p * 100 + "%";
     bar.querySelector("u").style.width = clamp(d.shield / d.maxHp, 0, 1) * 100 + "%";
-    const tags = el.querySelector(".tags"); tags.innerHTML = "";
-    if (d.aura) tags.appendChild(h("span", { class: "tag", style: { color: TYPE_COLOR[d.aura] } }, AURA_G[d.aura] || "•"));
-    for (const k of d.st || []) if (STATUS[k]) tags.appendChild(h("span", { class: "tag", style: { color: STATUS[k].color }, title: STATUS[k].name }, STATUS[k].icon));
-    if (d.side === "enemy" && d.alive && this.intents && this.intents[id]) tags.appendChild(this.intents[id]);
-    if (d.side === "ally") {
-      el.querySelector(".hpn").textContent = `${Math.ceil(d.hp)} / ${d.maxHp}` + (d.shield ? ` +${d.shield}` : "");
-      el.style.setProperty("--ch", Math.floor(d.charge || 0));
-      el.classList.toggle("ready", d.alive && d.charge >= 100);
-      el.classList.toggle("ko", !d.alive);
-    }
-    if (!d.alive && this.plates[id]) this.plates[id].style.opacity = "0";
+    bar.classList.toggle("mid", p <= 0.5 && p > 0.2); bar.classList.toggle("low", p <= 0.2);
+    el.querySelector(".hpn").textContent = `${Math.ceil(d.hp)} / ${d.maxHp}` + (d.shield ? ` +${d.shield}` : "");
+    const tags = el.querySelector(".tags"); tags.innerHTML = ""; tags.append(...this.tagsOf(d));
+    el.style.setProperty("--ch", Math.floor(d.charge || 0));
+    el.classList.toggle("ready", d.alive && d.charge >= 100);
+    el.classList.toggle("ko", !d.alive);
+    if (this.cmdUnit === id) this.refreshUlt();
   }
+  // Intention du boss : capacité prévue et cible.
   setIntents(map) {
-    this.intents = {};
-    for (const id in map) {
-      const it = map[id]; if (!it) continue;
-      const tgt = it.tgt && this.disp[it.tgt];
-      this.intents[id] = h("span", { class: "intent", title: it.m.n + " (" + it.m.t + ")" },
-        tgt ? h("img", { src: this.pic(tgt.k) }) : null, (it.slot === "ult" ? "★ " : "") + it.m.n);
-    }
-    for (const id in this.plates) this.refreshUnit(id);
+    const wrap = this.bossEl.querySelector(".intentwrap"); if (!wrap) return;
+    wrap.innerHTML = "";
+    const it = map[this.boss]; if (!it) return;
+    const tgt = it.tgt && this.disp[it.tgt];
+    const tg = it.m.tg || "one";
+    wrap.appendChild(h("div", { class: "intent" + (it.slot === "ult" ? " ult" : "") },
+      tgt ? h("img", { src: this.pic(tgt.k) }) : null,
+      h("small", null, it.slot === "ult" ? "ULTIME EN PRÉPARATION" : "PRÉPARE"),
+      h("b", null, it.m.n + (tg === "all" ? " · toute l'équipe" : tgt ? " → " + fr(tgt.k) : ""))));
   }
-  setActive(id) {
-    for (const k in this.cards) this.cards[k].classList.toggle("now", k === id);
-  }
-  setTarget(id) {
-    for (const k in this.plates) this.plates[k].classList.toggle("target", k === id);
-  }
-  // Suit les ennemis à l'écran.
-  place() {
-    for (const id in this.plates) {
-      const el = this.plates[id], d = this.disp[id];
-      if (!d || !d.alive || !this.stage.units.get(id)) continue;
-      const s = this.stage.toScreen(this.stage.top(id));
-      el.style.transform = `translate(${Math.round(s.x - el.offsetWidth / 2)}px, ${Math.round(s.y - 58)}px)`;
-    }
-    if (this.qte) this.qte.follow();
-  }
+  setActive(id) { for (const k in this.cards) this.cards[k].classList.toggle("now", k === id); }
+  setTarget() {}
+  place() { if (this.qte) this.qte.follow(); }
 
   // ───────── frise ─────────
   timeline(ids, nowId) {
     this.tl.innerHTML = "";
-    ids.slice(0, 8).forEach((id, i) => {
+    ids.slice(0, 7).forEach((id, i) => {
       const d = this.disp[id]; if (!d) return;
-      this.tl.appendChild(h("div", { class: "tl " + d.side + (i === 0 && id === nowId ? " now" : ""), style: { backgroundImage: `url(${this.pic(d.k)})` }, title: fr(d.k) }, h("i", null, String(i))));
+      this.tl.appendChild(h("div", { class: "tl " + d.side + (i === 0 && id === nowId ? " now" : ""), title: fr(d.k) },
+        h("span", { style: { backgroundImage: `url(${this.pic(d.k)})`, backgroundSize: "cover", backgroundPosition: "center 30%" } }),
+        i ? h("i", null, String(i)) : null));
     });
   }
 
-  // ───────── énergie et actions ─────────
+  // ───────── énergie ─────────
   setPts(n, gain) {
     this.pts = n;
-    this.energy.innerHTML = "";
-    this.energy.appendChild(h("b", null, "ÉNERGIE"));
-    for (let i = 0; i < MAX_EN; i++) this.energy.appendChild(h("i", { class: i < n ? "on" : "" }));
-    if (gain) { this.energy.classList.remove("gain"); void this.energy.offsetWidth; this.energy.classList.add("gain"); }
+    this.ebar.innerHTML = "";
+    this.ebar.append(
+      h("div", { class: "eb-lbl" }, h("b", null, `${n}/${MAX_EN}`), h("small", null, "ÉNERGIE")),
+      h("div", { class: "eb-segs" }, ...Array.from({ length: MAX_EN }, (_, i) => h("i", { class: i < n ? "on" : "", style: { "--h": SEG_HUE[i] } }))));
+    if (gain) { this.ebar.classList.remove("gain"); void this.ebar.offsetWidth; this.ebar.classList.add("gain"); }
+    if (this.cmdUnit) this.refreshMovesBtn();
   }
-  deny() { this.energy.classList.remove("shake"); void this.energy.offsetWidth; this.energy.classList.add("shake"); }
-  showMoves(u, opts, onPick) {
-    this.moves.innerHTML = "";
-    opts.forEach((o, i) => {
-      const m = o.m, c = TYPE_COLOR[m.t];
-      const el = h("button", { class: "mv" + (i === 0 ? " basic" : "") + (o.ok ? "" : " no"), style: { "--c": c }, onclick: () => onPick(i) },
-        h("kbd", null, KEYS_MV[i]),
-        h("b", null, m.n),
-        h("small", null, (i === 0 ? "Attaque" : SLOT_NAME[o.slot]) + " · " + m.t),
-        h("div", { class: "cost" }, i === 0 ? h("em", null, "+1 énergie") : Array.from({ length: o.cost }, () => h("i"))),
-        h("div", { class: "tip" }, h("b", null, m.n), " — ", describe(m)));
-      this.moves.appendChild(el);
+  deny() { this.ebar.classList.remove("shake"); void this.ebar.offsetWidth; this.ebar.classList.add("shake"); }
+
+  // ───────── commandes ─────────
+  // h : { onPick(i), onUlt(), getOpts() }
+  showCommands(u, handlers) {
+    this.cmdUnit = u.id; this.handlers = handlers;
+    const opts = handlers.getOpts();
+    const basic = opts[0].m;
+    const cmd = (cls, icon, label, small, onclick, key) => h("button", { class: "cmd " + cls, onclick },
+      h("span", { class: "ci" }, SVG(ICON[icon])), h("b", null, label), h("small", null, ...small), key ? h("kbd", null, key) : null, h("span", { class: "shine" }));
+    this.ultBtn = cmd("ult", "ult", "ULTIME", [h("span", { class: "pct" }, "")], () => handlers.onUlt(), "U");
+    this.itemsBtn = cmd("items off", "items", "OBJETS", [h("span", null, "bientôt")], () => this.toast("Les objets arrivent avec les expéditions."));
+    this.movesBtn = cmd("moves", "moves", "CAPACITÉS", [h("span", { class: "cnt" }, "")], () => this.openMoves(), "E");
+    this.atkBtn = cmd("atk", "atk", "ATTAQUE", [h("span", null, basic.n), h("em", null, "+1 ⚡")], () => handlers.onPick(0), "Q");
+    this.cmds.innerHTML = "";
+    this.cmds.append(this.ultBtn, this.itemsBtn, this.movesBtn, this.atkBtn);
+    this.cmds.classList.remove("enter"); void this.cmds.offsetWidth; this.cmds.classList.add("enter");
+    this.closeMoves();
+    this.refreshUlt(); this.refreshMovesBtn();
+    this.cmdzone.classList.remove("off");
+  }
+  refreshUlt() {
+    if (!this.ultBtn || !this.cmdUnit) return;
+    const d = this.disp[this.cmdUnit]; const c = Math.floor(d.charge || 0);
+    this.ultBtn.style.setProperty("--p", Math.min(1, c / 100));
+    this.ultBtn.classList.toggle("ready", c >= 100);
+    this.ultBtn.querySelector(".pct").textContent = c >= 100 ? SPECIES[d.k].ult.n : c + " %";
+  }
+  refreshMovesBtn() {
+    if (!this.movesBtn || !this.handlers) return;
+    const opts = this.handlers.getOpts().slice(1);
+    this.movesBtn.querySelector(".cnt").textContent = `${opts.filter((o) => o.ok).length}/3 dispo.`;
+    if (this.cmdzone.classList.contains("mv")) this.renderMoves();
+  }
+  openMoves() { this.cmdzone.classList.add("mv"); this.renderMoves(); }
+  closeMoves() { this.cmdzone.classList.remove("mv"); }
+  movesOpen() { return this.cmdzone.classList.contains("mv"); }
+  renderMoves() {
+    const opts = this.handlers.getOpts();
+    this.mvpanel.innerHTML = "";
+    opts.slice(1).forEach((o, j) => {
+      const m = o.m, i = j + 1;
+      this.mvpanel.appendChild(h("button", { class: "mcard" + (o.ok ? "" : " off"), style: { "--c": TYPE_COLOR[m.t] }, onclick: () => this.handlers.onPick(i), title: describe(m) },
+        h("div", { class: "mc-txt" },
+          h("div", { class: "mc-h" }, h("span", { class: "mc-type" }, m.t), h("em", null, SLOT_NAME[o.slot])),
+          h("b", null, m.n),
+          h("small", null, describe(m))),
+        h("div", { class: "mc-cost" }, h("b", null, String(o.cost))),
+        h("kbd", null, String(i))));
     });
-    this.hint.textContent = "Clic ou ← → : changer de cible · 1-4 : ultimes";
-    this.actions.classList.remove("off");
+    this.mvpanel.appendChild(h("button", { class: "mvback", onclick: () => this.closeMoves() }, "← RETOUR  ", h("kbd", null, "Échap")));
   }
-  hideMoves() { this.actions.classList.add("off"); }
+  hideMoves() { this.cmdzone.classList.add("off"); this.closeMoves(); this.cmdUnit = null; }
+  showMoves() {} // compatibilité
 
   // ───────── textes ─────────
   float(pos3, text, cls = "", color) {
     const s = this.stage.toScreen(pos3); if (s.behind) return;
     const el = h("div", { class: "float " + cls, style: { left: s.x + (Math.random() - 0.5) * 30 + "px", top: s.y + (Math.random() - 0.5) * 16 + "px", color: color || null } }, text);
-    this.layer.appendChild(el);
+    this.fxl.appendChild(el);
     setTimeout(() => el.remove(), 1500);
   }
   banner(u, m, slot) {
     if (this._ban) { const b = this._ban; b.classList.add("out"); setTimeout(() => b.remove(), 260); }
     const d = this.disp[u];
-    const el = h("div", { class: "banner " + d.side, style: { "--c": TYPE_COLOR[m.t] } },
+    const el = h("div", { class: "banner " + d.side + (slot === "ult" ? " ult" : ""), style: { "--c": TYPE_COLOR[m.t] } },
       h("i", { style: { backgroundImage: `url(${this.pic(d.k)})` } }),
       h("div", null, h("small", null, (slot === "ult" ? "Ultime" : SLOT_NAME[slot] || "Attaque") + " · " + fr(d.k)), h("b", null, m.n)));
     this.root.appendChild(el); this._ban = el;
     clearTimeout(this._banT); this._banT = setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 260); if (this._ban === el) this._ban = null; }, 1600);
   }
-  toast(text, ms = 1800) {
-    const el = h("div", { class: "toast" }, text); this.root.appendChild(el);
-    setTimeout(() => el.remove(), ms);
-  }
+  toast(text, ms = 1800) { const el = h("div", { class: "toast" }, text); this.root.appendChild(el); setTimeout(() => el.remove(), ms); }
   flash(alpha = 0.6, ms = 260, color = "#fff") {
     const f = this.flashEl; f.style.background = color; f.style.transition = "none"; f.style.opacity = alpha;
     requestAnimationFrame(() => { f.style.transition = `opacity ${ms}ms ease-out`; f.style.opacity = 0; });
@@ -191,17 +240,16 @@ export class Hud {
   }
   stamp(pos3, text, cls) {
     const s = this.stage.toScreen(pos3);
-    const el = h("div", { class: "stamp " + cls, style: { left: s.x + "px", top: s.y - 70 + "px" } }, text);
+    const el = h("div", { class: "stamp " + cls, style: { left: s.x + "px", top: s.y - 80 + "px" } }, text);
     this.root.appendChild(el); setTimeout(() => el.remove(), 950);
   }
 
   // ───────── frappe rythmée ─────────
-  // Anneau qui se referme sur un point 3D. Résout 0 (raté), 1 (bien) ou 2 (parfait).
   timing(getPos, { kind = "atk", color, D = 720 } = {}) {
     return new Promise((res) => {
       const ring = h("div", { class: "ring" }), core = h("div", { class: "core" });
-      const lbl = h("div", { class: "lbl" }, kind === "atk" ? "ESPACE / CLIC : FRAPPE" : "ESPACE / CLIC : PARADE");
-      const el = h("div", { class: "qte " + kind, style: { "--c": color || "#ffd76a" } }, ring, core, lbl);
+      const lbl = h("div", { class: "lbl" }, kind === "atk" ? "ESPACE : FRAPPE" : "ESPACE : PARADE");
+      const el = h("div", { class: "qte " + kind, style: { "--c": color || "#ffd36a" } }, ring, core, lbl);
       this.root.appendChild(el);
       const t0 = performance.now();
       let done = false;
@@ -211,24 +259,19 @@ export class Hud {
         if (done) return;
         const t = (performance.now() - t0) / D;
         const sc = Math.max(0, 3.2 - 2.2 * t);
-        ring.style.width = ring.style.height = 64 * sc + "px";
+        ring.style.width = ring.style.height = 70 * sc + "px";
         ring.style.opacity = Math.min(1, t * 3);
         follow();
-        if (t > 1.25) finish(0);
-        else requestAnimationFrame(tick);
+        if (t > 1.25) finish(0); else requestAnimationFrame(tick);
       };
       const finish = (q) => {
         if (done) return; done = true;
         removeEventListener("keydown", onKey, true); removeEventListener("pointerdown", onTap, true);
         el.remove(); this.qte = null;
-        const s = getPos();
-        this.stamp(s, q === 2 ? (kind === "atk" ? "PARFAIT !" : "PARADE !") : q === 1 ? "BIEN" : "RATÉ", q === 2 ? "" : q === 1 ? "good" : "miss");
+        this.stamp(getPos(), q === 2 ? (kind === "atk" ? "PARFAIT !" : "PARADE !") : q === 1 ? "BIEN" : "RATÉ", q === 2 ? "" : q === 1 ? "good" : "miss");
         res(q);
       };
-      const judge = () => {
-        const t = (performance.now() - t0) / D, e = Math.abs(t - 1);
-        finish(e < 0.09 ? 2 : e < 0.22 ? 1 : 0);
-      };
+      const judge = () => { const e = Math.abs((performance.now() - t0) / D - 1); finish(e < 0.09 ? 2 : e < 0.22 ? 1 : 0); };
       const onKey = (e) => { if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); e.stopPropagation(); judge(); } };
       const onTap = (e) => { if (e.button === 0) { e.stopPropagation(); judge(); } };
       addEventListener("keydown", onKey, true); addEventListener("pointerdown", onTap, true);
@@ -240,9 +283,9 @@ export class Hud {
   result({ win, stats, onRetry }) {
     const el = h("div", { class: "result" + (win ? "" : " lose") },
       h("div", { class: "box" },
-        h("h2", null, win ? "VICTOIRE" : "K.O."),
+        h("h2", null, win ? "VICTOIRE !" : "K.O.…"),
         h("div", { class: "stats" }, ...stats.map(([v, l]) => h("div", null, h("b", null, String(v)), h("small", null, l)))),
-        h("button", { onclick: () => { el.remove(); onRetry(); } }, "Rejouer")));
+        h("button", { onclick: () => { el.remove(); onRetry(); } }, "REJOUER")));
     this.root.appendChild(el);
   }
 }

@@ -2,32 +2,36 @@
 
 Jeu 3D (navigateur PC + PWA mobile) en three.js. Le combat est inspiré de Honkai Star Rail et repris de Récolte. Les modèles viennent de Pixelmon, convertis en glTF.
 
-## Jouer (prototype de combat, étape 1)
-`index.html` : un combat 3D jouable sur PC. Les Pokémon actuels sont 4 alliés niveau 20 contre 3 ennemis niveau 28, dont un élite.
+## Jouer (prototype de combat raid)
+`index.html` : combat 3D sur PC, **3 alliés contre 1 boss**. Par défaut : Dracaufeu, Lokhlass et Ectoplasma (N.20) contre Groudon.
+Le niveau du boss dépend de sa rareté (légendaire −4, rare −3, peu commun +6, commun +8). Le boss a 12 fois plus de PV et 70 % de puissance, et enrage sous 50 % de PV.
 
 | Touche | Action |
 |---|---|
 | Q | Attaque (+1 énergie) |
-| W / E / R | Capacités (1, 2 ou 3 énergies) |
-| 1 à 4 | Ultime de l'allié n° (jauge pleine, ne coûte pas le tour) |
-| ← → ou clic | Changer de cible |
-| Espace ou clic | Frappe rythmée : quand l'anneau se referme, PARFAIT = +30 % de dégâts, PARADE = −55 % subis |
+| E | Ouvrir / fermer les capacités, puis 1 à 3 pour choisir |
+| U | Ultime de l'allié actif |
+| 1 à 3 (menu fermé) ou clic sur une carte | Ultime de cet allié (jauge pleine, ne coûte pas le tour) |
+| Échap | Fermer le menu des capacités |
+| Espace ou clic | Frappe rythmée : PARFAIT = +30 % de dégâts, PARADE = −55 % subis |
 | A / X | Auto / vitesse ×2 |
 
-Paramètres d'URL pour tester :
-- `?team=CHARIZARD,LAPRAS,GENGAR,BLISSEY` et `&foes=MACHAMP,NIDOKING,ARCANINE` pour choisir les équipes
-- `&lv=20&flv=28` pour les niveaux
-- `?boss=GROUDON` pour un gardien en 2 phases avec renforts
-- `&seed=123` pour rejouer exactement le même combat
+Paramètres d'URL :
+- `?team=CHARIZARD,LAPRAS,GENGAR` pour l'équipe
+- `&boss=GYARADOS` pour le boss
+- `&lv=20` pour le niveau de l'équipe
+- `&flv=16` pour forcer le niveau du boss
+- `&hp=12&pow=0.7` pour les PV et la puissance du boss
+- `&seed=123` pour rejouer le même combat
 - `&ult=1` pour commencer avec les ultimes chargés
-- `&q=low` pour désactiver le bloom et les ombres
+- `&q=low` pour la qualité réduite
 
 ## Code
 - `src/combat/engine.js` : **moteur de combat pur et déterministe**. Ce sont les règles de Récolte, sans affichage ni `Math.random`. Il renvoie des événements que la scène rejoue. Même graine + mêmes actions = même combat, ce qui le rend prêt pour le multijoueur (serveur ou hôte).
 - `src/data/` : `data.js` et `moves.js`, repris de Récolte sans modification (83 espèces, capacités, réactions).
 - `src/render/` : `stage.js` (scène three.js, arène, caméras, bloom), `fx.js` (particules, ondes, projectiles, rayons), `assets.js` (modèles, portraits).
 - `src/game/director.js` : mise en scène (élans, impacts, ultimes) et commandes du joueur.
-- `src/ui/hud.js` + `src/style.css` : interface HTML (frise des tours, plaques, cartes, actions, frappes rythmées).
+- `src/ui/hud.js` + `src/style.css` : interface de raid (barre du boss et son intention, frise, cartes d'équipe, pile de commandes Ultime / Objets / Capacités / Attaque, énergie, frappes rythmées). Polices : Pixelify Sans et Nunito (`fonts/`).
 - `src/core.js`, `src/audio.js` : horloge et tweens, sons générés (repris de Récolte).
 - `tests/combat.test.js` : `npm test` lance 300 combats automatiques, vérifie le déterminisme, joue un gardien et fait combattre les 83 espèces.
 

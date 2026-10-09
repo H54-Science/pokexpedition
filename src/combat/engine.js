@@ -102,10 +102,11 @@ export class Combat {
     const sp = SPECIES[e.k];
     const st = statsAt(e.k, e.L, 1);
     const dm = 1 + ((this.cfg.danger || 1) - 1) * 0.055;
-    const hpM = (e.boss ? 7.5 : e.elite ? 1.2 : 1) * dm;
+    // boss de raid : PV et puissance réglables (cfg.bossHp, cfg.bossPow)
+    const hpM = (e.boss ? (this.cfg.bossHp || 7.5) : e.elite ? 1.2 : 1) * dm;
     const u = this.baseUnit("enemy", i, e.k, e.L, mergeMods([sp.passive || {}]));
     Object.assign(u, {
-      maxHp: Math.floor(st.hp * hpM), pow: st.pow * dm * (e.boss ? 1.12 : e.elite ? 1.08 : 1), def: st.def * dm,
+      maxHp: Math.floor(st.hp * hpM), pow: st.pow * dm * (e.boss ? 1.12 * (this.cfg.bossPow || 1) : e.elite ? 1.08 : 1), def: st.def * dm,
       spd0: st.spd * (e.boss ? 1.05 : 1), boss: !!e.boss, elite: !!e.elite, shiny: !!e.shiny,
       cd: 1 + Math.floor(this.rand() * 2), charge: e.boss ? 20 : 0,
     });

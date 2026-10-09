@@ -159,7 +159,7 @@ export class Director {
   showMoves() {
     if (!this.input) return;
     const u = this.input.u;
-    this.hud.showMoves(u, this.b.optionsOf(u), (i) => this.pick(i));
+    this.hud.showCommands(u, { getOpts: () => this.b.optionsOf(u), onPick: (i) => this.pick(i), onUlt: () => this.tapCard(u.id) });
   }
   pick(i) {
     if (!this.input || this.busy) return;
@@ -244,11 +244,16 @@ export class Director {
     if (k === "a") return this.toggle("auto");
     if (k === "x") return this.toggle("speed");
     if (!this.input || this.busy) return;
-    const idx = { q: 0, w: 1, e: 2, r: 3 }[k];
-    if (idx != null) return this.pick(idx);
+    if (k === "q") return this.pick(0);
+    if (k === "e") return this.hud.movesOpen() ? this.hud.closeMoves() : this.hud.openMoves();
+    if (k === "escape") return this.hud.closeMoves();
+    if (k === "u") return this.tapCard(this.input.u.id);
+    if (/^[1-3]$/.test(k)) {
+      if (this.hud.movesOpen()) return this.pick(+k);
+      const a = this.b.allies[+k - 1]; if (a) this.tapCard(a.id);
+    }
     if (k === "arrowleft") return this.cycleTarget(-1);
     if (k === "arrowright") return this.cycleTarget(1);
-    if (/^[1-4]$/.test(k)) { const a = this.b.allies[+k - 1]; if (a) this.tapCard(a.id); }
   }
   pointer(e) {
     if (!this.input || this.busy) return;
