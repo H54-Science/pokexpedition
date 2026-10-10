@@ -91,4 +91,5 @@ Le repère source est celui de Blender (Z en haut) ; la racine est tournée de �
 - L'échelle varie selon l'espèce : il faut normaliser par la hauteur (c'est ce que fait le jeu, à partir de la taille réelle en jeu, champ `h` de `index.json`).
 - La pose de liaison n'est pas jouable (Léviator est à l'horizontale, les lianes de Bulbizarre sont sorties) : toujours jouer une animation.
 - Kakuna n'a pas d'animation : il lui faudra un mouvement procédural.
+- Certains Pokémon sont faits de plusieurs maillages (Funécire : corps + flamme ; Lugulabre : corps + flammes semi-transparentes ; Libégon : corps + yeux). `build_models.py` lit la liste des couches dans `data/pixelmon/species/<espece>.json` et les fusionne dans un même .glb.
 - Ogerpon n'a pas de modèle dans Pixelmon. Florges n'a pas de texture chromatique dans la forme utilisée (`red`).
