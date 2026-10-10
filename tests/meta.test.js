@@ -123,7 +123,7 @@ function bot(seed, steps, saveAt = -1) {
     for (const k in s.coll) { try { M.elevate(s, k); stat.elev++; } catch (e) {} }
     const d = [5, 4, 3, 2, 1].find((x) => M.access(s, x).ok);
     stat.maxDiff = Math.max(stat.maxDiff, d);
-    const sum = M.playExpedition(s, d, M.SETS[step % 4].id); stat.runs++;
+    const sum = M.playExpedition(s, d, M.SETS[step % M.SETS.length].id); stat.runs++;
     if (sum.cleared) stat.expClear++;
     if (sum.kept) { stat.kept++; if (M.roleOf(sum.kept.k).role === "legend") stat.legends++; }
     for (const k in s.coll) ok(s.coll[k].normal || s.coll[k].shiny, "entrée vide " + k);

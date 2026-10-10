@@ -4,6 +4,7 @@ import { h } from "../core.js";
 import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
 import { portrait } from "../render/assets.js";
 import * as M from "../meta/index.js";
+import { arenaProfile } from "../render/arenas.js";
 import { ART, paint } from "./art.js";
 import { icon, pokerFace, brandLogo, cardTheme } from "./theatre.js";
 import { openHelp } from "./help.js";
@@ -131,9 +132,10 @@ export class RunUI {
       const ch = M.legendChance(save, S.id, level);
       const el = h("button", { class: "rs-set", style: cardTheme(S.legend), onclick: () => { if (sel === S.id) go(); else { sel = S.id; render(); } }, ondblclick: () => go() },
         h("div", { class: "rs-set-legend" }, pokerFace(S.legend, { content: face(S.legend, "rs-face big") })),
-        h("div", { class: "rs-set-name" }, h("small", null, "Set"), h("b", null, S.name)),
+        h("div", { class: "rs-set-name" }, h("small", null, "Disponible dès le départ"), h("b", null, S.name)),
+        h("small", { class: "rs-set-arena" }, arenaProfile(S.arena).name),
         h("div", { class: "rs-set-leg" }, h("b", null, fr(S.legend)), types(S.legend)),
-        h("div", { class: "rs-set-chance" + (ch ? "" : " zero") }, ch ? `${(ch * 100).toFixed(1)} %` : "Non capturable",
+        h("div", { class: "rs-set-chance" + (ch ? "" : " zero") }, ch ? `${(ch * 100).toFixed(1)} %` : "Légendaire : plus tard",
           h("small", null, ch ? (save.pity[S.id] ? `capture du légendaire (bonus +${Math.round(save.pity[S.id] * 100)} pts des essais ratés)` : "capture du légendaire") : lf ? `à ce niveau — à partir de ${lf.name}` : "")),
         h("div", { class: "rs-set-buffs" }, h("small", null, "Bénédictions efficaces ici"), ...setBuffChips(S.id)),
         h("div", { class: "rs-set-roster" }, ...all.map((k) => h("span", { class: "rs-set-p" + (M.owns(save, k) ? " own" : "") + (M.owns(save, k, true) ? " shiny" : ""), title: `${fr(k)} · ${RF[M.roleOf(k).role]}` }, face(k, "rs-face xs")))),
@@ -148,7 +150,7 @@ export class RunUI {
     const render = () => {
       cards.forEach(({ id, el }) => { el.classList.toggle("sel", id === sel); el.setAttribute("aria-pressed", String(id === sel)); });
       const order = M.orderOf(sel);
-      hint.textContent = `${M.SET[sel].name} : ${order.length} combats (${orderText(order)}). Les Pokémon battus sont capturés ; tu en gardes un à la fin.`;
+      hint.textContent = `${M.SET[sel].name} · ${arenaProfile(M.SET[sel].arena).name} : ${order.length} combats (${orderText(order)}). Les Pokémon battus sont capturés ; tu en gardes un à la fin.`;
     };
     this.frame({ step: 1, title: `Choisis ton set — ${DIFFS[diff - 1].name}`, bg: ART.bg.expedition, onBack,
       body: [h("div", { class: "rs-sets", style: { "--n": M.SETS.length } }, ...cards.map((c) => c.el)), hint],

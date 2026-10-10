@@ -106,3 +106,27 @@ Les bénédictions communes (soin, énergie, bouclier…) et de capture sont dan
 | changer le nombre de Pokémon par combat ou de combats par Pokémon | `CONFIG.run.teamSize`, `CONFIG.run.uses` |
 | changer le nombre de Pokémon requis par difficulté | `CONFIG.run.minRoster` |
 | changer les coûts d'élévation ou d'étoiles | `CONFIG.elevation`, `CONFIG.stars` |
+
+
+## Sets et arènes intégrés
+
+Les 83 espèces et les 10 légendaires du catalogue sont répartis sans doublons dans les 10 sets. Tous les sets sont proposés dès la difficulté Découverte. Le niveau requis pour les autres difficultés et les conditions de capture légendaire restent ceux de la progression existante.
+
+| Set | Légendaire | Décor |
+|---|---|---|
+| Abysses | Kyogre | Sanctuaire sous-marin |
+| Terres brûlées | Groudon | Volcan |
+| Nuit sans fin | Darkrai | Cimetière d'automne |
+| Féerie | Xerneas | Forêt féerique |
+| Bosquet éternel | Celebi | Forêt luxuriante |
+| Cœur de la fournaise | Heatran | Volcan |
+| Sanctuaire de l'orage | Câblifère | Sanctuaire japonais sous un ciel orageux |
+| Palais de l'esprit | Mewtwo | Palais enneigé aux lumières violettes |
+| Jardin des masques | Ogerpon | Sanctuaire japonais |
+| Cimes célestes | Rayquaza | Palais enneigé et ciel hivernal |
+
+Le champ `arena` de `src/meta/sets.js` désigne un profil de `src/render/arenas.js` : modèle Blender, ciel, brume, lumières et particules. Les six GLB sont dans `models/arenas`. Le décor est aligné sur `ArenaCenter`, puis les primitives compatibles sont regroupées par matériau. Le changement de décor libère l'ancien environnement et son animation ; il ne change pas les positions de combat.
+
+Ogerpon utilise provisoirement son sprite pixel art, intégré dans un GLB léger qui fait face à la caméra (`billboard` dans models/index.json). Ce n'est pas encore un modèle 3D animé. Ogerpon et Florges n'ont pas de texture shiny disponible ; la capture chromatique fonctionne mais leur apparence reste normale. Remplacer ces éléments lorsque les modèles/textures sont disponibles.
+
+Les anciennes sauvegardes sont complétées avec les compteurs des nouveaux sets, sans perte de collection ni abandon des expéditions existantes. `npm test` vérifie les sets accessibles, les légendaires, la sauvegarde et les repères des arènes ; `npm run check` empêche la publication d'un set dont le décor manque.

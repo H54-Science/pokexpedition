@@ -1,6 +1,7 @@
 // Vérifie le contenu éditable (sets, difficultés, objets, évolutions) et les fichiers dont il dépend.
 // npm run check
 import fs from "fs";
+import { ARENAS } from "../src/render/arenas.js";
 import { SPECIES } from "../src/data/data.js";
 import { CONFIG } from "../src/meta/config.js";
 import { SETS, speciesOf, orderOf, contentErrors } from "../src/meta/state.js";
@@ -20,6 +21,10 @@ for (const k of used) {
 }
 for (const [k, chain] of Object.entries(CONFIG.evolutions)) for (const f of [k, ...chain]) if (!SPECIES[f]) err.push(`Évolution ${k} : espèce inconnue ${f}.`);
 
+for (const S of SETS) {
+  if (!ARENAS[S.arena]) err.push(`${S.name} : arène inconnue ${S.arena}.`);
+  else if (!exists(`models/arenas/${ARENAS[S.arena].model}.glb`)) err.push(`${S.name} : fichier d'arène absent.`);
+}
 for (const S of SETS) console.log(`${S.name.padEnd(16)} ${S.legend.padEnd(10)} | ${S.nice.join(" ")} | ${S.weak.join(" ")} | ${orderOf(S.id).join(" ")}`);
 console.log(`${CONFIG.difficulties.length} difficultés : ${CONFIG.difficulties.map((d) => `${d.name} (niv. ${d.level})`).join(", ")}`);
 for (const w of warn) console.log("attention :", w);

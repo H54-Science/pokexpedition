@@ -743,5 +743,12 @@
   "kb": 106,
   "shiny": true,
   "h": 5.6
+ },
+ "ogerpon": {
+  "anims": [],
+  "kb": 3,
+  "h": 1.2,
+  "shiny": false,
+  "billboard": true
  }
 }

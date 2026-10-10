@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tools/check_syntax.mjs && node tools/check_content.mjs && node tests/combat.test.js && node tests/run.test.js && node tests/meta.test.js",
+    "test": "node tools/check_syntax.mjs && node tools/check_content.mjs && node tests/combat.test.js && node tests/run.test.js && node tests/meta.test.js && node tests/set-arenas.test.mjs",
     "check": "node tools/check_syntax.mjs && node tools/check_content.mjs"
   }
 }

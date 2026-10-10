@@ -43,6 +43,7 @@ async function fight(cfg) {
   lobby && lobby.leave();
   scr.loading("Chargement du combat…");
   hudRoot().style.display = "";
+  stage.setArena(cfg.arena || q.get("arena") || Meta.SET[Meta.roleOf(cfg.enemies[0]?.k)?.set]?.arena || "sakura");
   const hud = new Hud(hudRoot(), stage);
   const dir = new Director(stage, hud, cfg);
   await dir.load();

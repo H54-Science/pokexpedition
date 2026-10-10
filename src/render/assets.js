@@ -57,7 +57,7 @@ export async function makePokemon(k, { boss = false, shiny = false } = {}) {
   const body = new THREE.Group();  // reçoit les déformations procédurales (écrasement, inclinaison)
   pivot.add(body); body.add(model);
   const radius = Math.max(box.max.x - box.min.x, box.max.z - box.min.z) * s * 0.5;
-  const P = { k, key, pivot, body, model, mixer, clips, mats, height: H, radius: Math.max(0.35, Math.min(radius, H * 0.8)), action: null, baseMaps: mats.map((m) => m.map) };
+  const P = { k, key, pivot, body, model, mixer, clips, mats, height: H, radius: Math.max(0.35, Math.min(radius, H * 0.8)), billboard: !!INDEX[key]?.billboard, action: null, baseMaps: mats.map((m) => m.map) };
   P.play = (name, { fade = 0.25, speed = 1 } = {}) => {
     const c = clips[name] || idle; if (!c) return;
     const a = mixer.clipAction(c);

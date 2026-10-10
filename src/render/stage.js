@@ -6,6 +6,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { Clock, clamp, lerp } from "../core.js";
 import { FX } from "./fx.js";
+import { arenaProfile } from "./arenas.js";
 import { createSanctuary } from "./sanctuary.js";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -56,10 +57,18 @@ export class Stage {
   // ───────── arène ─────────
   buildArena() {
     this.arena = createSanctuary(this.scene, this.updaters, this.low);
+    this.arenaId = "sakura";
     this.sun = this.arena.sun;
     // Assombrissement des ultimes conservé indépendamment du décor.
     this.dim = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ color: "#06040c", transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
     this.dim.renderOrder = 5; this.dim.frustumCulled = false;
+  }
+  setArena(id = "sakura") {
+    const profile = arenaProfile(id);
+    if (this.arenaId === profile.id) return;
+    this.arena.dispose();
+    this.arena = createSanctuary(this.scene, this.updaters, this.low, profile);
+    this.arenaId = profile.id; this.sun = this.arena.sun;
   }
   loadArena() { return this.arena.load(); }
 
@@ -241,6 +250,7 @@ export class Stage {
     // unités
     for (const U of this.units.values()) {
       U.P.mixer.update(dt / 1000);
+      if (U.P.billboard) U.P.model.lookAt(this.camera.position);
       if (U.moveTo) { U.P.pivot.position.lerp(U.moveTo, 1 - Math.exp(-dt / 120)); if (U.P.pivot.position.distanceTo(U.moveTo) < 0.01) U.moveTo = null; }
       if (U.flashT > 0) {
         U.flashT -= real; const f = Math.max(0, U.flashT / U.flashDur);

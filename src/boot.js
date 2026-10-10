@@ -2,7 +2,7 @@
 // A versioned entry point also avoids reusing a broken cached module after deployment.
 const message = document.querySelector('#loading small');
 try {
-  await import('./main.js?v=loading-fix-1');
+  await import('./main.js?v=set-arenas-1');
 } catch (error) {
   console.error('Démarrage impossible :', error);
   if (message) message.textContent = `Impossible de démarrer : ${error.message}`;
