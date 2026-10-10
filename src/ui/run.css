@@ -175,3 +175,45 @@
   .rs-stage { grid-template-columns: 1fr; }
   .rs-steps { display: none; }
 }
+
+/* bénédictions */
+.rs-chip { --c: #c9b27a; display: inline-block; margin: 2px 3px 0 0; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #fff;
+  background: color-mix(in srgb, var(--c) 35%, rgba(0, 0, 0, .4)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 70%, transparent); }
+.rs-set-buffs { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; }
+.rs-set-buffs > small { width: 100%; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: currentColor; opacity: .6; }
+.rs-blessings { padding: 10px 12px; border-radius: 12px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+.rs-bl-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rs-sub.sm { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 12px; }
+.rs-sub.sm .ex-icon { width: 16px; height: 16px; }
+.rs-buffs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0; }
+.rs-buff { --c: #c9b27a; position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 12px; border: 0; border-radius: 12px; text-align: center;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 30%, #1a1228), #120c1c 80%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent); transition: transform .12s, box-shadow .12s; }
+.rs-buff:hover:not(:disabled) { transform: translateY(-3px); box-shadow: inset 0 0 0 2px var(--c), 0 0 22px color-mix(in srgb, var(--c) 40%, transparent); }
+.rs-buff.r2 { box-shadow: inset 0 0 0 1px #8ab4ff; } .rs-buff.r3 { box-shadow: inset 0 0 0 2px var(--gold), 0 0 18px rgba(255, 211, 106, .25); }
+.rs-buff-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: var(--c); background: rgba(0, 0, 0, .35); }
+.rs-buff-ic .ex-icon { width: 26px; height: 26px; }
+.rs-buff small { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255, 255, 255, .55); }
+.rs-buff b { font: 700 15px var(--px); }
+.rs-buff p { margin: 0; font-size: 12px; color: rgba(255, 255, 255, .78); }
+.rs-buff em { margin-top: auto; padding-top: 4px; font-style: normal; font: 700 13px var(--px); color: var(--gold); }
+.rs-buff.bought { opacity: .5; } .rs-buff.bought em { color: #7fe0a0; }
+.rs-buff.poor:not(.bought) em { color: #ff9a8a; }
+.rs-active { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; color: rgba(255, 255, 255, .6); }
+.rs-active em { font-style: normal; }
+
+/* bénédictions dans le thème « papier » (theatre.css) : bandeau pleine largeur sous le chemin des actes */
+.rs.ex-screen .rs-body:has(.rs-blessings) { grid-template-areas: "path path" "bless bless" "roster stage" !important; grid-template-rows: auto auto 1fr !important; }
+.rs.ex-screen .rs-blessings { grid-area: bless; background: #efe7d6aa; border: 1px solid #b9a57b88; border-radius: 4px 28px 4px 4px; box-shadow: none; padding: 16px 20px; }
+.rs.ex-screen .rs-blessings .rs-label { margin: 0; padding: 0; border: 0; font-size: 18px; }
+.rs.ex-screen .rs-buff { background: #f8f2e4; color: #3e3a33; border-radius: 4px 22px 4px 4px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 70%, #b9a57b), 0 3px 8px #44334412; }
+.rs.ex-screen .rs-buff:hover:not(:disabled) { box-shadow: 0 0 0 2px var(--c), 0 6px 16px color-mix(in srgb, var(--c) 30%, transparent); }
+.rs.ex-screen .rs-buff.r3 { box-shadow: 0 0 0 2px #b79c64, 0 0 18px #d6be8755; }
+.rs.ex-screen .rs-buff-ic { background: color-mix(in srgb, var(--c) 18%, #fff); color: color-mix(in srgb, var(--c) 80%, #333); }
+.rs.ex-screen .rs-buff b { font: 16px Georgia, serif; }
+.rs.ex-screen .rs-buff p { color: #6f6553; }
+.rs.ex-screen .rs-buff small { color: #9b8662; }
+.rs.ex-screen .rs-buff em { color: #8d6e37; font: 14px Georgia, serif; }
+.rs.ex-screen .rs-buff.poor:not(.bought) em { color: #aa655b; }
+.rs.ex-screen .rs-active { color: #87775c; }
+.rs.ex-screen .rs-chip { color: #fff; text-shadow: 0 1px 1px #0004; }
+.rs.ex-screen .rs-sub.sm { padding: 6px 14px; font-size: 13px; }

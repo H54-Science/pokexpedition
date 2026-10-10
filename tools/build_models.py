@@ -23,6 +23,11 @@ def run(cmd):
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, shell=(os.name == 'nt'))
 
 
+# Modèles exportés « Y en haut » (couchés ou retournés avec la rotation habituelle), vérifiés à l'œil :
+# espèce -> rotation (degrés) autour de la verticale pour qu'ils regardent vers +z comme les autres.
+Y_UP = {'MILOTIC': 90, 'FLYGON': 0, 'KANGASKHAN': 0, 'LILEEP': 0}
+
+
 def layers_of(src_root, rel):
     """Couches de maillage déclarées dans data/pixelmon/species (corps + flammes, yeux, parties transparentes)."""
     sp = os.path.join(src_root, '..', '..', '..', '..', 'data', 'pixelmon', 'species', rel.split('/')[0] + '.json')
@@ -41,7 +46,7 @@ def layers_of(src_root, rel):
 def build(src_root, key, rel, tmp):
     folder = os.path.join(src_root, rel)
     raw = os.path.join(tmp, key + '.glb')
-    info = C.convert(folder, raw, layers=layers_of(src_root, rel))
+    info = C.convert(folder, raw, layers=layers_of(src_root, rel), y_up=Y_UP.get(key))
     dst = os.path.join(OUT, key.lower() + '.glb')
     run(GT + ['optimize', raw, dst, '--compress', 'meshopt', '--texture-compress', 'webp', '--simplify', 'false'])
     shiny = os.path.join(os.path.dirname(folder), 'shiny', 'texture.png')

@@ -10,6 +10,8 @@ const MIGRATIONS = {
     for (const k of CONFIG.start.starters) if (!s.coll[k]) s.coll[k] = { normal: true, shiny: false, L: CONFIG.start.level, xp: 0, elev: 0, stars: 0 };
     s.v = 2; return s;
   },
+  // v2 → v3 : expéditions et vœux fusionnés (bénédictions) ; un run v2 en cours n'est pas repris.
+  2: (s) => { s.run = null; s.v = 3; return s; },
 };
 
 export const serialize = (save) => JSON.stringify(save);

@@ -14,8 +14,37 @@ const difficultyCard = (key, selected, pick) => h("button", { class: "ex-difficu
 
 export class Screens {
   constructor(root) { this.root = root; }
-  show(...kids) { this.root.innerHTML = ""; this.root.classList.toggle("theatre-mode", kids.some(k => k?.classList?.contains("ex-screen"))); this.root.append(...kids); this.root.style.display = ""; }
-  hide() { this.root.style.display = "none"; this.root.innerHTML = ""; this.root.classList.remove("theatre-mode"); }
+  // Transitions : l'écran sortant s'efface pendant que le nouveau entre (cartes en cascade, cf. style.css « transitions »).
+  // Un écran qui se redessine lui-même (même data-key : boutique, collection…) est remplacé sans animation.
+  show(...kids) {
+    const r = this.root;
+    kids = kids.filter(Boolean);
+    clearTimeout(this._hideT); r.classList.remove("scr-hiding");
+    const appearing = r.style.display === "none" || !r.firstElementChild;
+    const key = kids[0] && kids[0].dataset ? kids[0].dataset.key : undefined;
+    const old = [...r.children].filter((c) => !c.classList.contains("scr-out"));
+    const same = key && old.length && old[old.length - 1].dataset && old[old.length - 1].dataset.key === key;
+    [...r.children].filter((c) => c.classList.contains("scr-out")).forEach((c) => c.remove());
+    for (const c of old) {
+      if (same || appearing) { c.remove(); continue; }
+      c.classList.add("scr-out"); c.setAttribute("aria-hidden", "true");
+      setTimeout(() => c.remove(), 260);
+    }
+    r.classList.toggle("theatre-mode", kids.some((k) => k?.classList?.contains("ex-screen")));
+    if (!same) for (const k of kids) if (k.classList) { k.classList.add("scr-in"); setTimeout(() => k.classList.remove("scr-in"), 900); }
+    r.append(...kids);
+    r.style.display = "";
+    if (appearing) { r.classList.remove("scr-appear"); void r.offsetWidth; r.classList.add("scr-appear"); }
+  }
+  get open() { return this.root.style.display !== "none" && !!this.root.firstElementChild && !this.root.classList.contains("scr-hiding"); }
+  hide() {
+    const r = this.root;
+    if (r.style.display === "none") return;
+    if (!r.firstElementChild) { r.style.display = "none"; return; }
+    r.classList.add("scr-hiding");
+    clearTimeout(this._hideT);
+    this._hideT = setTimeout(() => { r.style.display = "none"; r.innerHTML = ""; r.classList.remove("theatre-mode", "scr-hiding"); }, 240);
+  }
 
   welcome({ hasRun, onPrepare, onBack }) {
     this.show(landing({ title: "Le Théâtre\ndes expéditions", subtitle: "Choisis ta difficulté, rassemble tes partenaires et écris le prochain chapitre de votre aventure.", primary: { label: hasRun ? "Reprendre l'aventure" : "Préparer une expédition", fn: onPrepare }, back: onBack }));
@@ -23,21 +52,6 @@ export class Screens {
 
   hub({ hasRun, best, onNew, onResume, onQuick, onBack }) {
     this.show(landing({ title: "Le Théâtre\ndes expéditions", subtitle: "Compose ta troupe, choisis ton destin. Derrière chaque carte, une nouvelle histoire attend ses héros.", primary: { label: "Préparer une représentation", fn: onNew }, secondary: onQuick ? { label: "Combat rapide", fn: onQuick } : null, resume: hasRun ? onResume : null, back: onBack, best }));
-  }
-
-  // Garde-robe : conserve le fonctionnement du hall.
-  wardrobe({ skins, current, thumb, onPick, onBack }) {
-    const grid = h("div", { class: "s-grid" });
-    for (const n of skins) {
-      const img = h("img", { alt: n }); thumb(n).then(u => img.src = u).catch(() => {});
-      grid.append(h("button", { class: "s-skin" + (n === current ? " on" : ""), onclick: () => onPick(n) }, img, n.replace(/^trainer_gym_/, "").replace(/^leader_gym_/, "champion ").replace(/_/g, " ")));
-    }
-    this.show(h("div", { class: "s-box" }, h("h2", null, "Garde-robe"), grid, h("div", { class: "s-row" }, action("Retour", onBack))));
-  }
-  partner({ list, current, onPick, onBack }) {
-    const grid = h("div", { class: "s-grid" });
-    for (const k of list) grid.append(h("button", { class: "s-skin" + (k === current ? " on" : ""), onclick: () => onPick(k) }, sprite(k), h("b", null, fr(k)), h("span", null, ...SPECIES[k].t.map(tchip))));
-    this.show(h("div", { class: "s-box" }, h("h2", null, "Partenaire"), grid, action("Retour", onBack)));
   }
 
   zone({ unlocked, onPick, onBack }) {
