@@ -23,10 +23,25 @@ def run(cmd):
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, shell=(os.name == 'nt'))
 
 
+def layers_of(src_root, rel):
+    """Couches de maillage déclarées dans data/pixelmon/species (corps + flammes, yeux, parties transparentes)."""
+    sp = os.path.join(src_root, '..', '..', '..', '..', 'data', 'pixelmon', 'species', rel.split('/')[0] + '.json')
+    if not os.path.exists(sp): return None
+    pal = 'pixelmon:pokemon/' + rel + '/'
+    for form in json.load(open(sp, encoding='utf-8'))['forms']:
+        for gp in form.get('genderProperties', []):
+            for p in gp.get('palettes', []):
+                for mp in p.get('models', []):
+                    ms = mp.get('models', [])
+                    if any(m.get('texture', '').startswith(pal) for m in ms):
+                        return [(m['model'].split('/')[-1], m.get('texture_transparency')) for m in ms]
+    return None
+
+
 def build(src_root, key, rel, tmp):
     folder = os.path.join(src_root, rel)
     raw = os.path.join(tmp, key + '.glb')
-    info = C.convert(folder, raw)
+    info = C.convert(folder, raw, layers=layers_of(src_root, rel))
     dst = os.path.join(OUT, key.lower() + '.glb')
     run(GT + ['optimize', raw, dst, '--compress', 'meshopt', '--texture-compress', 'webp', '--simplify', 'false'])
     shiny = os.path.join(os.path.dirname(folder), 'shiny', 'texture.png')

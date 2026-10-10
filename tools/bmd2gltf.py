@@ -108,16 +108,21 @@ class Glb:
 
 FLOAT, USHORT, UBYTE, UINT = 5126, 5123, 5121, 5125
 
-def convert(folder, out, fps=24.0):
+def convert(folder, out, fps=24.0, layers=None):
+    """layers : [(fichier.bmd, transparence ou None), ...] tel que décrit dans data/pixelmon/species ;
+    le 1er est le corps (squelette de référence). Sans layers : le seul .bmd avec triangles."""
     folder = folder.rstrip('/')
     bmds = glob.glob(os.path.join(folder, '*.bmd'))
-    mesh_file = None; anims = {}
+    meshes = {}; anims = {}
     for f in bmds:
         nodes, frames, tris = load_bmd(f)
-        if tris: mesh_file = (f, nodes, frames, tris)
+        if tris: meshes[os.path.basename(f)] = (nodes, frames, tris)
         else: anims[os.path.splitext(os.path.basename(f))[0]] = (nodes, frames)
-    assert mesh_file, 'aucun maillage'
-    _, nodes, frames, tris = mesh_file
+    assert meshes, 'aucun maillage'
+    if not layers:
+        layers = [(sorted(meshes)[-1] if len(meshes) > 1 else next(iter(meshes)), None)]
+    for fn, _ in layers: assert fn in meshes, f'maillage absent : {fn}'
+    nodes, frames, _ = meshes[layers[0][0]]
     ids = [n[0] for n in nodes]; assert ids == list(range(len(nodes)))
     parents = [n[1] for n in nodes]; names = [n[2] for n in nodes]
     bind = frames[0]
@@ -132,30 +137,34 @@ def convert(folder, out, fps=24.0):
         world.append(world[parents[i]] @ m if parents[i] >= 0 else m)
     ibm = np.array([np.linalg.inv(w).T for w in world], dtype='<f4')  # column-major
 
-    # sommets dédupliqués
-    vmap, P, N, UV, J, W, idx = {}, [], [], [], [], [], []
-    for _, vs in tris:
-        for pos, nrm, uv, links in vs:
-            links = sorted(links, key=lambda l: -l[1])[:4]
-            tot = sum(l[1] for l in links) or 1.0
-            jj = [l[0] for l in links] + [0] * (4 - len(links))
-            ww = [l[1] / tot for l in links] + [0.0] * (4 - len(links))
-            key = (pos, nrm, uv, tuple(jj), tuple(round(w, 5) for w in ww))
-            k = vmap.get(key)
-            if k is None:
-                k = vmap[key] = len(P)
-                P.append(pos); N.append(nrm); UV.append((uv[0], 1.0 - uv[1])); J.append(jj); W.append(ww)
-            idx.append(k)
-    P = np.array(P, '<f4'); N = np.array(N, '<f4')
-    N /= np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-8)
-
     g = Glb()
-    attrs = {'POSITION': g.acc(P, FLOAT, 'VEC3', 34962, True),
-             'NORMAL': g.acc(N, FLOAT, 'VEC3', 34962),
-             'TEXCOORD_0': g.acc(np.array(UV, '<f4'), FLOAT, 'VEC2', 34962),
-             'JOINTS_0': g.acc(np.array(J, '<u2'), USHORT, 'VEC4', 34962),
-             'WEIGHTS_0': g.acc(np.array(W, '<f4'), FLOAT, 'VEC4', 34962)}
-    ind = g.acc(np.array(idx, '<u4'), UINT, 'SCALAR', 34963)
+    prims = []; nverts = 0; ntris = 0
+    for li, (fn, transp) in enumerate(layers):
+        lnodes, _, tris = meshes[fn]
+        # os de la couche -> os du corps (par nom)
+        jmap = {n[0]: (names.index(n[2]) if n[2] in names else 0) for n in lnodes}
+        vmap, P, N, UV, J, W, idx = {}, [], [], [], [], [], []
+        for _, vs in tris:
+            for pos, nrm, uv, links in vs:
+                links = sorted(links, key=lambda l: -l[1])[:4]
+                tot = sum(l[1] for l in links) or 1.0
+                jj = [jmap.get(l[0], 0) for l in links] + [0] * (4 - len(links))
+                ww = [l[1] / tot for l in links] + [0.0] * (4 - len(links))
+                key = (pos, nrm, uv, tuple(jj), tuple(round(w, 5) for w in ww))
+                k = vmap.get(key)
+                if k is None:
+                    k = vmap[key] = len(P)
+                    P.append(pos); N.append(nrm); UV.append((uv[0], 1.0 - uv[1])); J.append(jj); W.append(ww)
+                idx.append(k)
+        P = np.array(P, '<f4'); N = np.array(N, '<f4')
+        N /= np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-8)
+        attrs = {'POSITION': g.acc(P, FLOAT, 'VEC3', 34962, True),
+                 'NORMAL': g.acc(N, FLOAT, 'VEC3', 34962),
+                 'TEXCOORD_0': g.acc(np.array(UV, '<f4'), FLOAT, 'VEC2', 34962),
+                 'JOINTS_0': g.acc(np.array(J, '<u2'), USHORT, 'VEC4', 34962),
+                 'WEIGHTS_0': g.acc(np.array(W, '<f4'), FLOAT, 'VEC4', 34962)}
+        prims.append({'attributes': attrs, 'indices': g.acc(np.array(idx, '<u4'), UINT, 'SCALAR', 34963), 'material': li, '_t': transp})
+        nverts += len(P); ntris += len(tris)
 
     # textures
     mat = {'name': 'pokemon', 'pbrMetallicRoughness': {'metallicFactor': 0.0, 'roughnessFactor': 1.0},
@@ -171,9 +180,16 @@ def convert(folder, out, fps=24.0):
     em = os.path.join(folder, 'emissive.png')
     if os.path.exists(em):
         mat['emissiveTexture'] = {'index': add_tex(em)}; mat['emissiveFactor'] = [1, 1, 1]
-
-    g.g['materials'] = [mat]
-    g.g['meshes'] = [{'name': 'body', 'primitives': [{'attributes': attrs, 'indices': ind, 'material': 0}]}]
+    mats = []
+    for li, pr in enumerate(prims):
+        m = json.loads(json.dumps(mat)); m['name'] = 'pokemon' if li == 0 else f'layer{li}'
+        t = pr.pop('_t')
+        if t is not None:  # couche semi-transparente (flammes, aura)
+            m['alphaMode'] = 'BLEND'; m.pop('alphaCutoff', None)
+            m['pbrMetallicRoughness']['baseColorFactor'] = [1, 1, 1, float(t)]
+        mats.append(m)
+    g.g['materials'] = mats
+    g.g['meshes'] = [{'name': 'body', 'primitives': prims}]
 
     # noeuds : 0..n-1 = os, n = maillage, n+1 = racine de scène
     gn = []
@@ -214,7 +230,7 @@ def convert(folder, out, fps=24.0):
         g.g['animations'].append({'name': aname, 'channels': chans, 'samplers': samps})
 
     g.write(out)
-    return {'bones': n, 'verts': len(P), 'tris': len(tris), 'anims': {k: len(v[1]) for k, v in anims.items()},
+    return {'bones': n, 'verts': nverts, 'tris': ntris, 'layers': [l[0] for l in layers], 'anims': {k: len(v[1]) for k, v in anims.items()},
             'kb': os.path.getsize(out) // 1024}
 
 if __name__ == '__main__':

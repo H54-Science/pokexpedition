@@ -27,12 +27,10 @@ export function newSave(seed = 1) {
     pity: Object.fromEntries(SETS.map((x) => [x.id, 0])),
     firstClear: { 1: false, 2: false, 3: false, 4: false, 5: false },
     coll: {},
-    team: [],
     run: null,
     log: [],
   };
   for (const k of C.start.starters) addCopy(s, k, false, C.start.level);
-  s.team = C.start.starters.slice(0, C.team.size);
   return s;
 }
 

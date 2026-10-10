@@ -28,25 +28,23 @@ function render() {
 }
 
 function renderExp() {
-  const E = CONFIG.expedition;
-  const team = S.team.map((k) => `${fr(M.formOf(k, S.coll[k].elev))} N${S.coll[k].L}`).join(", ");
-  $("exp").innerHTML = `<p class="mute">Équipe : ${esc(team)}</p>` + [1, 2, 3, 4, 5].map((d) => {
-    const r = M.rewardsOf(S, d);
-    return `<div class="row"><button data-exp="${d}" ${S.run ? "disabled" : ""}>Difficulté ${d}</button>
-      <span class="mute">adversaire niv. ${E.foeLevel[d - 1]} · +${r.voeux} vœux${S.firstClear[d] ? "" : " (1er clear)"} · ${Object.entries(r.mats).map(([t, n]) => `P${t}×${n}`).join(" ")}</span></div>`;
-  }).join("") + `<div class="row"><button data-exp10="1" ${S.run ? "disabled" : ""}>×10 la plus haute gagnable</button></div>`;
+  $("exp").innerHTML = [1, 2, 3, 4, 5].map((d) => {
+    const r = M.expeditionRewards(S, d), a = M.access(S, d);
+    return `<div class="row"><button data-exp="${d}" ${S.run || !a.ok ? "disabled" : ""}>Difficulté ${d} (niv. ${a.level})</button>
+      <span class="mute">${a.have}/${a.need} Pokémon au niveau · ${r.perAct} vœux par acte gagné · run complet : ${Object.entries(r.clearMats).map(([t, n]) => `P${t}×${n}`).join(" ")}${r.firstClear ? ` + ${r.firstClear} vœux (1er clear)` : ""}</span></div>`;
+  }).join("") + `<div class="row"><button data-exp10="1" ${S.run ? "disabled" : ""}>×10 la plus haute accessible</button></div>`;
 }
 
 function renderRun() {
   const el = $("run"), run = S.run;
   if (!run) {
     el.innerHTML = `<div class="row"><select id="set">${M.SETS.map((s) => `<option value="${s.id}">${esc(s.name)} — ${fr(s.legend)}</option>`).join("")}</select>
-      niveau <input id="lvl" type="number" min="1" max="100" value="${Math.max(1, Math.min(...S.team.map((k) => S.coll[k].L)))}" style="width:60px">
+      difficulté <select id="lvl">${[1, 2, 3, 4, 5].map((d) => `<option value="${d}" ${M.access(S, d).ok ? "" : "disabled"}>${d} (niv. ${M.levelOf(d)})</option>`).join("")}</select>
       <button class="main" id="start">Lancer (${CONFIG.capture.cost} vœux)</button></div>
       <p class="mute" id="chance"></p>` + (runLog.length ? `<div>${runLog.join("")}</div>` : "");
-    const upd = () => { const set = $("set").value, L = +$("lvl").value; const s = M.SET[set]; $("chance").textContent = `${s.nice.map(fr).join(", ")} · faibles : ${s.weak.map(fr).join(", ")} · capture de ${fr(s.legend)} au niveau ${L} : ${(M.legendChance(S, set, L) * 100).toFixed(1)} %`; };
-    $("set").onchange = upd; $("lvl").oninput = upd; upd();
-    $("start").onclick = () => act(() => { M.startRun(S, { set: $("set").value, level: +$("lvl").value }); runLog = []; });
+    const upd = () => { const set = $("set").value, L = M.levelOf(+$("lvl").value); const s = M.SET[set]; $("chance").textContent = `${s.nice.map(fr).join(", ")} · faibles : ${s.weak.map(fr).join(", ")} · capture de ${fr(s.legend)} au niveau ${L} : ${(M.legendChance(S, set, L) * 100).toFixed(1)} %`; };
+    $("set").onchange = upd; $("lvl").onchange = upd; upd();
+    $("start").onclick = () => act(() => { M.startRun(S, { mode: "capture", set: $("set").value, diff: +$("lvl").value }); runLog = []; });
     return;
   }
   const P = M.publicRun(run);
@@ -55,7 +53,8 @@ function renderRun() {
     const st = res ? (res.win ? `<span class="ok">victoire${res.captured ? " · capturé" : ""}${res.legend ? ` (${(res.legend.chance * 100).toFixed(0)} %)` : ""}${res.reward ? " · matériau rare" : ""}</span>` : `<span class="bad">défaite</span>`) : i === run.i && run.phase === "fight" ? "à jouer" : "";
     return `<tr><td>${i + 1}</td><td>${RF[f.role]}</td><td>${fr(f.k)}${f.shiny ? ' <span class="shiny">✦</span>' : ""}</td><td>${st}</td></tr>`;
   }).join("");
-  let html = `<p>${esc(M.SET[run.set].name)}, niveau ${run.level}</p><table>${steps}</table>`;
+  if (run.mode === "expedition") { el.innerHTML = `<p>Expédition D${run.diff} en cours (lancée depuis le jeu).</p><button id="all">Tout jouer et terminer</button>`; $("all").onclick = () => act(() => { while (S.run.phase === "fight") M.fightNext(S); M.finishRun(S); }); return; }
+  let html = `<p>${esc(M.SET[run.set].name)}, difficulté ${run.diff} (niv. ${run.level})</p><table>${steps}</table>`;
   if (run.phase === "fight") html += `<div class="row"><button class="main" id="next">Combat suivant</button><button id="all">Tout jouer</button><button id="stop">Arrêter</button></div>`;
   else {
     const ch = M.choices(S);
@@ -76,9 +75,7 @@ function renderRun() {
 function renderColl() {
   const rows = Object.entries(S.coll).sort((a, b) => b[1].L - a[1].L).map(([k, e]) => {
     const r = M.roleOf(k), c = M.elevationCost(S, k), form = M.formOf(k, e.elev);
-    const inTeam = S.team.includes(k);
-    return `<tr><td><input type="checkbox" data-team="${k}" ${inTeam ? "checked" : ""}></td>
-      <td>${fr(k)}${form !== k ? ` → ${fr(form)}` : ""}</td><td>${r ? `${M.SET[r.set].name} · ${RF[r.role]}` : "-"}</td>
+    return `<tr><td>${fr(k)}${form !== k ? ` → ${fr(form)}` : ""}</td><td>${r ? `${M.SET[r.set].name} · ${RF[r.role]}` : "-"}</td>
       <td>${e.normal ? "normal" : ""} ${e.shiny ? '<span class="shiny">✦</span>' : ""}</td>
       <td>N${e.L} / ${M.levelCap(e.elev)}</td><td>élév. ${e.elev}</td><td>${"★".repeat(e.stars)}${"☆".repeat(CONFIG.stars.max - e.stars)}</td>
       <td><button data-train="${k}">Entraîner</button>
@@ -86,23 +83,18 @@ function renderColl() {
       <button data-star="${k}" ${e.stars < CONFIG.stars.max ? "" : "disabled"}>Étoile${e.stars < CONFIG.stars.max ? ` (${CONFIG.stars.cost[e.stars]} fr.)` : ""}</button>
       ${e.shiny ? "" : `<button data-shard="${k}">✦ éclats</button>`}</td></tr>`;
   }).join("");
-  $("coll").innerHTML = `<p class="mute">Cocher jusqu'à ${CONFIG.team.size} Pokémon pour l'équipe.</p><table><tr><th>Équipe</th><th>Espèce</th><th>Set</th><th>Copies</th><th>Niveau</th><th>Élévation</th><th>Étoiles</th><th></th></tr>${rows}</table>`;
+  $("coll").innerHTML = `<table><tr><th>Espèce</th><th>Set</th><th>Copies</th><th>Niveau</th><th>Élévation</th><th>Étoiles</th><th></th></tr>${rows}</table>`;
 }
 
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   const d = b.dataset;
-  if (d.exp) act(() => { const r = M.playExpedition(S, +d.exp); if (!r.win) throw new Error(`Défaite contre ${fr(r.foe.k)} (niv. ${r.foe.L}).`); });
-  if (d.exp10) act(() => { for (let i = 0; i < 10; i++) { let done = false; for (let x = 5; x >= 1 && !done; x--) { const L = Math.min(...S.team.map((k) => S.coll[k].L)); if (CONFIG.expedition.foeLevel[x - 1] <= L + 2) { M.playExpedition(S, x); done = true; } } if (!done) M.playExpedition(S, 1); } });
+  if (d.exp) act(() => { const r = M.playExpedition(S, +d.exp); if (!r.cleared) throw new Error(`Expédition ratée : +${r.voeux} vœux quand même.`); });
+  if (d.exp10) act(() => { const x = [5, 4, 3, 2, 1].find((y) => M.access(S, y).ok); for (let i = 0; i < 10; i++) M.playExpedition(S, x); });
   if (d.train) act(() => M.train(S, d.train, 1));
   if (d.elev) act(() => M.elevate(S, d.elev));
   if (d.star) act(() => M.buyStar(S, d.star));
   if (d.shard) act(() => M.redeemShards(S, d.shard));
-});
-document.addEventListener("change", (e) => {
-  const c = e.target.closest("[data-team]"); if (!c) return;
-  const sel = [...document.querySelectorAll("[data-team]:checked")].map((x) => x.dataset.team);
-  act(() => M.setTeam(S, sel));
 });
 $("reset").onclick = () => { if (!confirm("Effacer la progression ?")) return; M.localStore.reset(); S = M.newSave((Math.random() * 2 ** 31) | 0); runLog = []; M.localStore.save(S); render(); };
 render();

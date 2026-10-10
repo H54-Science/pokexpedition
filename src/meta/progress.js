@@ -56,9 +56,3 @@ export function redeemShards(save, k) {
   save.shards -= cost; addCopy(save, k, true);
   return { cost };
 }
-
-export function setTeam(save, list) {
-  const t = [...new Set(list)].filter((k) => save.coll[k]);
-  if (!t.length || t.length > CONFIG.team.size) throw new Error(`Équipe de 1 à ${CONFIG.team.size} Pokémon.`);
-  save.team = t;
-}

@@ -14,6 +14,7 @@ import { Lobby } from "./lobby/lobby.js";
 import { SKINS, skinThumb } from "./lobby/trainer.js";
 import * as Meta from "./meta/index.js";
 import { MetaScreens } from "./ui/metaScreens.js";
+import { RunUI } from "./ui/runScreens.js";
 
 const q = new URLSearchParams(location.search);
 const store = {
@@ -21,7 +22,7 @@ const store = {
   set(k, v) { try { if (v == null) localStorage.removeItem("pokeimpact." + k); else localStorage.setItem("pokeimpact." + k, JSON.stringify(v)); } catch (e) {} },
 };
 
-let stage, scr, index, lobby, ms, meta;
+let stage, scr, index, lobby, ms, ru, meta;
 const saveMeta = () => { Meta.localStore.save(meta); updateRes(); };
 function updateRes() { const el = document.querySelector(".lb-res"); if (el && meta) el.innerHTML = `Vœux <b>${meta.voeux}</b> · Éclats <b>${meta.shards}</b>${meta.run ? " · <i>run en cours</i>" : ""}`; }
 const has = (k) => !!index[k.toLowerCase()];
@@ -50,8 +51,8 @@ const back = () => toLobby("keep");
 
 function lobbyAction(id) {
   lobby.pause(true);
-  if (id === "expedition") return expeditions();
-  if (id === "capture") return capture();
+  if (id === "expedition") return runEntry("expedition");
+  if (id === "capture") return runEntry("capture");
   if (id === "collection" || id === "training") return collection();
   if (id === "wardrobe") {
     return scr.wardrobe({
@@ -65,61 +66,45 @@ function lobbyAction(id) {
 // ───────── boucle de progression (src/meta) ─────────
 const fail = (e, then) => scr.message({ title: "Impossible", lines: [e.message], btn: "OK", onOk: then });
 
-function expeditions() {
-  ms.expeditions({
-    save: meta, onBack: back, onTheatre: hub, onTeam: () => collection(expeditions),
-    onPlay: async (d) => {
-      let prep; try { prep = Meta.expeditionConfig(meta, d); } catch (e) { return fail(e, expeditions); }
-      saveMeta();
-      const res = await fight(prep.cfg);
-      const r = Meta.finishExpedition(meta, d, prep.foe, res.win); saveMeta();
-      scr.message({
-        title: r.win ? "Expédition réussie !" : "Défaite…",
-        lines: r.win ? [`+${r.rewards.voeux} vœux`, Object.entries(r.rewards.mats).map(([t, n]) => `Matériau P${t} ×${n}`).join(" · ")] : [`${SPECIES[prep.foe.k].fr} (niv. ${prep.foe.L}) était trop fort. Entraîne ou élève ton équipe.`],
-        btn: "Continuer", onOk: expeditions,
-      });
+// Expéditions et vœux : Difficulté → (Set) → actes (choix de 3 Pokémon par combat) → fin.
+function runEntry(mode) {
+  if (meta.run) return meta.run.phase === "choice" ? runEnd() : runBoard();
+  ru.difficulty({
+    save: meta, mode, onBack: () => { ru.close(); back(); },
+    onPick: (diff) => {
+      if (mode === "expedition") return startRun({ mode, diff });
+      ru.sets({ save: meta, diff, onBack: () => runEntry(mode), onPick: (set) => startRun({ mode, diff, set }) });
     },
   });
 }
-
-function capture() {
-  if (meta.run) return meta.run.phase === "choice" ? runChoice() : runStatus();
-  ms.captureSetup({
-    save: meta, onBack: back, onTeam: () => collection(capture),
-    onStart: (set, level) => { try { Meta.startRun(meta, { set, level }); saveMeta(); runStatus(); } catch (e) { fail(e, capture); } },
-  });
+function startRun(opts) {
+  try { Meta.startRun(meta, opts); } catch (e) { return fail(e, () => runEntry(opts.mode)); }
+  saveMeta(); ru.team = null; runBoard();
 }
-function runStatus() {
-  ms.runStatus({
-    save: meta, onBack: back,
-    onStop: () => { Meta.stopRun(meta); saveMeta(); runChoice(); },
-    onNext: async () => {
-      const cfg = Meta.nextFightConfig(meta); saveMeta();
+function runBoard(last = null) {
+  ru.board({
+    save: meta, last,
+    onLeave: () => { ru.close(); back(); },
+    onStop: () => { Meta.stopRun(meta); saveMeta(); runEnd(); },
+    onFight: async (team) => {
+      let cfg; try { cfg = Meta.nextFightConfig(meta, team); } catch (e) { return fail(e, runBoard); }
+      saveMeta(); ru.close();
       const res = await fight(cfg);
       const out = Meta.resolveFight(meta, res.win); saveMeta();
       const name = SPECIES[out.foe].fr;
-      const lines = !out.win ? ["Le run s'arrête. Tu gardes ce que tu as capturé."]
-        : out.captured ? [`${name} est capturé !`]
-        : out.legend ? [`${name} s'est échappé (${Math.round(out.legend.chance * 100)} % de chance).`, `Pity du set : +${Math.round(meta.pity[meta.run ? meta.run.set : "abysses"] * 100)} points.`]
-        : out.reward ? [`${name} est déjà complet : matériau P${out.reward.mat} ×${out.reward.n}.`] : [];
-      scr.message({ title: out.win ? "Victoire !" : "Défaite…", lines, btn: "Continuer", onOk: () => (meta.run.phase === "choice" ? runChoice() : runStatus()) });
+      const text = !out.win ? `Défaite contre ${name}` : out.captured ? `${name} capturé !` : out.legend ? `${name} s'est échappé (${Math.round(out.legend.chance * 100)} %)` : out.reward ? `${name} : matériau P${out.reward.mat} ×${out.reward.n}` : out.voeux ? `Victoire ! +${out.voeux} vœux` : "Victoire !";
+      if (meta.run.phase === "choice") runEnd(); else runBoard({ win: out.win, text });
     },
   });
 }
-function runChoice() {
-  const setId = meta.run.set;
-  ms.runChoice({
-    save: meta,
-    onKeep: (i) => {
-      let sum; try { sum = Meta.finishRun(meta, i); } catch (e) { return fail(e, runChoice); }
-      saveMeta();
-      scr.message({
-        title: sum.kept ? `${SPECIES[sum.kept.k].fr}${sum.kept.shiny ? " ✦" : ""} rejoint ta collection !` : "Run terminé",
-        lines: [`+${sum.frags} fragments (${Meta.SET[setId].name})`, sum.shards ? `+${sum.shards} éclat chroma` : ""],
-        btn: "Retour au hall", onOk: () => toLobby("keep"),
-      });
-    },
-  });
+function runEnd() {
+  const finish = (keep) => {
+    let sum; try { sum = Meta.finishRun(meta, keep); } catch (e) { return fail(e, runEnd); }
+    saveMeta();
+    ru.summary({ save: meta, sum, onOk: () => { ru.close(); toLobby("keep"); } });
+  };
+  if (meta.run.mode === "expedition") return finish(null);
+  ru.choice({ save: meta, onKeep: finish });
 }
 
 let collMsg = "";
@@ -130,7 +115,6 @@ function collection(backTo = back) {
     onAct: async (act, k) => {
       collMsg = "";
       try {
-        if (act === "team") { const t = meta.team.includes(k) ? meta.team.filter((x) => x !== k) : [...meta.team, k]; Meta.setTeam(meta, t); }
         if (act === "trainMax") { const r = Meta.train(meta, k, 500); collMsg = `${SPECIES[k].fr} : niveau ${r.L}`; }
         if (act === "train") { const r = Meta.train(meta, k, 1); collMsg = `${SPECIES[k].fr} : niveau ${r.L}${r.capped ? " (plafond atteint)" : ""}`; }
         if (act === "elev") { const r = Meta.elevate(meta, k); collMsg = `${SPECIES[k].fr} : élévation ${r.elev}${r.evolved ? ` — évolue en ${SPECIES[r.evolved].fr} !` : ""}`; }
@@ -255,11 +239,11 @@ async function start() {
   // hall : modèle, dresseur, partenaire
   const bar = document.querySelector("#loading .bar i");
   meta = Meta.localStore.load((Math.random() * 2 ** 31) | 0);
-  ms = new MetaScreens(scr);
+  ms = new MetaScreens(scr); ru = new RunUI(scr);
   lobby = new Lobby(stage, { onAction: lobbyAction });
   await lobby.load((p) => { if (bar) bar.style.width = Math.round(p * 80) + "%"; });
   await lobby.setSkin(store.get("skin", SKINS[0]));
-  const partner = [store.get("partner", null), ...meta.team].find((k) => k && meta.coll[k]);
+  const partner = [store.get("partner", null), ...Object.keys(meta.coll)].find((k) => k && meta.coll[k]);
   await lobby.setPartner(Meta.formOf(partner, meta.coll[partner].elev)); lobby.partnerKey = partner;
   if (bar) bar.style.width = "100%";
   window.__game = { stage, scr, R, lobby, Meta, get meta() { return meta; } };
@@ -268,6 +252,7 @@ async function start() {
   Sfx.unlock();
   document.getElementById("loading").classList.add("out");
   if (q.has("quick")) return quick();
+  if (q.has("theatre")) { toLobby("door"); lobby.pause(true); return hub(); }   // ancien mode Théâtre (plus relié au hall)
   toLobby("door");
 }
 start().catch((e) => { console.error(e); const m = document.querySelector("#loading small"); if (m) m.textContent = "Erreur : " + e.message; });

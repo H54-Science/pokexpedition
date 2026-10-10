@@ -131,7 +131,7 @@
    "idle",
    "walk"
   ],
-  "kb": 75,
+  "kb": 92,
   "shiny": true,
   "h": 1.6
  },
@@ -233,7 +233,7 @@
    "idle",
    "walk"
   ],
-  "kb": 189,
+  "kb": 207,
   "shiny": true,
   "h": 1.7
  },
@@ -357,7 +357,7 @@
    "idle",
    "walk"
   ],
-  "kb": 40,
+  "kb": 50,
   "shiny": true,
   "h": 0.5
  },

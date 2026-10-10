@@ -1,28 +1,30 @@
 // Boucle de progression : TOUS les chiffres réglables sont ici.
 // Modifier ce fichier ne demande pas de toucher au code (src/meta/*.js).
 export const CONFIG = {
-  save: { key: "pokeimpact.meta", version: 1 },
+  save: { key: "pokeimpact.meta", version: 2 },
 
-  // Départ : 3 Pokémon faibles (pris dans des sets différents pour avoir leurs fragments), quelques vœux.
-  start: { voeux: 20, starters: ["MUDKIP", "LITWICK", "TRAPINCH"], level: 20 },
+  // Départ : 6 Pokémon faibles niveau 20 (assez pour la difficulté 1), quelques vœux.
+  start: { voeux: 20, starters: ["MUDKIP", "SQUIRTLE", "LITWICK", "PUMPKABOO", "TRAPINCH", "RALTS"], level: 20 },
+
+  // ───── runs (expéditions ET runs de capture) ─────
+  // Difficulté D = niveau des adversaires levels[D-1]. Accès : au moins minRoster Pokémon de niveau ≥ ce niveau.
+  // 5 actes ; à chaque acte on choisit teamSize Pokémon ; chacun peut combattre `uses` fois par run.
+  run: { levels: [20, 40, 60, 80, 100], acts: 5, teamSize: 3, uses: 3, minRoster: 6 },
 
   // ───── expéditions (source de vœux et de matériaux) ─────
   expedition: {
-    // difficulté 1..5
-    voeux: [2, 4, 8, 14, 24],
-    firstClearBonus: 10,
-    matMain: 2,          // matériau de palier D
-    matPrev: 1,          // matériau de palier D-1
-    foeLevel: [12, 30, 50, 70, 88],
-    foeHp: [7, 8, 9, 10, 11],      // multiplicateur de PV du boss (raid 1 contre 3)
-    foePow: [0.6, 0.64, 0.68, 0.72, 0.76],
-    foeRole: ["weak", "nice", "nice", "nice", "nice"],   // rôle (dans les sets) de l'adversaire tiré
+    voeuxPerAct: [2, 4, 7, 11, 16],   // par combat gagné, selon la difficulté
+    firstClearBonus: 10,              // premier run complet de chaque difficulté
+    matMain: 2,                       // run complet : matériau de palier D ×2
+    matPrev: 1,                       // et matériau de palier D-1 ×1
+    order: ["weak", "weak", "nice", "weak", "nice"],
+    foeHp: { weak: 5, nice: 7 },
+    foePow: { weak: 0.58, nice: 0.64 },
   },
 
   // ───── run de capture ─────
   capture: {
     cost: 10,                       // vœux
-    levelMin: 1, levelMax: 100,
     order: ["weak", "weak", "nice", "weak", "legend"],
     foeHp: { weak: 4, nice: 6, legend: 6 },
     foePow: { weak: 0.55, nice: 0.62, legend: 0.62 },
@@ -61,5 +63,4 @@ export const CONFIG = {
 
   // qualité de frappe rythmée utilisée par les combats simulés (0 rien, 1 bien, 2 excellent)
   simQuality: 1,
-  team: { size: 3 },
 };
