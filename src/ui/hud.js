@@ -1,5 +1,5 @@
 // Interface de combat « raid » (3 alliés contre 1 boss), en HTML par-dessus la scène 3D.
-// Barre du boss en haut, frise à gauche, équipe en bas à gauche, pile de commandes en bas à droite.
+// Barre du boss en haut, frise à gauche, équipe en bas à gauche, au centre et à droite, pile de commandes en bas à droite.
 import { h, clamp } from "../core.js";
 import { SPECIES, TYPE_COLOR, STATUS, describe, fr } from "../data/data.js";
 import { MAX_EN, SLOT_NAME } from "../data/moves.js";
@@ -12,6 +12,18 @@ const ICON = {
   items: "M8 7V6a4 4 0 0 1 8 0v1h3.5l1 14.5h-17L4.5 7zm2 0h4V6a2 2 0 0 0-4 0zM9 12h6v2H9z",
   ult: "M12 1l2.3 6.2L20.5 4l-3.2 5.9L23 12l-5.7 2.1 3.2 5.9-6.2-3.2L12 23l-2.3-6.2-6.2 3.2 3.2-5.9L1 12l5.7-2.1L3.5 4l6.2 3.2z",
 };
+function hpRing() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("class", "hp-ring");
+  svg.setAttribute("aria-hidden", "true");
+  for (const cls of ["ring-track", "ring-trail", "ring-health", "ring-shield"]) {
+    const circle = document.createElementNS(svg.namespaceURI, "circle");
+    for (const [key, val] of Object.entries({ cx: 50, cy: 50, r: cls === "ring-shield" ? 48 : 43, pathLength: 100, class: cls })) circle.setAttribute(key, val);
+    svg.appendChild(circle);
+  }
+  return svg;
+}
 const SEG_HUE = [190, 205, 222, 250, 275]; // cyan → bleu → violet
 
 export class Hud {
@@ -36,7 +48,7 @@ export class Hud {
   }
 
   setPortraits(p) { this.pics = p; }
-  pic(k) { return this.pics[k] || ""; }
+  pic(k) { return `assets/pokemon/${k}.png`; }
   setTitle() {}
 
   // ───────── outils (haut droite) ─────────
@@ -68,7 +80,7 @@ export class Hud {
     } else {
       const i = Object.keys(this.cards).length;
       const el = h("div", { class: "card", style: { "--c": TYPE_COLOR[sp.t[0]] }, onclick: () => this.onCard && this.onCard(u.id) },
-        h("div", { class: "pt" }, h("span", { style: { backgroundImage: `url(${this.pic(u.k)})` } }), h("em", null, String(u.L))),
+        h("div", { class: "pt" }, hpRing(), h("img", { class: "combat-sprite", src: this.pic(u.k), alt: fr(u.k), draggable: "false" }), h("em", null, String(u.L))),
         h("div", { class: "info" },
           h("div", { class: "top" }, h("span", { class: "nm" }, fr(u.k)), h("span", { class: "hpn" })),
           h("div", { class: "hpbar" }, h("s"), h("b"), h("u")),
@@ -106,6 +118,10 @@ export class Hud {
     }
     const el = this.cards[id]; if (!el) return;
     const bar = el.querySelector(".hpbar");
+    el.style.setProperty("--hp", p * 100);
+    el.style.setProperty("--shield", clamp(d.shield / d.maxHp, 0, 1) * 100);
+    el.style.setProperty("--hp-color", p <= 0.2 ? "#ff5a6c" : p <= 0.5 ? "#ffc94e" : "#63f5ab");
+    el.setAttribute("aria-label", `${fr(d.k)} : ${Math.ceil(d.hp)} PV sur ${d.maxHp}${d.shield ? `, bouclier ${d.shield}` : ""}`);
     bar.querySelector("b").style.width = p * 100 + "%";
     bar.querySelector("s").style.width = p * 100 + "%";
     bar.querySelector("u").style.width = clamp(d.shield / d.maxHp, 0, 1) * 100 + "%";
@@ -139,7 +155,7 @@ export class Hud {
     ids.slice(0, 7).forEach((id, i) => {
       const d = this.disp[id]; if (!d) return;
       this.tl.appendChild(h("div", { class: "tl " + d.side + (i === 0 && id === nowId ? " now" : ""), title: fr(d.k) },
-        h("span", { style: { backgroundImage: `url(${this.pic(d.k)})`, backgroundSize: "cover", backgroundPosition: "center 30%" } }),
+        h("img", { class: "combat-sprite", src: this.pic(d.k), alt: fr(d.k), draggable: "false" }),
         i ? h("i", null, String(i)) : null));
     });
   }

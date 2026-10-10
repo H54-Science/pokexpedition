@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { Clock, wait, sleep, tween, Ease, clamp } from "../core.js";
 import { Combat } from "../combat/engine.js";
 import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
-import { makePokemon, portrait } from "../render/assets.js";
+import { makePokemon } from "../render/assets.js";
 import { Sfx } from "../audio.js";
 import { openHelp } from "../ui/help.js";
 
@@ -35,8 +35,7 @@ export class Director {
     const cfg = this.cfg;
     this.b = new Combat({ seed: cfg.seed, allies: cfg.allies, enemies: cfg.enemies, pool: cfg.pool, danger: cfg.danger, bossHp: cfg.bossHp, bossPow: cfg.bossPow, mods: cfg.mods });
     const units = this.b.units;
-    const species = [...new Set(units.map((u) => u.k).concat(cfg.pool || []))];
-    let done = 0; const total = units.length + species.length + 1;
+    let done = 0; const total = units.length + 1;
     const step = () => progress && progress(++done / total);
     // modèles
     this.models = {};
@@ -44,10 +43,6 @@ export class Director {
       this.stage.loadArena().then(step),
       ...units.map(async (u) => { this.models[u.id] = await makePokemon(u.k, { boss: u.boss, shiny: u.shiny }); step(); }),
     ]);
-    // portraits (un rendu par espèce, à la suite)
-    const pics = {};
-    for (const k of species) { pics[k] = await portrait(k); step(); }
-    this.hud.setPortraits(pics);
     for (const u of units) { this.stage.addUnit(u.id, this.models[u.id], u.side); this.hud.addUnit(u); }
     this.layout(false);
     this.buildTopbar();
