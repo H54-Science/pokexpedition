@@ -5,7 +5,7 @@ Chiffres et difficultés : `src/meta/config.js`. Sets : `src/meta/sets.js`, édi
 Taux de victoire indicatifs : `node tools/balance_meta.mjs [n]`.
 
 ## Ce qui est codé (boucle minimale viable)
-Expéditions (vœux + matériaux) → run de capture (10 vœux) → un Pokémon gardé, reste en fragments / éclats → entraînement → élévation (+ évolution) → expéditions et runs plus hauts.
+Expédition (vœux, cristaux, captures) → un Pokémon gardé, le reste en fragments / éclats → élévation (+ niveau, + évolution) → difficultés plus hautes. Le hall affiche le prochain objectif (`src/meta/goals.js`).
 
 ## Volontairement pas codé (reporté)
 - **Buff « prochain adversaire = espèce choisie »** : pas codé.
@@ -24,16 +24,16 @@ Expéditions (vœux + matériaux) → run de capture (10 vœux) → un Pokémon 
 ## Choix par défaut (à valider)
 - **Départ** : 20 vœux et 6 Pokémon faibles niveau 20 (Gobou, Carapuce, Funécire, Pitrouille, Kraknoix, Tarsal), répartis dans les 4 sets.
 - **Expédition** : 5 actes (faible, faible, sympa, faible, sympa) tirés dans tous les sets. Le légendaire n'apparaît que dans les runs de capture.
-- **Niveau d'un Pokémon capturé** : min(niveau du run, 20).
+- **Niveau d'un Pokémon capturé** : celui de l'élévation 0 (20).
 - **Progression partagée** : la copie normale et la copie chromatique d'une espèce ont le même niveau, la même élévation et les mêmes étoiles (une seule fiche par espèce, comme le modèle de données demandé).
 - **Pity par set** et non global. Il monte seulement quand le jet de capture est tenté (victoire contre le légendaire, niveau ≥ 30) et raté.
 - **Défaite pendant un run** : le run s'arrête et on passe à la fin avec ce qui est acquis (captures, vœux des actes gagnés).
 - **Sauvegarde v3** : migrations v1 → v2 (starters, plus d'équipe fixe) et v2 → v3 (run en cours abandonné).
 - **Combats 1, 2, 4** : 3 faibles différents, tirés sans remise parmi les 4 du set.
 - **Évolution** : seulement pour les lignées dont les deux modèles existent (Funécire→Lugulabre, Kraknoix→Libégon, Tylton→Altaria, Cacnea→Cacturne, Pitrouille→Banshitrouye, Mascaïman→Crocorible, Sonistrelle→Bruyverne). Avec 2 stades, l'évolution a lieu à l'élévation 1. L'espèce de la fiche reste la forme de base.
-- **Élévation** : il faut être au plafond de niveau actuel. Coût : fragments du set de l'espèce + matériau de palier N.
+- **Élévation** : seule façon de monter de niveau (plus d'entraînement : le niveau vaut toujours le plafond de l'élévation, 20/40/60/80/100). Coût : fragments du set de l'espèce + cristal N.
 - **Étoiles** : +4 % de stats par étoile (champ `bonus` du moteur), 5 au maximum.
-- **Légendaire complet** (normal + chromatique) : la victoire donne 1 matériau P5.
+- **Légendaire complet** (normal + chromatique) : la victoire donne 1 cristal de palier 5.
 - **Combat simulé** : frappe rythmée « bien » (q = 1) partout.
 - **Sauvegarde** : clé `pokeimpact.meta.v1`, migrations dans `src/meta/save.js` (`MIGRATIONS[n]` passe de v n à v n+1).
 

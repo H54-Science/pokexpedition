@@ -6,6 +6,7 @@ import { Combat } from "../combat/engine.js";
 import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
 import { makePokemon, portrait } from "../render/assets.js";
 import { Sfx } from "../audio.js";
+import { openHelp } from "../ui/help.js";
 
 const CONTACT = new Set(["Normal", "Combat", "Acier", "Ténèbres", "Insecte", "Dragon", "Roche", "Sol"]);
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -61,6 +62,7 @@ export class Director {
       { id: "qte", label: "Frappes rythmées", on: s.qte, onclick: () => this.toggle("qte"), title: "Jauge : zone verte = excellent (+30 % de dégâts ou −55 % subis), jaune = bien" },
       { id: "speed", label: "×" + s.speed, on: s.speed > 1, key: "X", onclick: () => this.toggle("speed") },
       { id: "auto", label: "Auto", on: s.auto, key: "A", onclick: () => this.toggle("auto") },
+      { id: "help", label: "?", key: "H", title: "Comment jouer", onclick: () => openHelp() },
     ]);
   }
   toggle(k) {
@@ -138,8 +140,20 @@ export class Director {
   }
   refreshTimeline(nowId) { this.hud.timeline(this.b.preview(8), nowId); }
 
+  // Conseils des premiers combats : une fois chacun (mémorisés), jamais en mode auto.
+  async tip(id, title, text) {
+    const seen = store.get("tips", []);
+    if (this.settings.auto || seen.includes(id)) return;
+    store.set("tips", [...seen, id]);
+    await this.hud.tip(title, text);
+  }
+
   // ───────── tour d'un allié ─────────
   async allyTurn(u) {
+    await this.tip("turn", "C'est ton tour", [
+      "Attaque (Q) : coup simple qui rapporte 1 énergie (jauge bleue en bas). Capacités (E) : plus fortes, elles coûtent de l'énergie.",
+      "Objets (I) : soins et bonus, un par tour, sans perdre ton tour. Sous la barre du boss : sa prochaine attaque et sa cible.",
+      "Le bouton ? en haut à droite explique tout le combat."]);
     if (!this.target || !this.b.unit(this.target).alive) this.target = this.defaultTarget();
     this.setTarget(this.target);
     this.stage.solo(u.id);
@@ -241,6 +255,8 @@ export class Director {
   // Frappe rythmée sur la cible (ou au centre du camp visé).
   async timing(kind, u, m, targetId, ult) {
     if (!this.settings.qte || this.settings.auto) return 0;
+    if (kind === "atk") await this.tip("qte-atk", "Frappe rythmée", "Appuie sur Espace (ou touche l'écran) quand le curseur passe sur la zone verte : +30 % de dégâts. Jaune : +15 %.");
+    else await this.tip("qte-def", "Parade", "L'ennemi attaque : même jauge. Zone verte = −55 % de dégâts subis, jaune = −28 %. Tu peux couper les frappes rythmées en haut à droite.");
     const st = this.stage;
     const side = u.side === "ally" ? "enemy" : "ally";
     const pos = () => {
@@ -265,6 +281,7 @@ export class Director {
     const k = e.key.toLowerCase();
     if (k === "a") return this.toggle("auto");
     if (k === "x") return this.toggle("speed");
+    if (k === "h") return openHelp();
     if (!this.input || this.busy) return;
     if (k === "q") return this.pick(0);
     if (k === "e") return this.hud.panel() === "moves" ? this.hud.closeMoves() : this.hud.openMoves();
@@ -303,7 +320,7 @@ export class Director {
         break;
       }
       case "pts": hud.setPts(ev.pts, ev.gain > 0); if (ev.gain > 0) Sfx.play("pts"); break;
-      case "charge": hud.apply({ id: ev.id, charge: ev.charge }); if (ev.ready && b.unit(ev.id).side === "ally") Sfx.play("ultReady"); break;
+      case "charge": hud.apply({ id: ev.id, charge: ev.charge }); if (ev.ready && b.unit(ev.id).side === "ally") { Sfx.play("ultReady"); await this.tip("ult", "Ultime prêt", `L'anneau de ${fr(b.unit(ev.id).k)} est plein : pendant un de tes tours, touche sa carte (ou U). L'ultime ne coûte pas le tour.`); } break;
       case "move": await this.moveStart(ev); break;
       case "hit": await this.hit(ev); break;
       case "moveEnd": await this.retreat(); this.cur = null; break;
@@ -323,7 +340,7 @@ export class Director {
         await wait(380);
         break;
       }
-      case "reaction": await this.reaction(ev); break;
+      case "reaction": await this.reaction(ev); await this.tip("rx", "Réaction élémentaire", "Feu, Eau, Plante, Électrik et Glace laissent une aura sur la cible ; un autre élément la déclenche pour un effet bonus. La liste est dans le bouton ?."); break;
       case "ko": await this.ko(ev); break;
       case "heal":
         hud.apply(ev.u);

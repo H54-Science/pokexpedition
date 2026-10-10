@@ -46,10 +46,6 @@ export class Screens {
     this._hideT = setTimeout(() => { r.style.display = "none"; r.innerHTML = ""; r.classList.remove("theatre-mode", "scr-hiding"); }, 240);
   }
 
-  welcome({ hasRun, onPrepare, onBack }) {
-    this.show(landing({ title: "Le Théâtre\ndes expéditions", subtitle: "Choisis ta difficulté, rassemble tes partenaires et écris le prochain chapitre de votre aventure.", primary: { label: hasRun ? "Reprendre l'aventure" : "Préparer une expédition", fn: onPrepare }, back: onBack }));
-  }
-
   hub({ hasRun, best, onNew, onResume, onQuick, onBack }) {
     this.show(landing({ title: "Le Théâtre\ndes expéditions", subtitle: "Compose ta troupe, choisis ton destin. Derrière chaque carte, une nouvelle histoire attend ses héros.", primary: { label: "Préparer une représentation", fn: onNew }, secondary: onQuick ? { label: "Combat rapide", fn: onQuick } : null, resume: hasRun ? onResume : null, back: onBack, best }));
   }
@@ -126,7 +122,7 @@ export class Screens {
   }
 
   message({ title, lines = [], btn = "Continuer", onOk }) {
-    this.show(shell("Le Théâtre des expéditions", "LE RÉCIT CONTINUE", h("div", { class: "ex-message" }, icon("star"), h("h2", null, title), ...lines.map(l => h("p", null, l)), action(btn, onOk, true))));
+    this.show(shell("Pokexpédition", "", h("div", { class: "ex-message" }, icon("star"), h("h2", null, title), ...lines.map(l => h("p", null, l)), action(btn, onOk, true))));
   }
-  loading(text) { this.show(shell("Préparation de la scène", "POKEXPÉDITION", h("div", { class: "ex-message" }, icon("star", "ex-spinner"), h("h2", null, text)))); }
+  loading(text) { this.show(shell("Pokexpédition", "", h("div", { class: "ex-message" }, icon("star", "ex-spinner"), h("h2", null, text)))); }
 }

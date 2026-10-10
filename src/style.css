@@ -305,7 +305,7 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
   .stamp { font-size: 26px; }
   #loading h1 { font-size: 34px; } #loading .bar { width: 70vw; }
   .lb-title { left: 16px; top: 14px; } .lb-title b { font-size: 24px; }
-  .lb-menu { right: 14px; gap: 10px; }
+  .lb-menu { right: 14px; top: auto; bottom: 120px; transform: none; gap: 10px; }
   .lb-item { min-width: 0; padding: 6px 14px 6px 6px; } .lb-ic { width: 38px; height: 38px; } .lb-ic .ex-icon, .lb-ic .ex-icon svg { width: 24px; height: 24px; }
   .lb-item b { font-size: 16px; } .lb-item small { font-size: 11px; } .lb-item kbd { display: none; }
 }
@@ -384,26 +384,8 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 .lb-item b { display: block; font: 700 18px/1.1 var(--px); }
 .lb-item small { font-size: 12px; color: rgba(255, 255, 255, .65); }
 .lb-item kbd { margin-left: auto; padding: 1px 6px; border-radius: 4px; font: 700 11px var(--px); background: rgba(255, 255, 255, .12); color: rgba(255, 255, 255, .75); }
-.m-hall { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin: 14px 0; }
-.m-hall-p { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 10px; border: 2px solid transparent; cursor: pointer; background: rgba(255, 255, 255, .06); color: var(--ink); font: 12px var(--sans); }
-.m-hall-p img { width: 72px; height: 72px; object-fit: contain; image-rendering: pixelated; }
-.m-hall-p.on { border-color: var(--gold); background: rgba(255, 211, 106, .12); }
-.m-hall-p:disabled { opacity: .4; cursor: default; }
-.m-hall-n { position: absolute; top: 4px; left: 6px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font: 700 11px var(--px); color: #1a1008; background: var(--gold); }
 .lb-res { margin-top: 8px; font: 600 13px var(--sans); color: var(--ink); text-shadow: 0 1px 2px #000; }
 .lb-res b { color: var(--gold); }
-.m-res { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--mute); }
-.m-res b { color: var(--gold); }
-.m-mat { margin-right: 6px; }
-.m-num { width: 70px; padding: 4px 6px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, .25); background: rgba(0, 0, 0, .3); color: var(--ink); font: inherit; }
-.m-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
-.m-table th { text-align: left; color: var(--mute); font-weight: 600; padding: 4px 6px; }
-.m-table td { padding: 5px 6px; border-top: 1px solid rgba(255, 255, 255, .08); vertical-align: middle; }
-.m-table tr.m-team td { background: rgba(255, 211, 106, .08); }
-.m-acts { display: flex; flex-wrap: wrap; gap: 4px; }
-.m-star, .m-sh { color: var(--gold); white-space: nowrap; }
-.m-msg { color: var(--gold); font-weight: 700; }
-.s-card.m-shiny { box-shadow: 0 0 0 2px var(--gold), 0 0 24px rgba(255, 211, 106, .5); }
 
 /* ───────── transitions entre menus ───────── */
 @keyframes uiFadeIn { from { opacity: 0; } }
@@ -418,15 +400,15 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 #screens > .scr-in { animation: uiPageIn .34s cubic-bezier(.2, .8, .2, 1) both; }
 #screens > .scr-out { position: absolute !important; inset: 0; z-index: 0; pointer-events: none; animation: uiPageOut .24s ease-in both; }
 /* contenus en cascade (une seule fois, à l'entrée de l'écran) */
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > * { animation: uiRise .42s cubic-bezier(.2, .8, .2, 1) both; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > * { animation: uiRise .42s cubic-bezier(.2, .8, .2, 1) both; }
 .scr-in :is(.rs-picks, .rs-buffs) > * { animation-name: uiPop; animation-duration: .5s; }
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(2) { animation-delay: .04s; }
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(3) { animation-delay: .08s; }
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(4) { animation-delay: .12s; }
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(5) { animation-delay: .16s; }
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(6) { animation-delay: .2s; }
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(7) { animation-delay: .24s; }
-.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(n+8) { animation-delay: .28s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(2) { animation-delay: .04s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(3) { animation-delay: .08s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(4) { animation-delay: .12s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(5) { animation-delay: .16s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(6) { animation-delay: .2s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(7) { animation-delay: .24s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(n+8) { animation-delay: .28s; }
 .scr-in :is(.rs-actions, .ex-footer) { animation: uiFadeIn .4s .15s ease-out both; }
 /* hall : titre et menu qui glissent à l'arrivée */
 #lobby-ui.lb-enter .lb-title { animation: uiRise .5s cubic-bezier(.2, .8, .2, 1) both; }
@@ -441,3 +423,11 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 @media (prefers-reduced-motion: reduce) {
   #screens *, #screens, #lobby-ui * { animation: none !important; transition: none !important; }
 }
+
+/* conseils des premiers combats */
+.tip { pointer-events: auto; position: absolute; left: 50%; top: 42%; z-index: 12; width: min(460px, calc(100vw - 32px)); transform: translate(-50%, -50%); padding: 16px 20px 14px; border-radius: 6px; background: linear-gradient(160deg, rgba(40, 30, 72, .97), rgba(14, 20, 48, .97)); box-shadow: inset 0 0 0 3px #ffbf74, 0 10px 40px rgba(0, 0, 0, .6); animation: pop .3s cubic-bezier(.2, 1.4, .4, 1); }
+.tip small { display: block; font: 800 11px var(--sans); letter-spacing: 2px; text-transform: uppercase; color: #ffbf74; }
+.tip b { display: block; margin: 2px 0 6px; font: 700 24px var(--px); font-style: italic; color: #fff1d6; text-transform: uppercase; }
+.tip p { margin: 0 0 6px; font-size: 14px; line-height: 1.45; color: #d4def5; }
+.tip button { margin-top: 6px; padding: 8px 20px; transform: skewX(var(--sk)); border-radius: 4px; background: linear-gradient(100deg, #ff6a4a, #b81c2c); color: #fff; font: 700 16px var(--px); font-style: italic; box-shadow: inset 0 2px 0 rgba(255, 255, 255, .3), 0 4px 0 rgba(0, 0, 0, .35); }
+.tip button > * { transform: none; } .tip button kbd { margin-left: 8px; }

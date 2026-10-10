@@ -3,12 +3,12 @@
 Anciennement PokeImpact. Jeu 3D (navigateur PC et mobile) en three.js. Le combat est inspiré de Honkai Star Rail et repris de Récolte. Les modèles viennent de Pixelmon, convertis en glTF.
 
 ## Jouer
-`index.html` s'ouvre sur le **hall** : le décor du théâtre-bibliothèque en fond (caméra cinématique), les Pokémon choisis exposés sur le tapis, et un menu à icônes (touches 1 à 4) :
-- **Expédition** : difficulté (6 Pokémon au niveau requis) → set → 5 actes avec bénédictions entre les actes → choix final. Détails dans `NOTES-meta.md`.
-- **Collection** : entraînement, élévation, étoiles, chromatiques, exposition dans le hall.
-- **Hall** : choix des Pokémon exposés (6 max).
-- **Réglages** : son, musique, frappes rythmées, vitesse et combat automatique par défaut, qualité graphique, export / import / réinitialisation de la sauvegarde, liste des commandes.
-- **Coop** : à venir (demande un serveur).
+`index.html` s'ouvre sur le **hall** : le décor du théâtre-bibliothèque en fond (caméra cinématique), les Pokémon choisis exposés sur le tapis, la carte **Prochain objectif** (calculée depuis la sauvegarde, `src/meta/goals.js`) et un menu (touches 1 à 3) :
+- **Expédition** : difficulté (6 Pokémon au niveau requis ; une difficulté verrouillée explique quoi faire) → set → pour chaque acte, bénédiction puis équipe → combat → choix final → bilan. Détails dans `NOTES-meta.md`.
+- **Collection** : toutes les espèces des sets, élévation (seule façon de monter de niveau), étoiles, chromatiques, exposition dans le hall (6 max).
+- **Réglages** : guide « Comment jouer », son, musique, frappes rythmées, vitesse et combat automatique par défaut, qualité graphique, export / import / réinitialisation de la sauvegarde, commandes.
+
+Aide en jeu : le guide (bouton **?** ou touche H en combat, ou Réglages) et des conseils au premier combat (tour, frappe rythmée, parade, ultime, réaction). La coop n'est pas faite (elle demande un serveur).
 
 **Ajouter des sets, des difficultés, des objets ou des espèces : voir [CONTENU.md](CONTENU.md).** `npm run check` vérifie le contenu.
 
@@ -47,6 +47,7 @@ Les combats se déroulent dans une arène circulaire en pierre, entourée de pag
 | Échap | Fermer le menu des capacités |
 | Espace ou clic | Frappe rythmée : arrêter le curseur de la jauge. Vert = excellent (+30 % de dégâts ou −55 % subis), jaune = bien, rouge = rien |
 | A / X | Auto / vitesse ×2 |
+| H | Comment jouer (guide) |
 
 Paramètres d'URL :
 - `?quick=1` lance directement un combat rapide ; ensuite `&team=CHARIZARD,LAPRAS,GENGAR` pour l'équipe

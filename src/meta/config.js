@@ -4,18 +4,18 @@ export const CONFIG = {
   save: { key: "pokeimpact.meta", version: 3 },
 
   // Départ : 6 Pokémon faibles niveau 20 (assez pour la difficulté 1), quelques vœux.
-  start: { voeux: 20, starters: ["MUDKIP", "SQUIRTLE", "LITWICK", "PUMPKABOO", "TRAPINCH", "RALTS"], level: 20 },
+  start: { voeux: 20, starters: ["MUDKIP", "SQUIRTLE", "LITWICK", "PUMPKABOO", "TRAPINCH", "RALTS"] },
 
   // ───── difficultés d'expédition : une ligne par difficulté (on peut en ajouter ou en retirer) ─────
   // level : niveau des adversaires (et niveau requis pour y accéder) ; voeux : vœux par combat gagné ;
-  // buffScale : multiplicateur du prix des bénédictions ; color / icon : habillage (icônes : leaf, moon, sword, crown, star, book, flower).
-  // La difficulté n donne le matériau de palier n (×matMain) et n-1 (×matPrev) quand les actes sont tous gagnés.
+  // buffScale : multiplicateur du prix des bénédictions ; color / icon : habillage (icônes : leaf, moon, sword, crown, star, book, flower, gear).
+  // mat : nom du matériau de palier n, gagné en réussissant la difficulté n (×matMain) ou n+1 (×matPrev) ; l'élévation n le consomme.
   difficulties: [
-    { name: "Découverte", level: 20, voeux: 2, buffScale: 1, color: "#5fd08a", icon: "leaf" },
-    { name: "Aventure", level: 40, voeux: 4, buffScale: 2, color: "#4fa8ff", icon: "moon" },
-    { name: "Épreuve", level: 60, voeux: 7, buffScale: 3.5, color: "#a46bff", icon: "sword" },
-    { name: "Maîtrise", level: 80, voeux: 11, buffScale: 5.5, color: "#ff8a3d", icon: "crown" },
-    { name: "Légende", level: 100, voeux: 16, buffScale: 8, color: "#ff4d6d", icon: "star" },
+    { name: "Découverte", mat: "Cristal émeraude", level: 20, voeux: 2, buffScale: 1, color: "#5fd08a", icon: "leaf" },
+    { name: "Aventure", mat: "Cristal saphir", level: 40, voeux: 4, buffScale: 2, color: "#4fa8ff", icon: "moon" },
+    { name: "Épreuve", mat: "Cristal améthyste", level: 60, voeux: 7, buffScale: 3.5, color: "#a46bff", icon: "sword" },
+    { name: "Maîtrise", mat: "Cristal ambre", level: 80, voeux: 11, buffScale: 5.5, color: "#ff8a3d", icon: "crown" },
+    { name: "Légende", mat: "Cristal rubis", level: 100, voeux: 16, buffScale: 8, color: "#ff4d6d", icon: "star" },
   ],
 
   // ───── expédition ─────
@@ -73,8 +73,7 @@ export const CONFIG = {
   shards: { cost: 5, costLegend: 15 },
 
   // ───── progression ─────
-  levelCaps: [20, 40, 60, 80, 100],     // plafond selon l'élévation 0..4 ; élévation 5 = 100
-  trainXp: 400,                         // XP par séance d'entraînement (illimitée, sans énergie)
+  levelCaps: [20, 40, 60, 80, 100],     // niveau selon l'élévation 0..4 (un Pokémon est toujours à son plafond) ; élévation 5 = 100
   // élévation N (de N-1 vers N), N = 1..5 : fragments du set + matériau de palier N
   elevation: {
     fragments: [5, 10, 20, 35, 60],

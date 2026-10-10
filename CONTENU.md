@@ -47,7 +47,7 @@ Retirer un set : supprime son entrée. Les Pokémon déjà capturés restent dan
 Dans `src/meta/config.js`, `difficulties` contient une ligne par difficulté, de la plus facile à la plus dure :
 
 ```js
-{ name: "Découverte", level: 20, voeux: 2, buffScale: 1, color: "#5fd08a", icon: "leaf" },
+{ name: "Découverte", mat: "Cristal émeraude", level: 20, voeux: 2, buffScale: 1, color: "#5fd08a", icon: "leaf" },
 ```
 
 | Champ | Rôle |
@@ -56,10 +56,13 @@ Dans `src/meta/config.js`, `difficulties` contient une ligne par difficulté, de
 | `level` | Niveau des adversaires. C'est aussi le niveau requis : il faut `run.minRoster` Pokémon (6) à ce niveau pour y accéder. |
 | `voeux` | Vœux gagnés par combat gagné. |
 | `buffScale` | Multiplicateur du prix des bénédictions (à garder proportionnel à `voeux`). |
-| `color`, `icon` | Habillage de la carte. Icônes disponibles : `leaf`, `moon`, `sword`, `crown`, `star`, `book`, `flower`, `gear`. |
+| `mat` | Nom du cristal de cette difficulté (récompense, coût d'élévation). |
+| `color`, `icon` | Habillage de la carte et couleur du cristal. Icônes disponibles : `leaf`, `moon`, `sword`, `crown`, `star`, `book`, `flower`, `gear`. |
 | `img` | Facultatif : illustration de la carte (`assets/ui/…png`). |
 
-Un run complet à la difficulté n donne le matériau de palier n (×`matMain`) et n-1 (×`matPrev`), plus un bonus de premier clear. Les matériaux servent à l'élévation : l'élévation N coûte le matériau N. Si tu ajoutes une 6e difficulté, ses matériaux P6 n'ont pas d'usage tant que `elevation` n'a pas 6 paliers et `levelCaps` un plafond de plus.
+Chaque difficulté a son cristal (`mat`, ex. « Cristal émeraude »). Un run complet à la difficulté n donne le cristal n (×`matMain`) et le cristal n-1 (×`matPrev`), plus un bonus de premier clear. Les cristaux servent à l'élévation : l'élévation N coûte le cristal N. Si tu ajoutes une 6e difficulté, son cristal n'a pas d'usage tant que `elevation` n'a pas 6 paliers et `levelCaps` un plafond de plus.
+
+Il n'y a pas d'entraînement : un Pokémon est toujours au niveau de son élévation (`levelCaps`). Le hall calcule tout seul le prochain objectif du joueur à partir de ces réglages (`src/meta/goals.js`) : rien à mettre à jour quand tu changes une difficulté.
 
 Les autres réglages de l'expédition sont dans `expedition` : PV et puissance des adversaires par rôle (`foeHp`, `foePow`), taux chromatiques, capture du légendaire (`legend`, `pityStep`), fragments, coût de départ.
 

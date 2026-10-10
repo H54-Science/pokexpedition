@@ -30,11 +30,12 @@ ok(Math.abs(M.legendRate(65) - 0.165) < 1e-9, "interpolation linéaire");
 { const s = M.newSave(3); M.startRun(s, { set: "abysses", diff: 1 }); ok(M.publicRun(s.run).foes.every((f) => f.shiny === undefined), "chromatique caché avant le choix"); }
 
 // ───── plafonds de niveau ─────
-{ const s = M.newSave(2); M.train(s, "MUDKIP", 999); ok(s.coll.MUDKIP.L === 20, "plafond 20 à l'élévation 0");
+{ const s = M.newSave(2); ok(s.coll.MUDKIP.L === 20, "niveau 20 à l'élévation 0");
   let threw = false; try { M.elevate(s, "MUDKIP"); } catch (e) { threw = true; } ok(threw, "élévation refusée sans ressources");
   s.frags.abysses = 999; s.mats = { 1: 99, 2: 99, 3: 99, 4: 99, 5: 99 };
-  for (const cap of [40, 60, 80, 100, 100]) { M.elevate(s, "MUDKIP"); M.train(s, "MUDKIP", 9999); ok(s.coll.MUDKIP.L === cap, "plafond " + cap); }
-  const t = M.newSave(2); M.train(t, "LITWICK", 999); t.frags.nuit = 99; t.mats[1] = 9; const ev = M.elevate(t, "LITWICK"); ok(ev.evolved === "CHANDELURE", "évolution à l'élévation 1");
+  for (const cap of [40, 60, 80, 100, 100]) { M.elevate(s, "MUDKIP"); ok(s.coll.MUDKIP.L === cap, "niveau " + cap + " après élévation"); }
+  { const old = M.newSave(2); old.coll.MUDKIP.elev = 1; old.coll.MUDKIP.L = 27; old.coll.MUDKIP.xp = 50; const r = M.deserialize(M.serialize(old)); ok(r.coll.MUDKIP.L === 40 && !("xp" in r.coll.MUDKIP), "ancienne sauvegarde : niveau remis au plafond"); }
+  const t = M.newSave(2); t.frags.nuit = 99; t.mats[1] = 9; const ev = M.elevate(t, "LITWICK"); ok(ev.evolved === "CHANDELURE", "évolution à l'élévation 1");
   console.log("plafonds et élévation : ok"); }
 
 // ───── conversion, une seule copie gardée, pas de double possession ─────
@@ -83,6 +84,17 @@ ok(Math.abs(M.legendRate(65) - 0.165) < 1e-9, "interpolation linéaire");
   ok(a.hp > hp0 && b.active === a, "potion : soin, tour conservé");
   console.log("objets : ok"); }
 
+// ───── prochain objectif ─────
+{ const s = M.newSave(41); let g = M.nextGoal(s);
+  ok(g.action === "expedition" && g.diff === 1, "objectif 1 : première expédition");
+  s.firstClear[1] = true; g = M.nextGoal(s);
+  ok(g.title.includes(M.DIFFS[1].name) && g.progress.n === 0 && g.progress.max === CONFIG.run.minRoster && g.action === "expedition" && /fragments|Cristal/.test(g.text), "objectif 2 : débloquer Aventure, ressources manquantes");
+  s.frags.abysses = 99; s.mats[1] = 99; g = M.nextGoal(s);
+  ok(g.action === "collection" && M.roleOf(g.focus).set === "abysses", "objectif 3 : élever un Pokémon prêt");
+  s.run = { set: "nuit" }; ok(M.nextGoal(s).title === "Expédition en cours", "run en cours prioritaire");
+  ok(M.legendFrom().level >= CONFIG.expedition.legend.minLevel, "légendaire capturable à partir de");
+  console.log("objectifs : ok"); }
+
 // ───── bénédictions ─────
 { const s = M.newSave(21);
   for (const S of M.SETS) { const pool = M.buffPool(S.id); ok(pool.length >= 12 && new Set(pool.map((b) => b.id)).size === pool.length, "catalogue " + S.id); }
@@ -108,7 +120,6 @@ function bot(seed, steps, saveAt = -1) {
   let s = M.newSave(seed); let snap = null; const stat = { expClear: 0, runs: 0, kept: 0, legends: 0, elev: 0, maxDiff: 1 };
   for (let step = 0; step < steps; step++) {
     if (step === saveAt) { snap = M.serialize(s); s = M.deserialize(snap); }
-    for (const k in s.coll) M.train(s, k, 50);
     for (const k in s.coll) { try { M.elevate(s, k); stat.elev++; } catch (e) {} }
     const d = [5, 4, 3, 2, 1].find((x) => M.access(s, x).ok);
     stat.maxDiff = Math.max(stat.maxDiff, d);

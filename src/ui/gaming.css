@@ -83,7 +83,7 @@
 
 /* ───── cadre sans étapes (collection, hall, réglages) ───── */
 .rs-spacer { flex:1; }
-.rs-collection .rs-body,.rs-settings .rs-body,.rs.ex-screen .rs-body:has(.cl-grid) { display:flex; flex-direction:column; gap:18px; }
+.rs-collection .rs-body,.rs-settings .rs-body { display:flex; flex-direction:column; gap:18px; }
 
 /* ───── collection ───── */
 .cl-top { display:flex; flex-wrap:wrap; align-items:center; gap:14px 24px; }
@@ -119,7 +119,6 @@
 .cl-stats small { color:#9fb6dc; font-size:10px; font-weight:800; letter-spacing:.5px; text-align:center; text-transform:uppercase; }
 .cl-stats b { font:700 22px 'Pixelify Sans',sans-serif; color:#e5efff; }.cl-stats b em { font-style:normal; font-size:15px; color:#7f93bb; }
 .cl-stats b.cl-stars { font-size:16px; letter-spacing:1px; color:#f1d696; }.cl-stats b.cl-stars em { font-size:16px; color:#3a4570; }
-.cl-xp { width:80%; height:6px; overflow:hidden; border-radius:3px; background:#2b345c; }.cl-xp i { display:block; height:100%; background:linear-gradient(90deg,#4ae0ff,#7ad7ff); }
 .cl-note { margin:0; color:#b8c9e9; font-size:13px; text-align:center; }
 .cl-msg { margin:0; padding:7px 10px; border:2px solid #4fbf88; border-radius:4px; background:#173b2fcc; color:#c7ffe0; font-weight:700; text-align:center; }
 .cl-acts { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
@@ -167,3 +166,53 @@
 }
 /* couleur du set (sets.js) en liseré haut de sa carte */
 .rs.ex-screen .rs-set:not(.sel) { border-top:6px solid var(--accent,#80729c); }
+
+/* ───── hall : prochain objectif et bouton principal ───── */
+.lb-goal { position:absolute; left:28px; top:128px; width:min(390px,34vw); pointer-events:auto; }
+.lb-goal-card { display:flex; flex-direction:column; align-items:flex-start; gap:5px; width:100%; padding:14px 18px 14px; text-align:left; border:3px solid #ffbf74; border-radius:5px; background:linear-gradient(140deg,#2d1f3fee,#151a38ee); color:#e6eeff; box-shadow:inset 0 2px #ffe8aa44,0 4px 0 #060c2b,0 10px 26px #0007; transform:skewX(-6deg); transition:filter .15s,transform .15s; }
+.lb-goal-card>* { transform:skewX(6deg); }
+.lb-goal-card:hover { filter:brightness(1.12); transform:skewX(-6deg) translateY(-2px); }
+.lb-goal-card small { font:800 11px Nunito,sans-serif; letter-spacing:2px; text-transform:uppercase; color:#ffbf74; }
+.lb-goal-card b { font:700 italic 22px/1.1 'Pixelify Sans',sans-serif; text-transform:uppercase; color:#fff1d6; }
+.lb-goal-card p { margin:0; font-size:13px; line-height:1.4; color:#c3d3f0; }
+.lb-goal-bar { position:relative; display:block; width:100%; height:18px; margin-top:4px; border-radius:3px; background:#0d1430; box-shadow:inset 0 0 0 2px #46557e; overflow:hidden; }
+.lb-goal-bar i { position:absolute; inset:0 auto 0 0; background:linear-gradient(90deg,#ffbf74,#ff7a3a); }
+.lb-goal-bar em { position:relative; display:block; font:700 11px/18px Nunito,sans-serif; font-style:normal; text-align:center; color:#fff; text-shadow:0 1px 2px #000; }
+.lb-goal-go { margin-top:4px; font:700 italic 15px 'Pixelify Sans',sans-serif; text-transform:uppercase; color:#ffd59a; }
+.lb-item.main { padding:13px 26px 13px 12px; border-color:#ffbf74; background:linear-gradient(115deg,#b8391f,#561b2a); box-shadow:inset 0 2px #ffe8aa66,0 4px 0 #2f1428,0 0 26px #ff5d2833; }
+.lb-item.main b { font-size:26px; color:#ffe4a0; }.lb-item.main small { color:#ffd3a8; }
+.lb-item.main .lb-ic { width:58px; height:58px; color:#ffe4a0; background:radial-gradient(circle at 35% 30%,#ff9a5a,#5a1c22); }
+
+/* ───── expédition : déroulé, verrou expliqué, bilan ───── */
+.rs-how ol { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:10px 0 0; padding:0; list-style:none; counter-reset:how; }
+.rs-how li { position:relative; display:flex; flex-direction:column; gap:3px; padding:12px 14px 12px 52px; border:2px solid #4a5f87; border-radius:4px; background:#0f1838cc; counter-increment:how; }
+.rs-how li::before { content:counter(how); position:absolute; left:12px; top:12px; display:grid; place-items:center; width:28px; height:28px; border-radius:4px; background:#ffbf74; color:#3a1608; font:700 17px 'Pixelify Sans',sans-serif; }
+.rs-how li b { font:700 italic 17px 'Pixelify Sans',sans-serif; text-transform:uppercase; color:#e1d0ff; }.rs-how li span { font-size:13px; color:#b9cbea; }
+.rs-locked { display:flex; flex-direction:column; align-items:flex-start; gap:8px; padding:16px 18px; border:3px solid #ff9a8a; border-radius:5px; background:linear-gradient(140deg,#3a1a2cdd,#1a1838dd); }
+.rs-locked p { margin:0; color:#dbe3f5; }.rs-locked .ex-section-title { color:#ffc8c0; }
+.rs-goal-line { padding:8px 12px; border-left:4px solid #ffbf74; background:#0d1430aa; }.rs-goal-line b { color:#ffbf74; }
+.rs.ex-screen .rs-locked .rs-sub { display:flex; align-items:center; gap:8px; }.rs-locked .rs-sub .ex-icon { width:20px; height:20px; }
+.rs-gem { flex:none; width:24px; height:24px; transform:rotate(45deg) scale(.8); border-radius:3px; background:linear-gradient(135deg,#fff8,var(--c) 40%,color-mix(in srgb,var(--c) 60%,#000)); box-shadow:0 0 10px var(--c); }
+.rs-cur.mat i { transform:rotate(45deg) scale(.75); border-radius:2px; }
+.rs-hint.left { text-align:left; margin:2px 0 4px; }
+.rs.ex-screen .rs-chance.soft { color:#8fdeb5!important; font-weight:700; }
+.rs.ex-screen .rs-sub.armed { --edge:#ff8a8a; --top:#c0283a; --base:#5a1020; color:#ffe0dc!important; }
+.rs-next { display:flex; flex-direction:column; gap:4px; margin-top:14px; padding:12px 16px; border:2px solid #ffbf74; border-radius:4px; background:#0d1430cc; text-align:left; }
+.rs-next small { font:800 11px Nunito,sans-serif; letter-spacing:2px; text-transform:uppercase; color:#ffbf74; }.rs-next b { font:700 italic 20px 'Pixelify Sans',sans-serif; color:#fff1d6; text-transform:uppercase; }.rs-next p { margin:0; font-size:14px; color:#c3d3f0; }
+.rs.ex-screen .rs-diff.lock { cursor:pointer; }.rs.ex-screen .rs-diff.lock.sel { border-color:#ff9a8a; box-shadow:0 0 0 2px #7a2638,0 0 18px #ff5a5a55; }
+
+/* ───── guide « Comment jouer » ───── */
+.hp-overlay { position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:16px; background:#050818cc; backdrop-filter:blur(3px); }
+.hp-box { display:flex; flex-direction:column; width:min(920px,100%); max-height:calc(100vh - 32px); border:3px solid #8373a3; border-radius:6px; background:linear-gradient(160deg,#1d1b40,#111836); box-shadow:inset 0 2px #d0b8e655,0 10px 40px #000a; }
+.hp-box header { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom:2px solid #4a5f87; }
+.hp-box header b { font:700 italic 26px 'Pixelify Sans',sans-serif; text-transform:uppercase; color:#e1d0ff; }
+.hp-body { overflow:auto; padding:6px 22px 22px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 26px; }
+.hp-sec h3 { margin:14px 0 6px; font:700 italic 19px 'Pixelify Sans',sans-serif; text-transform:uppercase; color:#a5e8ff; }
+.hp-sec p,.hp-sec li { margin:0 0 5px; font-size:13.5px; line-height:1.45; color:#c8d6f2; }.hp-sec b { color:#fff1d6; }
+.hp-sec ul,.hp-sec ol { margin:0; padding-left:18px; }
+.hp-rx { display:grid; gap:6px; }.hp-rx>div { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; align-items:center; padding:6px 8px; border-left:4px solid var(--c); background:#0d1430aa; }
+.hp-rx span { grid-row:span 2; white-space:nowrap; font-size:12px; color:#9fb6dc; }.hp-rx b { color:var(--c); font-size:14px; }.hp-rx small { font-size:12px; color:#b9cbea; }
+.hp-status { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; font-weight:700; }.hp-status i { font-style:normal; }
+@media(max-width:760px) { .hp-body { grid-template-columns:1fr; padding:4px 14px 16px; }.rs-how ol { grid-template-columns:1fr; }
+  .lb-goal { left:14px; right:14px; top:108px; width:auto; }.lb-goal-card { padding:10px 14px; }.lb-goal-card b { font-size:18px; }.lb-goal-card p { font-size:12px; }
+  .lb-item.main b { font-size:19px; }.lb-item.main .lb-ic { width:42px; height:42px; } }

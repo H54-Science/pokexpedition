@@ -7,7 +7,7 @@ const MIGRATIONS = {
   // v1 → v2 : runs à 5 actes avec accès par difficulté (6 Pokémon au niveau) ; plus d'équipe fixe.
   1: (s) => {
     s.run = null; delete s.team;
-    for (const k of CONFIG.start.starters) if (!s.coll[k]) s.coll[k] = { normal: true, shiny: false, L: CONFIG.start.level, xp: 0, elev: 0, stars: 0 };
+    for (const k of CONFIG.start.starters) if (!s.coll[k]) s.coll[k] = { normal: true, shiny: false, L: 20, xp: 0, elev: 0, stars: 0 };
     s.v = 2; return s;
   },
   // v2 → v3 : expéditions et vœux fusionnés (bénédictions) ; un run v2 en cours n'est pas repris.
