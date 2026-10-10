@@ -162,7 +162,26 @@ export class Director {
   showMoves() {
     if (!this.input) return;
     const u = this.input.u;
-    this.hud.showCommands(u, { getOpts: () => this.b.optionsOf(u), onPick: (i) => this.pick(i), onUlt: () => this.tapCard(u.id) });
+    this.hud.showCommands(u, { getOpts: () => this.b.optionsOf(u), onPick: (i) => this.pick(i), onUlt: () => this.tapCard(u.id),
+      getItems: () => this.itemOpts(), onItem: (id) => this.useItem(id) });
+  }
+  // Objets du sac (cfg.items : { id: { n, name, desc, color, fx } }), utilisables perTurn fois par tour d'allié.
+  itemOpts() {
+    const bag = this.cfg.items || {}, left = (this.cfg.itemsPerTurn ?? 1) - ((this.input && this.input.items) || 0);
+    return Object.entries(bag).filter(([, it]) => it.n > 0).map(([id, it]) => ({ id, ...it, ok: left > 0 }));
+  }
+  async useItem(id) {
+    if (!this.input || this.busy) return;
+    const it = (this.cfg.items || {})[id], o = this.itemOpts().find((x) => x.id === id);
+    if (!it || !o) return;
+    if (!o.ok) { Sfx.play("weak"); this.hud.toast("Un seul objet par tour."); return; }
+    this.busy = true;
+    it.n--; this.input.items = (this.input.items || 0) + 1;
+    this.hud.closeMoves();
+    await this.play(this.b.useItem(it.fx, it.name));
+    this.busy = false;
+    if (this.b.over) { this.input.resolve(null); return; }
+    this.showMoves();
   }
   pick(i) {
     if (!this.input || this.busy) return;
@@ -248,11 +267,13 @@ export class Director {
     if (k === "x") return this.toggle("speed");
     if (!this.input || this.busy) return;
     if (k === "q") return this.pick(0);
-    if (k === "e") return this.hud.movesOpen() ? this.hud.closeMoves() : this.hud.openMoves();
+    if (k === "e") return this.hud.panel() === "moves" ? this.hud.closeMoves() : this.hud.openMoves();
+    if (k === "i") return this.hud.panel() === "items" ? this.hud.closeMoves() : this.hud.openItems();
     if (k === "escape") return this.hud.closeMoves();
     if (k === "u") return this.tapCard(this.input.u.id);
-    if (/^[1-3]$/.test(k)) {
-      if (this.hud.movesOpen()) return this.pick(+k);
+    if (/^[1-5]$/.test(k)) {
+      if (this.hud.panel() === "moves") return this.pick(+k);
+      if (this.hud.panel() === "items") { const o = this.itemOpts()[+k - 1]; return o && this.useItem(o.id); }
       const a = this.b.allies[+k - 1]; if (a) this.tapCard(a.id);
     }
     if (k === "arrowleft") return this.cycleTarget(-1);
@@ -326,6 +347,7 @@ export class Director {
         break;
       }
       case "cleanse": hud.apply(ev.u); break;
+      case "item": hud.toast(`Objet : ${ev.name}`, 1300); Sfx.play("buff"); await wait(250); break;
       case "say": hud.float(st.top(ev.id), ev.text, "label", "#ffd060"); if (ev.u) hud.apply(ev.u); break;
       case "skip": {
         hud.apply(ev.u);

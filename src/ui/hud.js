@@ -165,14 +165,14 @@ export class Hud {
     const cmd = (cls, icon, label, small, onclick, key) => h("button", { class: "cmd " + cls, onclick },
       h("span", { class: "ci" }, SVG(ICON[icon])), h("b", null, label), h("small", null, ...small), key ? h("kbd", null, key) : null, h("span", { class: "shine" }));
     this.ultBtn = cmd("ult", "ult", "ULTIME", [h("span", { class: "pct" }, "")], () => handlers.onUlt(), "U");
-    this.itemsBtn = cmd("items off", "items", "OBJETS", [h("span", null, "bientôt")], () => this.toast("Les objets arrivent avec les expéditions."));
+    this.itemsBtn = cmd("items", "items", "OBJETS", [h("span", { class: "cnt" }, "")], () => this.openItems(), "I");
     this.movesBtn = cmd("moves", "moves", "CAPACITÉS", [h("span", { class: "cnt" }, "")], () => this.openMoves(), "E");
     this.atkBtn = cmd("atk", "atk", "ATTAQUE", [h("span", null, basic.n), h("em", null, "+1 ⚡")], () => handlers.onPick(0), "Q");
     this.cmds.innerHTML = "";
     this.cmds.append(this.ultBtn, this.itemsBtn, this.movesBtn, this.atkBtn);
     this.cmds.classList.remove("enter"); void this.cmds.offsetWidth; this.cmds.classList.add("enter");
     this.closeMoves();
-    this.refreshUlt(); this.refreshMovesBtn();
+    this.refreshUlt(); this.refreshMovesBtn(); this.refreshItemsBtn();
     this.cmdzone.classList.remove("off");
   }
   refreshUlt() {
@@ -186,11 +186,31 @@ export class Hud {
     if (!this.movesBtn || !this.handlers) return;
     const opts = this.handlers.getOpts().slice(1);
     this.movesBtn.querySelector(".cnt").textContent = `${opts.filter((o) => o.ok).length}/3 dispo.`;
-    if (this.cmdzone.classList.contains("mv")) this.renderMoves();
+    if (this.mode === "moves") this.renderMoves();
   }
-  openMoves() { this.cmdzone.classList.add("mv"); this.renderMoves(); }
-  closeMoves() { this.cmdzone.classList.remove("mv"); }
-  movesOpen() { return this.cmdzone.classList.contains("mv"); }
+  refreshItemsBtn() {
+    if (!this.itemsBtn || !this.handlers) return;
+    const items = this.handlers.getItems ? this.handlers.getItems() : [], n = items.reduce((s, o) => s + o.n, 0);
+    this.itemsBtn.classList.toggle("off", !items.some((o) => o.ok));
+    this.itemsBtn.querySelector(".cnt").textContent = n ? `${n} dans le sac` : "sac vide";
+  }
+  // Panneau ouvert à la place des commandes : "moves" (capacités), "items" (objets) ou null.
+  panel() { return this.cmdzone.classList.contains("mv") ? this.mode : null; }
+  openMoves() { this.mode = "moves"; this.cmdzone.classList.add("mv"); this.renderMoves(); }
+  openItems() {
+    const items = this.handlers && this.handlers.getItems ? this.handlers.getItems() : [];
+    if (!items.length) { this.toast("Sac vide."); return; }
+    this.mode = "items"; this.cmdzone.classList.add("mv"); this.renderItems(items);
+  }
+  closeMoves() { this.cmdzone.classList.remove("mv"); this.mode = null; }
+  renderItems(items) {
+    this.mvpanel.innerHTML = "";
+    items.forEach((o, j) => this.mvpanel.appendChild(h("button", { class: "mcard item" + (o.ok ? "" : " off"), style: { "--c": o.color || "#ffc83a" }, onclick: () => this.handlers.onItem(o.id), title: o.desc },
+      h("div", { class: "mc-txt" }, h("div", { class: "mc-h" }, h("em", null, "Objet")), h("b", null, o.name), h("small", null, o.desc)),
+      h("div", { class: "mc-cost" }, h("b", null, "×" + o.n)),
+      h("kbd", null, String(j + 1)))));
+    this.mvpanel.appendChild(h("button", { class: "mvback", onclick: () => this.closeMoves() }, "← RETOUR  ", h("kbd", null, "Échap")));
+  }
   renderMoves() {
     const opts = this.handlers.getOpts();
     this.mvpanel.innerHTML = "";

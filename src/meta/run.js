@@ -3,14 +3,14 @@
 // Gains : vœux à chaque acte gagné (dépensés en bénédictions), captures (on en garde une), fragments,
 // matériaux de palier si les 5 actes sont gagnés.
 import { CONFIG } from "./config.js";
-import { SET, withRng, seedFrom, owns, isNewFor, addCopy, levelCap, log } from "./state.js";
+import { SET, DIFFS, orderOf, withRng, seedFrom, owns, isNewFor, addCopy, levelCap, log } from "./state.js";
 import { simulate, alliesOf, combatConfig } from "./battle.js";
 import { buffPool, buffDef, buffCost, drawCards, modsOf } from "./buffs.js";
 
 const R = () => CONFIG.run, EX = () => CONFIG.expedition, BF = () => CONFIG.buffs;
 
 // ───────── difficulté et accès ─────────
-export const levelOf = (d) => R().levels[d - 1];
+export const levelOf = (d) => DIFFS[d - 1].level;
 export function eligible(save, d) {
   const L = levelOf(d);
   return Object.keys(save.coll).filter((k) => save.coll[k].L >= L).sort((a, b) => save.coll[b].L - save.coll[a].L || a.localeCompare(b));
@@ -44,13 +44,13 @@ export function legendAttempt(save, setId, level, bonus = 0) {
 export function expeditionRewards(save, d) {
   const E = EX(), mats = { [d]: E.matMain };
   if (d > 1) mats[d - 1] = E.matPrev;
-  return { perAct: E.voeuxPerAct[d - 1], acts: R().acts, clearMats: mats, firstClear: save.firstClear[d] ? 0 : E.firstClearBonus, legend: legendRate(levelOf(d)) };
+  return { perAct: DIFFS[d - 1].voeux, acts: E.order.length, clearMats: mats, firstClear: save.firstClear[d] ? 0 : E.firstClearBonus, legend: legendRate(levelOf(d)) };
 }
 
 // ───────── démarrage ─────────
 export function startRun(save, { diff, set }) {
   if (save.run) throw new Error("Une expédition est déjà en cours.");
-  if (!(diff >= 1 && diff <= R().levels.length)) throw new Error("Difficulté invalide.");
+  if (!(diff >= 1 && diff <= DIFFS.length)) throw new Error("Difficulté invalide.");
   const a = access(save, diff);
   if (!a.ok) throw new Error(`Il faut ${a.need} Pokémon niveau ${a.level} ou plus (tu en as ${a.have}).`);
   const S = SET[set];
@@ -60,7 +60,7 @@ export function startRun(save, { diff, set }) {
   const pool = buffPool(set);
   const { foes, cards } = withRng(save, (r) => {
     const weak = S.weak.slice();
-    const foes = EX().order.map((role) => {
+    const foes = orderOf(set).map((role) => {
       const k = role === "weak" ? weak.splice(Math.floor(r() * weak.length), 1)[0] : role === "nice" ? S.nice[Math.floor(r() * S.nice.length)] : S.legend;
       // jet chromatique tiré à la rencontre, caché jusqu'au choix final
       return { role, k, shiny: r() < (role === "legend" ? EX().shinyRateLegend : EX().shinyRate) };
@@ -71,6 +71,7 @@ export function startRun(save, { diff, set }) {
   save.run = {
     diff, level: a.level, set, i: 0, foes, uses, team: null, results: [], captures: [], voeux: 0, phase: "fight",
     buffs: [], shop: { cards, bought: [], free: BF().freeFirst }, rerolls: BF().rerolls, legendBonus: 0, voeuxMult: 1,
+    items: { ...CONFIG.items.start },
   };
   log(save, `Expédition : ${S.name}, difficulté ${diff}`);
   return save.run;
@@ -120,6 +121,13 @@ export function rerollShop(save) {
 }
 export const runMods = (run) => modsOf(run.set, run.buffs);
 
+// ───────── objets ─────────
+// Sac pour le combat : { id: { n, name, desc, color, fx } } (le combat décrémente n).
+export function itemBag(counts = {}) {
+  const L = CONFIG.items.list;
+  return Object.fromEntries(Object.entries(counts).filter(([k, n]) => L[k] && n > 0).map(([k, n]) => [k, { ...L[k], n }]));
+}
+
 // ───────── combats ─────────
 export const usable = (save) => Object.keys(save.run.uses).filter((k) => save.run.uses[k] > 0);
 export const autoTeam = (save) => usable(save).sort((a, b) => save.coll[b].L - save.coll[a].L || a.localeCompare(b)).slice(0, R().teamSize);
@@ -139,19 +147,20 @@ export function nextFightConfig(save, team) {
   run.team = team;
   if (run.shop && run.shop.free) run.shop = null;   // carte offerte non prise : perdue
   const seed = withRng(save, (r) => seedFrom(r));
-  return combatConfig({ seed, allies: alliesOf(save, team), foe: foeOf(run), mods: runMods(run) });
+  return { ...combatConfig({ seed, allies: alliesOf(save, team), foe: foeOf(run), mods: runMods(run) }), items: itemBag(run.items), itemsPerTurn: CONFIG.items.perTurn };
 }
 
-// Applique le résultat du combat en cours (simulé ou joué en 3D).
-export function resolveFight(save, win) {
+// Applique le résultat du combat en cours (simulé ou joué en 3D). items : sac rendu par le combat (objets restants).
+export function resolveFight(save, win, items = null) {
   const run = save.run;
   if (!run || run.phase !== "fight" || !run.team) throw new Error("Pas de combat en cours.");
   const f = run.foes[run.i];
   for (const k of run.team) run.uses[k]--;
+  if (items) run.items = Object.fromEntries(Object.entries(items).map(([k, it]) => [k, it.n]));
   const out = { win, foe: f.k, role: f.role, team: run.team, captured: false };
   run.team = null;
   if (win) {
-    const v = Math.round(EX().voeuxPerAct[run.diff - 1] * run.voeuxMult);
+    const v = Math.round(DIFFS[run.diff - 1].voeux * run.voeuxMult);
     save.voeux += v; run.voeux += v; out.voeux = v;
     if (f.role !== "legend") { run.captures.push({ k: f.k, shiny: f.shiny, role: f.role }); out.captured = true; }
     else if (owns(save, f.k, false) && owns(save, f.k, true)) {

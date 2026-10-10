@@ -11,6 +11,7 @@ const ICONS = {
   flower: '<path d="M24 19C8 1 8 29 20 24 0 36 28 45 24 28c15 18 24-10 5-4C47 8 19 3 24 19Z"/><circle cx="24" cy="24" r="4"/>',
   back: '<path d="M30 10 16 24l14 14M16 24h26"/>',
   arrow: '<path d="M8 24h32M28 12l12 12-12 12"/>',
+  gear: '<circle cx="24" cy="24" r="6"/><path d="M21 4h6l1 6 5 2 5-4 4 4-4 5 2 5 6 1v6l-6 1-2 5 4 5-4 4-5-4-5 2-1 6h-6l-1-6-5-2-5 4-4-4 4-5-2-5-6-1v-6l6-1 2-5-4-5 4-4 5 4 5-2Z"/>',
   refresh: '<path d="M39 19A16 16 0 0 0 10 13L5 20m0-11v11h11m-7 9a16 16 0 0 0 29 6l5-7m0 11V28H32"/>',
 };
 export function icon(name, cls = "") {

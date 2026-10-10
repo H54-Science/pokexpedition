@@ -1,13 +1,16 @@
-# PokeImpact
+# Pokexpédition
 
-Jeu 3D (navigateur PC + PWA mobile) en three.js. Le combat est inspiré de Honkai Star Rail et repris de Récolte. Les modèles viennent de Pixelmon, convertis en glTF.
+Anciennement PokeImpact. Jeu 3D (navigateur PC et mobile) en three.js. Le combat est inspiré de Honkai Star Rail et repris de Récolte. Les modèles viennent de Pixelmon, convertis en glTF.
 
 ## Jouer
 `index.html` s'ouvre sur le **hall** : le décor du théâtre-bibliothèque en fond (caméra cinématique), les Pokémon choisis exposés sur le tapis, et un menu à icônes (touches 1 à 4) :
 - **Expédition** : difficulté (6 Pokémon au niveau requis) → set → 5 actes avec bénédictions entre les actes → choix final. Détails dans `NOTES-meta.md`.
 - **Collection** : entraînement, élévation, étoiles, chromatiques, exposition dans le hall.
 - **Hall** : choix des Pokémon exposés (6 max).
-- **Coop** : à venir.
+- **Réglages** : son, musique, frappes rythmées, vitesse et combat automatique par défaut, qualité graphique, export / import / réinitialisation de la sauvegarde, liste des commandes.
+- **Coop** : à venir (demande un serveur).
+
+**Ajouter des sets, des difficultés, des objets ou des espèces : voir [CONTENU.md](CONTENU.md).** `npm run check` vérifie le contenu.
 
 L'ancien mode Théâtre (zones, troupe, actes à incidents) reste accessible avec `?theatre=1`.
 
@@ -38,6 +41,7 @@ Les combats se déroulent dans une arène circulaire en pierre, entourée de pag
 |---|---|
 | Q | Attaque (+1 énergie) |
 | E | Ouvrir / fermer les capacités, puis 1 à 3 pour choisir |
+| I | Ouvrir / fermer les objets, puis 1 à 5 (un objet par tour, ne consomme pas le tour) |
 | U | Ultime de l'allié actif |
 | 1 à 3 (menu fermé) ou clic sur une carte | Ultime de cet allié (jauge pleine, ne coûte pas le tour) |
 | Échap | Fermer le menu des capacités |
@@ -61,7 +65,10 @@ Paramètres d'URL :
 - `src/game/director.js` : mise en scène (élans, impacts, ultimes) et commandes du joueur.
 - `src/ui/hud.js` + `src/style.css` : interface de raid (barre du boss et son intention, frise, cartes d'équipe, pile de commandes Ultime / Objets / Capacités / Attaque, énergie, frappes rythmées). Polices : Pixelify Sans et Nunito (`fonts/`).
 - `src/core.js`, `src/audio.js` : horloge et tweens, sons générés (repris de Récolte).
-- `tests/combat.test.js` : `npm test` lance 300 combats automatiques, vérifie le déterminisme, joue un gardien et fait combattre les 83 espèces.
+- `src/meta/` : boucle de progression (logique pure) ; contenu éditable dans `sets.js` et `config.js` (voir CONTENU.md).
+- `src/ui/runScreens.js`, `src/ui/metaScreens.js` : écrans d'expédition, collection, hall et réglages ; habillage dans `src/ui/gaming.css`.
+- `tools/check_content.mjs` : `npm run check`, vérification des sets, difficultés, objets et fichiers associés.
+- `tests/combat.test.js` : `npm test` vérifie le contenu, puis lance 300 combats automatiques, vérifie le déterminisme, joue un gardien et fait combattre les 83 espèces.
 
 ## Modèles
 - `models/` : 82 espèces de Récolte en `.glb` compressé (meshopt + WebP), 11 Mo au total
