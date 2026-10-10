@@ -1,5 +1,6 @@
 // Point d'entrée : hall (décor 3D + menu à icônes). Boucle : expédition (difficulté → set → actes et bénédictions)
-// → captures, vœux, matériaux → collection (entraînement, élévation). L'ancien Théâtre reste accessible via ?theatre=1.
+// → captures, vœux, matériaux → collection (entraînement, élévation). Réglages : son, combat, graphismes, sauvegarde.
+// L'ancien Théâtre reste accessible via ?theatre=1.
 // Combat rapide pour tester : bouton de l'accueil, ou ?quick=1&team=CHARIZARD,LAPRAS,GENGAR&boss=GROUDON
 import { Stage } from "./render/stage.js";
 import { Hud } from "./ui/hud.js";
@@ -24,6 +25,9 @@ const store = {
 };
 
 let stage, scr, index, lobby, ms, ru, meta;
+// Préférences (mêmes clés que le Director pour qte / speed / auto).
+const prefs = () => ({ sound: store.get("sound", true), music: store.get("music", true), qte: store.get("qte", true), speed2: store.get("speed", 1) > 1, auto: store.get("auto", false), low: store.get("quality", "high") === "low" });
+const applySound = () => { const p = prefs(); Sfx.config({ sound: p.sound, music: p.music }); };
 const saveMeta = () => { Meta.localStore.save(meta); updateRes(); };
 function updateRes() { const el = document.querySelector(".lb-res"); if (el && meta) el.innerHTML = `Vœux <b>${meta.voeux}</b> · Éclats <b>${meta.shards}</b>${meta.run ? " · <i>run en cours</i>" : ""}`; }
 const has = (k) => !!index[k.toLowerCase()];
@@ -50,12 +54,13 @@ const MENU = [
   { id: "expedition", icon: "book", label: "Expédition", sub: "Difficulté, set, bénédictions", c: "#ffcf6a" },
   { id: "collection", icon: "crown", label: "Collection", sub: "Entraînement, élévation", c: "#8dff9a" },
   { id: "hall", icon: "star", label: "Hall", sub: "Pokémon exposés", c: "#c58bff" },
+  { id: "settings", icon: "gear", label: "Réglages", sub: "Son, combat, sauvegarde", c: "#7fd8ff" },
   { id: "coop", icon: "moon", label: "Coop", sub: "Bientôt", c: "#ff8fb3", soon: true },
 ];
 function buildMenu() {
   const nav = document.querySelector(".lb-menu");
   nav.innerHTML = "";
-  MENU.forEach((m, i) => nav.append(h("button", { class: "lb-item", style: { "--c": m.c }, onclick: () => lobbyAction(m.id) },
+  MENU.forEach((m, i) => nav.append(h("button", { class: "lb-item" + (m.soon ? " soon" : ""), style: { "--c": m.c }, onclick: () => lobbyAction(m.id) },
     h("span", { class: "lb-ic" }, icon(m.icon)), h("span", null, h("b", null, m.label), h("small", null, m.sub)), h("kbd", null, i + 1))));
   addEventListener("keydown", (e) => {
     if (!lobby.active || scr.open) return;
@@ -65,8 +70,9 @@ function buildMenu() {
 const hallKeys = () => store.get("hall", Object.keys(meta.coll).slice(0, 3)).filter((k) => meta.coll[k]).slice(0, SHOWCASE_MAX);
 const refreshHall = () => lobby.setShowcase(hallKeys().map((k) => Meta.formOf(k, meta.coll[k].elev)));
 function toLobby() {
-  scr.hide(); ru.close();
+  scr.hide(); ru.close(); ms.close();
   lobby.enter(); refreshHall(); updateRes();
+  Sfx.music("camp");
   const ui = document.getElementById("lobby-ui");
   ui.style.display = ""; ui.classList.remove("lb-enter", "lb-leave"); void ui.offsetWidth; ui.classList.add("lb-enter");
 }
@@ -83,6 +89,7 @@ function lobbyAction(id) {
   if (id === "expedition") return expeditionWelcome();
   if (id === "collection") return collection();
   if (id === "hall") return hallSettings();
+  if (id === "settings") return settings();
   scr.message({ title: "Coop", lines: ["Inviter des amis et partir en expédition à plusieurs : bientôt."], btn: "Retour", onOk: back });
 }
 function hallSettings() {
@@ -90,6 +97,38 @@ function hallSettings() {
   ms.hallSettings({
     save: meta, chosen, max: SHOWCASE_MAX, onBack: back,
     onToggle: (k) => { const i = chosen.indexOf(k); if (i >= 0) chosen.splice(i, 1); else if (chosen.length < SHOWCASE_MAX) chosen.push(k); store.set("hall", chosen); hallSettings(); },
+  });
+}
+
+// ───────── réglages ─────────
+let settingsMsg = "", reloadNeeded = false;
+function settings() {
+  const msgNow = settingsMsg; settingsMsg = "";
+  ms.settings({
+    save: meta, prefs: { ...prefs(), reload: reloadNeeded }, msg: msgNow, onBack: back,
+    onSet: (k, v) => {
+      if (k === "speed2") store.set("speed", v ? 2 : 1);
+      else if (k === "low") { store.set("quality", v ? "low" : "high"); reloadNeeded = true; }
+      else store.set(k, v);
+      if (k === "sound" || k === "music") applySound();
+      settings();
+    },
+    onReload: () => location.reload(),
+    onExport: () => {
+      const url = URL.createObjectURL(new Blob([Meta.serialize(meta)], { type: "application/json" }));
+      const a = h("a", { href: url, download: `pokexpedition-${new Date().toISOString().slice(0, 10)}.json` });
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      settingsMsg = "Sauvegarde exportée."; settings();
+    },
+    onImport: (text) => {
+      try { meta = Meta.deserialize(text); } catch (e) { settingsMsg = "Fichier illisible : " + e.message; return settings(); }
+      saveMeta(); refreshHall(); settingsMsg = "Sauvegarde importée."; settings();
+    },
+    onReset: () => {
+      Meta.localStore.reset(); store.set("hall", null);
+      meta = Meta.newSave((Math.random() * 2 ** 31) | 0); saveMeta(); refreshHall();
+      settingsMsg = "Nouvelle partie commencée."; settings();
+    },
   });
 }
 
@@ -113,6 +152,7 @@ function startRun(opts) {
   saveMeta(); ru.team = null; runBoard();
 }
 function runBoard(last = null) {
+  Sfx.music("map");
   ru.board({
     save: meta, last,
     onLeave: () => { ru.close(); back(); },
@@ -123,7 +163,7 @@ function runBoard(last = null) {
       let cfg; try { cfg = Meta.nextFightConfig(meta, team); } catch (e) { return fail(e, runBoard); }
       saveMeta(); ru.close();
       const res = await fight(cfg);
-      const out = Meta.resolveFight(meta, res.win); saveMeta();
+      const out = Meta.resolveFight(meta, res.win, cfg.items); saveMeta();
       const name = SPECIES[out.foe].fr;
       const v = out.voeux ? ` · +${out.voeux} vœux` : "";
       const text = !out.win ? `Défaite contre ${name}` : out.captured ? `${name} capturé !${v}` : out.legend ? `${name} s'est échappé (${Math.round(out.legend.chance * 100)} %)${v}` : out.reward ? `${name} : matériau P${out.reward.mat} ×${out.reward.n}${v}` : `Victoire !${v}`;
@@ -181,6 +221,7 @@ async function quick() {
     allies: team.map((k) => ({ k, L: lv, charge: q.has("ult") ? 100 : 0 })),
     enemies: [{ k: boss, L: +q.get("flv") || lv + (BL[SPECIES[boss].tier] || 0), boss: true }],
     pool: [], bossHp: +q.get("hp") || 12, bossPow: +q.get("pow") || 0.7,
+    items: Meta.itemBag(Meta.CONFIG.items.start), itemsPerTurn: Meta.CONFIG.items.perTurn,
   });
   scr.message({ title: res.win ? "Victoire !" : "K.O.", btn: "Retour au hall", onOk: () => toLobby() });
 }
@@ -265,8 +306,13 @@ const alertMsg = (m) => window.alert(m);
 // ───────── démarrage ─────────
 async function start() {
   const msg = document.querySelector("#loading small");
+  const errors = Meta.contentErrors();
+  if (errors.length) { msg.textContent = "Contenu à corriger (src/meta/sets.js ou config.js) :"; document.querySelector("#loading > div").append(h("ul", { class: "load-err" }, ...errors.map((e) => h("li", null, e)))); return; }
   index = await loadIndex();
-  stage = new Stage(document.getElementById("game"), { quality: q.get("q") === "low" ? "low" : "high" });
+  const missing = Meta.SETS.flatMap((S) => Meta.speciesOf(S)).filter((k) => !has(k));
+  if (missing.length) console.warn("Espèces sans modèle 3D (models/index.json) :", missing.join(", "));
+  applySound();
+  stage = new Stage(document.getElementById("game"), { quality: (q.get("q") || store.get("quality", "high")) === "low" ? "low" : "high" });
   if (q.get("dtcap")) stage.maxDt = +q.get("dtcap");
   stage.shot("wide", { snap: true });
   scr = new Screens(document.getElementById("screens"));

@@ -51,7 +51,7 @@
 .rs-face:not([src]) { visibility: hidden; }
 
 /* 1. difficulté */
-.rs-diffs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; height: min(430px, 52vh); }
+.rs-diffs { display: grid; grid-template-columns: repeat(var(--n, 5), 1fr); gap: 16px; height: min(430px, 52vh); }
 .rs-diff { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 14px; overflow: hidden; border: 0; border-radius: 14px; text-align: center;
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 22%, #1a1228), #110b1c 70%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: transform .15s, box-shadow .15s; }
 .rs-diff:hover:not(.lock) { transform: translateY(-4px); }
@@ -83,7 +83,7 @@
 .rs-mini-miss { color: #ff9a8a; font-weight: 700; padding: 0 8px; }
 
 /* 2. sets */
-.rs-sets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; height: min(560px, 66vh); }
+.rs-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; height: min(560px, 66vh); }
 .rs-set { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; overflow: hidden; border: 0; border-radius: 14px; text-align: center;
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 28%, #170f24), #0f0a18 75%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: transform .15s, box-shadow .15s; }
 .rs-set:hover { transform: translateY(-4px); }
@@ -110,7 +110,7 @@
 .rs-banner.win { background: linear-gradient(100deg, rgba(95, 208, 138, .9), rgba(40, 140, 90, .9)); }
 .rs-banner.lose { background: linear-gradient(100deg, rgba(255, 90, 90, .9), rgba(150, 30, 40, .9)); }
 @keyframes rsIn { from { opacity: 0; transform: skewX(-10deg) translateY(-8px); } }
-.rs-path { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; position: relative; }
+.rs-path { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 0; position: relative; }
 .rs-path::before { content: ""; position: absolute; left: 10%; right: 10%; top: 26px; height: 2px; background: var(--line); }
 .rs-node { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
 .rs-node-ic { display: grid; place-items: center; overflow: hidden; width: 52px; height: 52px; border-radius: 50%; background: #241a36 center/70% no-repeat; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .2); }
@@ -121,7 +121,7 @@
 .rs-node.win .rs-node-ic { background-color: #1f5a3c; box-shadow: inset 0 0 0 2px #7fe0a0; }
 .rs-node.lose .rs-node-ic { background-color: #5a1f28; box-shadow: inset 0 0 0 2px #ff8a8a; }
 .rs-node small { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255, 255, 255, .5); }
-.rs-node b { font: 700 14px var(--px); }
+.rs-node b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 14px var(--px); }
 .rs-node em { font-style: normal; font-size: 11px; color: rgba(255, 255, 255, .6); }
 .rs-node.win em { color: #7fe0a0; } .rs-node.lose em { color: #ff9a8a; }
 .rs-stage { display: grid; grid-template-columns: minmax(220px, 1fr) 2fr minmax(160px, .8fr); gap: 16px; align-items: stretch; }
@@ -170,7 +170,7 @@
 .rs-summary p { margin: 0; font-size: 15px; color: rgba(255, 255, 255, .85); }
 
 @media (max-width: 1100px) {
-  .rs-diffs { grid-template-columns: repeat(5, minmax(140px, 1fr)); overflow-x: auto; }
+  .rs-diffs { grid-template-columns: repeat(var(--n, 5), minmax(140px, 1fr)); overflow-x: auto; }
   .rs-sets { grid-template-columns: repeat(2, 1fr); max-height: none; }
   .rs-stage { grid-template-columns: 1fr; }
   .rs-steps { display: none; }
@@ -201,19 +201,6 @@
 .rs-active { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; color: rgba(255, 255, 255, .6); }
 .rs-active em { font-style: normal; }
 
-/* bénédictions dans le thème « papier » (theatre.css) : bandeau pleine largeur sous le chemin des actes */
+/* bénédictions : bandeau pleine largeur sous le chemin des actes (habillage dans gaming.css) */
 .rs.ex-screen .rs-body:has(.rs-blessings) { grid-template-areas: "path path" "bless bless" "roster stage" !important; grid-template-rows: auto auto 1fr !important; }
-.rs.ex-screen .rs-blessings { grid-area: bless; background: #efe7d6aa; border: 1px solid #b9a57b88; border-radius: 4px 28px 4px 4px; box-shadow: none; padding: 16px 20px; }
-.rs.ex-screen .rs-blessings .rs-label { margin: 0; padding: 0; border: 0; font-size: 18px; }
-.rs.ex-screen .rs-buff { background: #f8f2e4; color: #3e3a33; border-radius: 4px 22px 4px 4px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 70%, #b9a57b), 0 3px 8px #44334412; }
-.rs.ex-screen .rs-buff:hover:not(:disabled) { box-shadow: 0 0 0 2px var(--c), 0 6px 16px color-mix(in srgb, var(--c) 30%, transparent); }
-.rs.ex-screen .rs-buff.r3 { box-shadow: 0 0 0 2px #b79c64, 0 0 18px #d6be8755; }
-.rs.ex-screen .rs-buff-ic { background: color-mix(in srgb, var(--c) 18%, #fff); color: color-mix(in srgb, var(--c) 80%, #333); }
-.rs.ex-screen .rs-buff b { font: 16px Georgia, serif; }
-.rs.ex-screen .rs-buff p { color: #6f6553; }
-.rs.ex-screen .rs-buff small { color: #9b8662; }
-.rs.ex-screen .rs-buff em { color: #8d6e37; font: 14px Georgia, serif; }
-.rs.ex-screen .rs-buff.poor:not(.bought) em { color: #aa655b; }
-.rs.ex-screen .rs-active { color: #87775c; }
-.rs.ex-screen .rs-chip { color: #fff; text-shadow: 0 1px 1px #0004; }
-.rs.ex-screen .rs-sub.sm { padding: 6px 14px; font-size: 13px; }
+.rs.ex-screen .rs-blessings { grid-area: bless; }

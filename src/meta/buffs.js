@@ -5,7 +5,7 @@
 //  · bénédictions générales (soin, énergie, bouclier…) et de capture (chromatiques, légendaire).
 import { SPECIES, TYPES, effectiveness, REACTIONS, SWIRL_RX, CRYSTAL_RX, TYPE_COLOR } from "../data/data.js";
 import { CONFIG } from "./config.js";
-import { SET } from "./state.js";
+import { SET, DIFFS } from "./state.js";
 
 const B = () => CONFIG.buffs;
 
@@ -66,7 +66,7 @@ export function buffPool(setId) {
 export const buffDef = (setId, id) => buffPool(setId).find((b) => b.id === id);
 
 // Prix en vœux selon la rareté et la difficulté.
-export const buffCost = (b, diff) => Math.round(B().cost[b.rarity - 1] * B().diffScale[diff - 1]);
+export const buffCost = (b, diff) => Math.round(B().cost[b.rarity - 1] * DIFFS[diff - 1].buffScale);
 
 // Tire `n` cartes (rareté pondérée, sans ce qui est déjà au maximum).
 export function drawCards(pool, owned, r, n = B().shopSize) {

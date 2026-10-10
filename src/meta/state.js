@@ -1,10 +1,14 @@
 // État du compte (sérialisable) et utilitaires communs. Aucun accès au DOM.
 import { RNG } from "../combat/engine.js";
+import { SPECIES } from "../data/data.js";
 import { CONFIG } from "./config.js";
 import SETS_JSON from "./sets.js";
 
 export const SETS = SETS_JSON;
 export const SET = Object.fromEntries(SETS.map((s) => [s.id, s]));
+export const DIFFS = CONFIG.difficulties;
+export const orderOf = (setId) => SET[setId].order || CONFIG.expedition.order;
+export const speciesOf = (S) => [S.legend, ...S.nice, ...S.weak];
 
 // Set et rôle d'une espèce (weak | nice | legend), ou null hors sets.
 const ROLE = {};
@@ -15,21 +19,56 @@ for (const s of SETS) {
 }
 export const roleOf = (k) => ROLE[k] || null;
 
+// Erreurs de contenu (sets, difficultés, objets) : liste de messages, vide si tout va bien.
+export function contentErrors() {
+  const err = [], seen = {}, ids = new Set();
+  for (const S of SETS) {
+    const tag = `Set « ${S.id} »`;
+    if (!S.id || ids.has(S.id)) err.push(`${tag} : id manquant ou en double.`);
+    ids.add(S.id);
+    if (!S.name) err.push(`${tag} : nom manquant.`);
+    if (!S.legend || !Array.isArray(S.nice) || !Array.isArray(S.weak)) { err.push(`${tag} : legend, nice et weak sont obligatoires.`); continue; }
+    const order = S.order || CONFIG.expedition.order;
+    const need = (r) => order.filter((x) => x === r).length;
+    if (!order.length || order.some((r) => !["weak", "nice", "legend"].includes(r))) err.push(`${tag} : order ne doit contenir que "weak", "nice" ou "legend".`);
+    if (S.weak.length < need("weak")) err.push(`${tag} : ${need("weak")} combats faibles mais seulement ${S.weak.length} faibles.`);
+    if (need("nice") && !S.nice.length) err.push(`${tag} : il faut au moins un Pokémon « nice ».`);
+    for (const k of speciesOf(S)) {
+      if (!SPECIES[k]) err.push(`${tag} : espèce inconnue ${k} (à ajouter dans src/data/data.js).`);
+      if (seen[k]) err.push(`${k} est dans deux sets (${seen[k]} et ${S.id}).`);
+      seen[k] = S.id;
+    }
+  }
+  if (!DIFFS.length) err.push("Aucune difficulté dans CONFIG.difficulties.");
+  DIFFS.forEach((d, i) => { if (!(d.level > 0) || !(d.voeux >= 0) || !(d.buffScale > 0)) err.push(`Difficulté ${i + 1} : level, voeux et buffScale sont obligatoires.`); });
+  for (const [k, n] of Object.entries(CONFIG.items.start)) if (!CONFIG.items.list[k] || !(n >= 0)) err.push(`Objet de départ inconnu ou quantité invalide : ${k}.`);
+  for (const k of CONFIG.start.starters) if (!SPECIES[k]) err.push(`Pokémon de départ inconnu : ${k}.`);
+  return err;
+}
+
+// Complète une sauvegarde après un ajout de set ou de difficulté (compteurs à zéro).
+export function normalize(s) {
+  for (const S of SETS) { s.frags[S.id] ??= 0; s.pity[S.id] ??= 0; }
+  for (let d = 1; d <= Math.max(DIFFS.length, 5); d++) { s.mats[d] ??= 0; s.firstClear[d] ??= false; }
+  if (s.run && (!SET[s.run.set] || !DIFFS[s.run.diff - 1])) s.run = null;   // set ou difficulté retirés : run abandonné
+  return s;
+}
+
 export function newSave(seed = 1) {
   const C = CONFIG;
-  const s = {
+  const s = normalize({
     v: C.save.version,
     rng: seed >>> 0,
     voeux: C.start.voeux,
-    mats: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-    frags: Object.fromEntries(SETS.map((x) => [x.id, 0])),
+    mats: {},
+    frags: {},
     shards: 0,
-    pity: Object.fromEntries(SETS.map((x) => [x.id, 0])),
-    firstClear: { 1: false, 2: false, 3: false, 4: false, 5: false },
+    pity: {},
+    firstClear: {},
     coll: {},
     run: null,
     log: [],
-  };
+  });
   for (const k of C.start.starters) addCopy(s, k, false, C.start.level);
   return s;
 }

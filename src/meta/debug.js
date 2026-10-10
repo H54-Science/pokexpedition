@@ -18,7 +18,7 @@ function act(fn) {
 function render() {
   $("res").innerHTML = [
     `Vœux <b>${S.voeux}</b>`,
-    `Matériaux ${[1, 2, 3, 4, 5].map((t) => `P${t} <b>${S.mats[t]}</b>`).join(" ")}`,
+    `Matériaux ${M.DIFFS.map((_, i) => i + 1).map((t) => `P${t} <b>${S.mats[t]}</b>`).join(" ")}`,
     `Fragments ${M.SETS.map((s) => `${s.name} <b>${S.frags[s.id]}</b>`).join(" · ")}`,
     `Éclats chroma <b>${S.shards}</b>`,
     `Pity ${M.SETS.map((s) => `${s.id} <b>${Math.round(S.pity[s.id] * 100)}</b>`).join(" ")}`,
@@ -28,7 +28,7 @@ function render() {
 }
 
 function renderExp() {
-  $("exp").innerHTML = [1, 2, 3, 4, 5].map((d) => {
+  $("exp").innerHTML = M.DIFFS.map((_, i) => i + 1).map((d) => {
     const r = M.expeditionRewards(S, d), a = M.access(S, d);
     return `<div class="row"><button data-exp="${d}" ${S.run || !a.ok ? "disabled" : ""}>Difficulté ${d} (niv. ${a.level})</button>
       <span class="mute">${a.have}/${a.need} Pokémon au niveau · ${r.perAct} vœux par acte gagné · run complet : ${Object.entries(r.clearMats).map(([t, n]) => `P${t}×${n}`).join(" ")}${r.firstClear ? ` + ${r.firstClear} vœux (1er clear)` : ""}</span></div>`;
@@ -39,7 +39,7 @@ function renderRun() {
   const el = $("run"), run = S.run;
   if (!run) {
     el.innerHTML = `<div class="row"><select id="set">${M.SETS.map((s) => `<option value="${s.id}">${esc(s.name)} — ${fr(s.legend)}</option>`).join("")}</select>
-      difficulté <select id="lvl">${[1, 2, 3, 4, 5].map((d) => `<option value="${d}" ${M.access(S, d).ok ? "" : "disabled"}>${d} (niv. ${M.levelOf(d)})</option>`).join("")}</select>
+      difficulté <select id="lvl">${M.DIFFS.map((_, i) => i + 1).map((d) => `<option value="${d}" ${M.access(S, d).ok ? "" : "disabled"}>${d} (niv. ${M.levelOf(d)})</option>`).join("")}</select>
       <button class="main" id="start">Lancer</button></div>
       <p class="mute" id="chance"></p>` + (runLog.length ? `<div>${runLog.join("")}</div>` : "");
     const upd = () => { const set = $("set").value, L = M.levelOf(+$("lvl").value); const s = M.SET[set]; $("chance").textContent = `${s.nice.map(fr).join(", ")} · faibles : ${s.weak.map(fr).join(", ")} · capture de ${fr(s.legend)} au niveau ${L} : ${(M.legendChance(S, set, L) * 100).toFixed(1)} %`; };
@@ -94,7 +94,7 @@ document.addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   const d = b.dataset;
   if (d.exp) act(() => { const r = M.playExpedition(S, +d.exp, M.SETS[0].id); if (!r.cleared) throw new Error(`Expédition ratée : +${r.voeux} vœux quand même.`); });
-  if (d.exp10) act(() => { const x = [5, 4, 3, 2, 1].find((y) => M.access(S, y).ok); for (let i = 0; i < 10; i++) M.playExpedition(S, x, M.SETS[i % M.SETS.length].id); });
+  if (d.exp10) act(() => { const x = M.DIFFS.map((_, i) => i + 1).reverse().find((y) => M.access(S, y).ok); for (let i = 0; i < 10; i++) M.playExpedition(S, x, M.SETS[i % M.SETS.length].id); });
   if (d.train) act(() => M.train(S, d.train, 1));
   if (d.elev) act(() => M.elevate(S, d.elev));
   if (d.star) act(() => M.buyStar(S, d.star));

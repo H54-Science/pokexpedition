@@ -262,6 +262,61 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
   .cmdzone { left: 50%; } .cmd { width: 250px; } .cmd.atk { width: 270px; } .mvpanel { width: 380px; }
   .cmd b { font-size: 19px; } .cmd.atk b { font-size: 22px; }
 }
+.mvpanel .mcard:nth-child(4) { margin-left: 90px; } .mvpanel .mcard:nth-child(5) { margin-left: 120px; }
+.mcard.item { min-height: 58px; }
+.mcard.item .mc-cost { background: radial-gradient(circle at 35% 30%, #fff 0 8%, #ffe9a0 22%, #d89a2a 78%); box-shadow: 0 0 0 2px #fff, 0 0 14px rgba(255, 200, 90, .7); }
+.mcard.item .mc-cost b { font-size: 16px; }
+
+/* téléphone en portrait : frise en ligne sous la barre du boss, équipe à gauche, commandes à droite */
+@media (max-width: 700px) {
+  .topbar { top: 8px; right: 8px; gap: 4px; } .tbtn { padding: 4px 8px; font-size: 10px; letter-spacing: 0; } .tbtn kbd { display: none; }
+  .bossbar { top: 40px; width: calc(100vw - 28px); }
+  .bossbar .row { flex-wrap: wrap; gap: 4px 8px; padding: 0 4px 3px; } .bossbar .nm { font-size: 17px; }
+  .bhp { height: 14px; } .bossbar .num { top: 30px; right: 10px; font-size: 10px; }
+  .intent { margin: 4px 0 0 4px; padding-right: 10px; } .intentwrap { position: absolute; right: 0; top: 100%; } .intent b { font-size: 12px; } .intent small { font-size: 9px; }
+  .timeline { top: 112px; left: 10px; flex-direction: row; gap: 4px; }
+  .tl { width: 38px; height: 28px; border-left-width: 3px; } .tl.now { width: 48px; height: 34px; } .tl i { font-size: 9px; }
+  .party { left: 8px; bottom: 14px; gap: 6px; }
+  .card, .card.now { width: calc(50vw - 12px); height: 44px; gap: 6px; padding-right: 6px; }
+  .card.now { box-shadow: inset 0 0 0 2px var(--gold), 0 0 12px rgba(255, 211, 106, .35); }
+  .card .pt { width: 38px; height: 38px; margin-left: 2px; } .card .pt em { min-width: 17px; height: 17px; font-size: 9px; }
+  .card .nm { font-size: 12px; } .card .hpn { font-size: 9px; } .hpbar { height: 6px; margin-top: 2px; } .card .tags { display: none; } .card kbd { display: none; }
+  .card.ready::after { left: 44px; top: -8px; font-size: 8px; }
+  .cmdzone { left: auto; right: 8px; bottom: 14px; width: calc(50vw - 10px); gap: 6px; }
+  .cmds { gap: 6px; align-items: flex-end; }
+  .cmd, .cmd.atk { width: calc(100% - var(--x)); margin-left: var(--x); height: 40px; padding-right: 6px; border-radius: 5px; }
+  .cmd:nth-child(1) { --x: 18px; } .cmd:nth-child(2) { --x: 12px; } .cmd:nth-child(3) { --x: 6px; } .cmd:nth-child(4) { --x: 0px; }
+  .cmd.atk { height: 46px; }
+  .cmd .ci { width: 34px; height: 40px; } .cmd .ci svg { width: 19px; height: 19px; }
+  .cmd b, .cmd.atk b { font-size: 14px; letter-spacing: .5px; margin-left: 6px; } .cmd.atk b { font-size: 16px; }
+  .cmd small, .cmd kbd { display: none; } .cmd.ult.ready small { display: none; }
+  .ebar { margin-left: 0; align-self: stretch; justify-content: center; padding: 4px 8px; gap: 6px; }
+  .eb-lbl b { font-size: 16px; } .eb-segs { gap: 3px; } .eb-segs i { width: 15px; height: 11px; }
+  .cmdzone.mv { width: calc(100vw - 16px); }
+  .mvpanel { width: 100%; gap: 6px; } .mvpanel .mcard:nth-child(n) { margin-left: 0; }
+  .mcard { min-height: 56px; padding: 5px 10px; } .mcard b { font-size: 15px; } .mcard small { font-size: 10px; -webkit-line-clamp: 1; }
+  .mc-cost { width: 34px; height: 34px; } .mc-cost b { font-size: 16px; }
+  .gauge { width: 86vw; bottom: 42vh; }
+  .banner { top: 160px; max-width: 92vw; } .banner b { font-size: 15px; }
+  .cut { height: 92px; padding-left: 5vw; } .cut b { font-size: 28px; } .cut small { font-size: 11px; letter-spacing: 3px; }
+  .cut.enemy { padding-right: 5vw; }
+  .result h2 { font-size: 52px; } .result .stats { flex-wrap: wrap; gap: 8px; } .result .stats div { min-width: 80px; }
+  .float { font-size: 22px; } .float.crit { font-size: 30px; } .float.rx { font-size: 22px; }
+  .stamp { font-size: 26px; }
+  #loading h1 { font-size: 34px; } #loading .bar { width: 70vw; }
+  .lb-title { left: 16px; top: 14px; } .lb-title b { font-size: 24px; }
+  .lb-menu { right: 14px; gap: 10px; }
+  .lb-item { min-width: 0; padding: 6px 14px 6px 6px; } .lb-ic { width: 38px; height: 38px; } .lb-ic .ex-icon, .lb-ic .ex-icon svg { width: 24px; height: 24px; }
+  .lb-item b { font-size: 16px; } .lb-item small { font-size: 11px; } .lb-item kbd { display: none; }
+}
+/* téléphone à l'horizontale : tout plus compact en hauteur */
+@media (max-height: 500px) and (min-width: 701px) {
+  .bossbar { top: 8px; } .timeline { top: 8px; gap: 3px; } .tl { width: 48px; height: 30px; } .tl.now { width: 60px; height: 38px; }
+  .party { bottom: 10px; gap: 5px; } .card { height: 44px; } .card .pt { width: 38px; height: 38px; }
+  .cmdzone { bottom: 10px; gap: 6px; } .cmds { gap: 6px; } .cmd { height: 38px; } .cmd.atk { height: 44px; } .cmd b { font-size: 16px; } .cmd.atk b { font-size: 19px; }
+  .cmd .ci { height: 38px; } .ebar { padding: 3px 10px; }
+  .gauge { bottom: 30vh; }
+}
 
 /* ───────── écrans d'expédition (provisoires, sans habillage) ───────── */
 #screens { position: fixed; inset: 0; z-index: 20; overflow: auto; background: rgba(8, 6, 14, .82); font: 14px var(--sans); }

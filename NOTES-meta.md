@@ -1,7 +1,7 @@
 # Boucle de progression — notes d'implémentation
 
-Code : `src/meta/` (logique pure, sans DOM). Dans le jeu : stations du hall (Expéditions, Vœux = runs de capture, Collection, Entraînement), écrans dans `src/ui/metaScreens.js`. Page de debug sans 3D : `meta.html`. Tests : `tests/meta.test.js` (dans `npm test`).
-Chiffres : `src/meta/config.js`. Sets : `src/meta/sets.js`, générés par `node tools/gen_sets.mjs` puis à corriger à la main.
+Code : `src/meta/` (logique pure, sans DOM). Dans le jeu : menu du hall (Expédition, Collection, Hall, Réglages), écrans dans `src/ui/runScreens.js` et `src/ui/metaScreens.js`. Page de debug sans 3D : `meta.html`. Tests : `tests/meta.test.js` (dans `npm test`).
+Chiffres et difficultés : `src/meta/config.js`. Sets : `src/meta/sets.js`, édités à la main. Guide : `CONTENU.md` ; vérification : `npm run check`.
 Taux de victoire indicatifs : `node tools/balance_meta.mjs [n]`.
 
 ## Ce qui est codé (boucle minimale viable)
@@ -11,8 +11,9 @@ Expéditions (vœux + matériaux) → run de capture (10 vœux) → un Pokémon 
 - **Buff « prochain adversaire = espèce choisie »** : pas codé.
 
 ## Expédition (mode unique, expéditions et vœux fusionnés)
-- Difficulté I à V = adversaires niveau 20/40/60/80/100. Accès si **6 Pokémon** au moins ont ce niveau (`run.minRoster`).
-- Puis choix du **set** ; 5 actes (faible, faible, sympa, faible, légendaire) ; à chaque acte 1 à 3 Pokémon, chacun combat **3 fois** max par run.
+- Difficultés : liste `CONFIG.difficulties` (par défaut I à V = adversaires niveau 20/40/60/80/100). Accès si **6 Pokémon** au moins ont ce niveau (`run.minRoster`).
+- Puis choix du **set** ; 5 actes par défaut (faible, faible, sympa, faible, légendaire ; un set peut avoir son propre `order`) ; à chaque acte 1 à 3 Pokémon, chacun combat **3 fois** max par run.
+- **Objets** : sac de départ (`CONFIG.items.start`, 2 Potions, 1 Élixir, 1 Total Soin), utilisables en combat pendant le tour d'un allié sans consommer le tour (1 par tour). Le reste est perdu en fin de run. Les combats simulés n'en utilisent pas.
 - Départ gratuit (`expedition.cost`). Vœux gagnés à chaque acte gagné ; matériaux (P D ×2, P D-1 ×1) et bonus de premier clear si les 5 actes sont gagnés ; captures → on en garde une, le reste en fragments / éclats.
 - **Bénédictions** (`src/meta/buffs.js`, réglages `buffs` dans config.js) : 1re carte offerte avant l'acte 1, puis 3 cartes à acheter en vœux après chaque acte gagné, 2 relances par run.
   Catalogue calculé pour chaque set : types offensifs super efficaces contre lui, les 3 réactions les plus adaptées (bonus si elles utilisent l'élément du légendaire : Floraison / Électrocharge / Catalyse contre Abysses), bénédictions générales, et de capture (prisme chromatique, appât légendaire +5 pts, bourse de vœux).

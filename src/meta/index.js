@@ -1,8 +1,8 @@
 // Boucle de progression (logique pure) : expéditions (difficulté → set → actes et bénédictions) → collection → entraînement / élévation.
 export { CONFIG } from "./config.js";
-export { SETS, SET, roleOf, newSave, owns, formOf, levelCap } from "./state.js";
+export { SETS, SET, DIFFS, orderOf, speciesOf, contentErrors, roleOf, newSave, owns, formOf, levelCap } from "./state.js";
 export {
-  levelOf, eligible, access, legendRate, legendChance, legendAttempt, expeditionRewards,
+  levelOf, eligible, itemBag, access, legendRate, legendChance, legendAttempt, expeditionRewards,
   startRun, shopView, buyBuff, rerollShop, runMods, usable, autoTeam, nextFightConfig, resolveFight, fightNext,
   cleared, choices, publicRun, finishRun, stopRun, playExpedition,
 } from "./run.js";

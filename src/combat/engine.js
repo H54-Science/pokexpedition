@@ -287,6 +287,22 @@ export class Combat {
     return this.flush();
   }
 
+  // Objet : action bonus pendant le tour d'un allié, ne consomme pas le tour.
+  // fx : { heal, shield (parts des PV max), charge, pts, cleanse, target: "lowest" | "all" }
+  useItem(fx, name = "Objet") {
+    const u = this.active;
+    if (!u || u.side !== "ally" || !u.alive || this.over) throw new Error("Objet utilisable pendant le tour d'un allié.");
+    this.emit({ t: "item", id: u.id, name });
+    for (const t of fx.target === "all" ? this.living("ally") : [this.lowest(u)]) {
+      if (fx.cleanse) this.cleanse(t);
+      if (fx.heal) this.heal(t, t.maxHp * fx.heal);
+      if (fx.shield) this.addShield(t, t.maxHp * fx.shield);
+      if (fx.charge) this.gainCharge(t, fx.charge);
+    }
+    if (fx.pts) this.addPts(fx.pts);
+    return this.flush();
+  }
+
   enemiesOf(u) { return this.living(u.side === "ally" ? "enemy" : "ally"); }
   friendsOf(u) { return this.living(u.side); }
   lowest(u) { const f = this.friendsOf(u); return f.reduce((a, b) => (b.hp / b.maxHp < a.hp / a.maxHp ? b : a), f[0]); }

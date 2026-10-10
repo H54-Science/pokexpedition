@@ -1,6 +1,6 @@
 // Sauvegarde versionnée. serialize/deserialize sont purs ; localStore est l'adaptateur navigateur.
 import { CONFIG } from "./config.js";
-import { newSave } from "./state.js";
+import { newSave, normalize } from "./state.js";
 
 // Migrations : MIGRATIONS[n] transforme une sauvegarde v n en v n+1.
 const MIGRATIONS = {
@@ -25,7 +25,7 @@ export function deserialize(text) {
     s = m(s);
   }
   if (s.v > CONFIG.save.version) throw new Error("Sauvegarde d'une version plus récente.");
-  return s;
+  return normalize(s);
 }
 
 // Adaptateur localStorage (clé + version dans la clé, pour garder les anciennes en cas de souci).

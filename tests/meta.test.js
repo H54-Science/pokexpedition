@@ -1,15 +1,12 @@
 // Tests de la boucle de progression (src/meta) : logique pure, à graine fixe.
 import * as M from "../src/meta/index.js";
+import { Combat } from "../src/combat/engine.js";
 const { CONFIG } = M;
 const ok = (c, msg) => { if (!c) throw new Error("ÉCHEC : " + msg); };
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
 // ───── sets ─────
-const seen = new Set();
-for (const s of M.SETS) {
-  ok(s.nice.length === 3 && s.weak.length === 4 && s.legend, `set ${s.id} : 1 + 3 + 4`);
-  for (const k of [s.legend, ...s.nice, ...s.weak]) { ok(!seen.has(k), `espèce en double dans les sets : ${k}`); seen.add(k); }
-}
+{ const err = M.contentErrors(); ok(!err.length, "contenu : " + err.join(" / ")); }
 console.log("sets : ok");
 
 // ───── taux de capture du légendaire ─────
@@ -63,12 +60,28 @@ ok(Math.abs(M.legendRate(65) - 0.165) < 1e-9, "interpolation linéaire");
   for (const k of Object.keys(s.coll).slice(0, 5)) s.coll[k].L = 40;
   ok(!M.access(s, 2).ok, "5 Pokémon niv. 40 ne suffisent pas"); s.coll[Object.keys(s.coll)[5]].L = 40; ok(M.access(s, 2).ok && !M.access(s, 3).ok, "6 niv. 40 : D2 oui, D3 non");
   M.startRun(s, { set: "nuit", diff: 1 });
-  ok(Object.values(s.run.uses).every((u) => u === CONFIG.run.uses) && s.run.foes.length === CONFIG.run.acts, "5 actes, 3 utilisations chacun");
+  ok(Object.values(s.run.uses).every((u) => u === CONFIG.run.uses) && s.run.foes.length === M.orderOf("nuit").length, "actes du déroulé, 3 utilisations chacun");
   const t = Object.keys(s.run.uses).slice(0, 3); M.nextFightConfig(s, t); M.resolveFight(s, true);
   ok(t.every((k) => s.run.uses[k] === CONFIG.run.uses - 1), "utilisation décomptée");
   threw = false; try { M.nextFightConfig(s, Object.keys(s.coll).slice(0, 4)); } catch (e) { threw = true; } ok(threw, "4 Pokémon refusés");
   for (const k of t) s.run.uses[k] = 0; threw = false; try { M.nextFightConfig(s, [t[0]]); } catch (e) { threw = true; } ok(threw, "Pokémon épuisé refusé");
   console.log("accès, actes et utilisations : ok"); }
+
+// ───── objets : sac de départ, transmis au combat, restants rendus par le combat ─────
+{ const s = M.newSave(31); M.startRun(s, { set: "abysses", diff: 1 });
+  const cfg = M.nextFightConfig(s, M.autoTeam(s));
+  ok(Object.keys(cfg.items).length && Object.values(cfg.items).every((it) => it.n > 0 && it.fx), "sac transmis au combat");
+  const id = Object.keys(cfg.items)[0], n0 = cfg.items[id].n; cfg.items[id].n--;
+  M.resolveFight(s, true, cfg.items);
+  ok(s.run.items[id] === n0 - 1, "objet utilisé retiré du sac");
+  // moteur : un objet soigne et ne consomme pas le tour
+  const b = new Combat({ seed: 3, allies: [{ k: "MUDKIP", L: 50, hp: 0.5 }], enemies: [{ k: "GENGAR", L: 5 }] });
+  b.begin(); let a = null;
+  for (let g = 0; g < 20 && !a; g++) { const t = b.nextTurn(), u = t.actor && b.unit(t.actor); if (u && !t.skipped && u.side === "ally") a = u; else { if (u && !t.skipped) b.enemyAct(); b.endTurn(); } }
+  ok(a, "tour d'allié atteint");
+  const hp0 = a.hp; b.useItem(CONFIG.items.list.potion.fx, "Potion");
+  ok(a.hp > hp0 && b.active === a, "potion : soin, tour conservé");
+  console.log("objets : ok"); }
 
 // ───── bénédictions ─────
 { const s = M.newSave(21);
