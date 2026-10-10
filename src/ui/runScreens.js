@@ -5,7 +5,7 @@ import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
 import { portrait } from "../render/assets.js";
 import * as M from "../meta/index.js";
 import { ART, paint } from "./art.js";
-import { icon, scenery, eyebrow, stat } from "./theatre.js";
+import { icon, scenery, eyebrow, stat, pokerFace } from "./theatre.js";
 
 const { CONFIG } = M;
 const RF = { weak: "Faible", nice: "Sympa", legend: "Légendaire" };
@@ -111,7 +111,7 @@ export class RunUI {
       const ch = M.legendChance(save, S.id, level), A = ART.set[S.id] || {};
       const el = h("button", { class: "rs-set", onclick: () => { if (sel === S.id) go(); else { sel = S.id; render(); } }, ondblclick: () => go() },
         h("div", { class: "rs-set-art" }, scenery({ abysses: "water", terres: "fire", nuit: "night", feerie: "rest" }[S.id])),
-        h("div", { class: "rs-set-legend" }, face(S.legend, "rs-face big")),
+        h("div", { class: "rs-set-legend" }, pokerFace(S.legend, { content: face(S.legend, "rs-face big") })),
         h("div", { class: "rs-set-name" }, h("small", null, "Set"), h("b", null, S.name)),
         h("div", { class: "rs-set-leg" }, h("b", null, fr(S.legend)), types(S.legend)),
         h("div", { class: "rs-set-chance" + (ch ? "" : " zero") }, ch ? `${(ch * 100).toFixed(1)} %` : "0 %", h("small", null, ch ? (save.pity[S.id] ? `capture (pity +${Math.round(save.pity[S.id] * 100)})` : "capture du légendaire") : `capturable dès le niveau ${CONFIG.capture.legend.minLevel}`)),
@@ -150,20 +150,20 @@ export class RunUI {
         h("em", null, r ? (r.win ? (r.captured ? "capturé" : r.legend ? "échappé" : r.voeux ? `+${r.voeux} vœux` : "gagné") : "défaite") : RF[f.role]));
     }));
     // adversaire
-    const foe = h("div", { class: `rs-foe ${act.role}` }, h("div", { class: "rs-foe-portrait" }, scenery("night"), face(act.k, "rs-face big")),
+    const foe = h("div", { class: `rs-foe ${act.role}` }, h("div", { class: "rs-foe-portrait" }, pokerFace(act.k, { content: face(act.k, "rs-face big") })),
       h("div", null, h("small", null, `Acte ${run.i + 1} · ${RF[act.role]}`), h("b", null, fr(act.k)), types(act.k), h("p", null, `Niveau ${run.level}`),
         act.role === "legend" ? h("p", { class: "rs-chance" }, `Capture si victoire : ${(M.legendChance(save, run.set, run.level) * 100).toFixed(1)} %`) : null));
     // équipe (3 emplacements : gauche, centre, droite)
     const slots = h("div", { class: "rs-slots" });
     const roster = h("div", { class: "rs-roster" });
-    const fightBtn = h("button", { class: "rs-go", onclick: () => team.length && go() }, "Combattre", h("kbd", null, "Entrée"));
+    const fightBtn = h("button", { class: "rs-go", onclick: () => team.length && go() }, "Entrer en combat", h("kbd", null, "Entrée"));
     const go = () => { this.team = team.slice(); onFight(team.slice()); };
     const render = () => {
       slots.innerHTML = "";
       ["Gauche", "Centre", "Droite"].slice(0, N).forEach((pos, i) => {
         const k = team[i];
         slots.append(k ? h("button", { class: "rs-slot full", onclick: () => { team.splice(i, 1); render(); }, title: "Retirer" },
-          face(k, "rs-face big"), h("b", null, fr(M.formOf(k, save.coll[k].elev))), h("small", null, `N.${save.coll[k].L} · ${pos}`), pips(save.run.uses[k], U))
+          face(M.formOf(k, save.coll[k].elev), "rs-face big"), h("b", null, fr(M.formOf(k, save.coll[k].elev))), h("small", null, `N.${save.coll[k].L} · ${pos}`), pips(save.run.uses[k], U))
           : h("div", { class: "rs-slot" }, h("small", null, pos), h("b", null, "+")));
       });
       roster.innerHTML = "";
@@ -171,7 +171,7 @@ export class RunUI {
         const left = save.run.uses[k], on = team.includes(k), form = M.formOf(k, save.coll[k].elev);
         roster.append(h("button", { class: "rs-mon" + (on ? " on" : "") + (left ? "" : " out"), "aria-pressed": String(on), disabled: !left,
           onclick: () => { if (on) team = team.filter((x) => x !== k); else if (team.length < N) team.push(k); else team[N - 1] = k; render(); } },
-          face(form), h("b", null, fr(form)), h("small", null, `N.${save.coll[k].L}`), types(form), pips(left, U)));
+          pokerFace(form, { content: face(form) }), h("b", null, fr(form)), h("small", null, `N.${save.coll[k].L}`), types(form), pips(left, U)));
       });
       fightBtn.disabled = !team.length;
     };
@@ -195,7 +195,7 @@ export class RunUI {
     const list = M.choices(save), F = CONFIG.capture.fragments;
     let sel = list.find((c) => c.isNew)?.i ?? null;
     const cards = list.map((c) => h("button", { class: "rs-pick" + (c.shiny ? " shiny" : "") + (c.isNew ? "" : " dup"), disabled: !c.isNew, onclick: () => { sel = c.i; render(); }, ondblclick: () => c.isNew && keep() },
-      face(c.k, "rs-face big", c.shiny), c.shiny ? h("div", { class: "rs-shiny-tag" }, "✦ CHROMATIQUE") : null,
+      pokerFace(c.k, { content: face(c.k, "rs-face big", c.shiny) }), c.shiny ? h("div", { class: "rs-shiny-tag" }, "✦ CHROMATIQUE") : null,
       h("small", null, RF[c.role]), h("b", null, fr(c.k)), types(c.k),
       h("em", null, c.isNew ? "Nouveau" : `Déjà possédé → ${F[c.role]} fragment${F[c.role] > 1 ? "s" : ""}${c.shiny ? " + 1 éclat" : ""}`)));
     const keep = () => onKeep(sel);
