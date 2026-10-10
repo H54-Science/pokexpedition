@@ -117,7 +117,11 @@ export class Lobby {
     this.composer.setSize(w, h_); this.camera.aspect = w / h_; this.camera.updateProjectionMatrix();
   }
 
-  enter() { this.active = true; this.stage.override = (real) => this.frame(real); this.resize(); }
+  // à chaque retour au hall, la caméra glisse doucement vers sa place (léger travelling avant)
+  enter() {
+    if (!this.active) { this.camera.position.set(0, 4.4, CAM_Z - 0.3); this.glide = 1; }
+    this.active = true; this.stage.override = (real) => this.frame(real); this.resize();
+  }
   leave() { this.active = false; this.stage.override = null; }
 
   frame(real) {
@@ -125,7 +129,9 @@ export class Lobby {
     // caméra : légère dérive + parallaxe à la souris, cadrée sur les Pokémon et la scène au fond
     const tx = Math.sin(this.t * 0.12) * 0.6 + this.mouse.x * 0.5;
     const ty = 3.0 + Math.sin(this.t * 0.17) * 0.12 - this.mouse.y * 0.25;
-    this.camera.position.lerp(V(tx, ty, CAM_Z), 1 - Math.exp(-dt * 2));
+    this.glide = Math.max(0, (this.glide || 0) - dt * 0.8);
+    const g = this.glide * this.glide;   // travelling d'arrivée : part de plus haut et plus loin
+    this.camera.position.lerp(V(tx, ty + g * 1.4, CAM_Z - g * 0.3), 1 - Math.exp(-dt * 2.4));
     this.camera.lookAt(this.mouse.x * 0.7, 2.0 - this.mouse.y * 0.35, 12);
     for (const m of this.mons) {
       m.P.mixer.update(dt);

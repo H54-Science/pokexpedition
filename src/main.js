@@ -58,7 +58,7 @@ function buildMenu() {
   MENU.forEach((m, i) => nav.append(h("button", { class: "lb-item", style: { "--c": m.c }, onclick: () => lobbyAction(m.id) },
     h("span", { class: "lb-ic" }, icon(m.icon)), h("span", null, h("b", null, m.label), h("small", null, m.sub)), h("kbd", null, i + 1))));
   addEventListener("keydown", (e) => {
-    if (!lobby.active || document.getElementById("screens").style.display !== "none") return;
+    if (!lobby.active || scr.open) return;
     const m = MENU[+e.key - 1]; if (m) lobbyAction(m.id);
   });
 }
@@ -67,10 +67,16 @@ const refreshHall = () => lobby.setShowcase(hallKeys().map((k) => Meta.formOf(k,
 function toLobby() {
   scr.hide(); ru.close();
   lobby.enter(); refreshHall(); updateRes();
-  document.getElementById("lobby-ui").style.display = "";
+  const ui = document.getElementById("lobby-ui");
+  ui.style.display = ""; ui.classList.remove("lb-enter", "lb-leave"); void ui.offsetWidth; ui.classList.add("lb-enter");
 }
 const back = () => toLobby();
-function hideHallUi() { document.getElementById("lobby-ui").style.display = "none"; }
+function hideHallUi() {
+  const ui = document.getElementById("lobby-ui");
+  if (ui.style.display === "none") return;
+  ui.classList.remove("lb-enter"); ui.classList.add("lb-leave");
+  setTimeout(() => { if (ui.classList.contains("lb-leave")) { ui.style.display = "none"; ui.classList.remove("lb-leave"); } }, 200);
+}
 
 function lobbyAction(id) {
   hideHallUi();

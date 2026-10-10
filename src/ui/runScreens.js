@@ -38,7 +38,7 @@ export class RunUI {
     if (this.onKey) removeEventListener("keydown", this.onKey);
     const steps = ["Difficulté", "Set", "Actes"];
     const save = this.save;
-    const root = h("div", { class: "rs ex-screen rs-expedition" },
+    const root = h("div", { class: "rs ex-screen rs-expedition", "data-key": `${step}|${title}` },
       h("div", { class: "rs-top" },
         onBack ? h("button", { class: "rs-back", onclick: onBack, title: "Retour (Échap)", "aria-label": "Retour" }, "‹") : null,
         h("div", { class: "rs-title" }, h("small", null, "Expédition"), h("b", null, title)),

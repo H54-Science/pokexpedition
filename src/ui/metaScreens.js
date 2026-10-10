@@ -43,7 +43,7 @@ export class MetaScreens {
           e.shiny ? null : b(`✦ (${shardCost} éclats)`, "shards", !e.normal || save.shards < shardCost),
           b(hall.includes(k) ? "Hall ✓" : "Hall", "hall", !hall.includes(k) && hall.length >= 6, "Exposer dans le hall (6 max)")));
     });
-    this.show(h("div", { class: "s-box" },
+    this.show(h("div", { class: "s-box", "data-key": "collection" },
       h("div", { class: "s-top" }, h("h1", null, "Collection"), resBar(save)),
       h("p", { class: "s-mute" }, `Entraînement illimité jusqu'au plafond de niveau (20/40/60/80/100 selon l'élévation). Difficulté d'un run accessible avec 6 Pokémon au niveau requis (20/40/60/80/100). L'élévation demande des fragments du set et un matériau de palier (expéditions). Certaines espèces évoluent à l'élévation 1.`),
       msg ? h("p", { class: "m-msg" }, msg) : null,
@@ -60,7 +60,7 @@ export class MetaScreens {
         i >= 0 ? h("span", { class: "m-hall-n" }, i + 1) : null,
         h("img", { src: `assets/pokemon/${form}.png`, alt: "", draggable: "false" }), h("b", null, fr(form)), h("small", null, `N.${save.coll[k].L}`)));
     }
-    this.show(h("div", { class: "s-box" },
+    this.show(h("div", { class: "s-box", "data-key": "hall" },
       h("div", { class: "s-top" }, h("h1", null, "Pokémon du hall")),
       h("p", { class: "s-mute" }, `Choisis jusqu'à ${max} Pokémon à exposer dans le hall (dans l'ordre : le 1er au centre du tapis). ${chosen.length}/${max}`),
       grid,

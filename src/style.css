@@ -349,3 +349,40 @@ kbd { font: 700 10px var(--sans); padding: 1px 5px; border-radius: 4px; backgrou
 .m-star, .m-sh { color: var(--gold); white-space: nowrap; }
 .m-msg { color: var(--gold); font-weight: 700; }
 .s-card.m-shiny { box-shadow: 0 0 0 2px var(--gold), 0 0 24px rgba(255, 211, 106, .5); }
+
+/* ───────── transitions entre menus ───────── */
+@keyframes uiFadeIn { from { opacity: 0; } }
+@keyframes uiFadeOut { to { opacity: 0; } }
+@keyframes uiPageIn { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+@keyframes uiPageOut { to { opacity: 0; transform: translateY(-10px) scale(.99); } }
+@keyframes uiRise { from { opacity: 0; transform: translateY(18px); } }
+@keyframes uiSlideL { from { opacity: 0; transform: translateX(40px); } }
+@keyframes uiPop { 0% { opacity: 0; transform: scale(.9); } 70% { transform: scale(1.02); } }
+#screens.scr-appear { animation: uiFadeIn .28s ease-out both; }
+#screens.scr-hiding { animation: uiFadeOut .24s ease-in both; pointer-events: none; }
+#screens > .scr-in { animation: uiPageIn .34s cubic-bezier(.2, .8, .2, 1) both; }
+#screens > .scr-out { position: absolute !important; inset: 0; z-index: 0; pointer-events: none; animation: uiPageOut .24s ease-in both; }
+/* contenus en cascade (une seule fois, à l'entrée de l'écran) */
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > * { animation: uiRise .42s cubic-bezier(.2, .8, .2, 1) both; }
+.scr-in :is(.rs-picks, .rs-buffs) > * { animation-name: uiPop; animation-duration: .5s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(2) { animation-delay: .04s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(3) { animation-delay: .08s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(4) { animation-delay: .12s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(5) { animation-delay: .16s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(6) { animation-delay: .2s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(7) { animation-delay: .24s; }
+.scr-in :is(.rs-diffs, .rs-sets, .rs-roster, .rs-buffs, .rs-path, .rs-picks, .rs-slots, .s-cards, .m-hall, .rs-mini, .ex-rewards, .ex-stats) > :nth-child(n+8) { animation-delay: .28s; }
+.scr-in :is(.rs-actions, .ex-footer) { animation: uiFadeIn .4s .15s ease-out both; }
+/* hall : titre et menu qui glissent à l'arrivée */
+#lobby-ui.lb-enter .lb-title { animation: uiRise .5s cubic-bezier(.2, .8, .2, 1) both; }
+#lobby-ui.lb-enter .lb-item { animation: uiSlideL .45s cubic-bezier(.2, .8, .2, 1) both; }
+#lobby-ui.lb-enter .lb-item:nth-child(2) { animation-delay: .06s; }
+#lobby-ui.lb-enter .lb-item:nth-child(3) { animation-delay: .12s; }
+#lobby-ui.lb-enter .lb-item:nth-child(4) { animation-delay: .18s; }
+#lobby-ui.lb-leave { animation: uiFadeOut .2s ease-in both; }
+/* petits retours au clic */
+#screens button:not(:disabled):active, .lb-item:active { transform: scale(.97) !important; transition: transform .06s; }
+.rs-banner { animation: uiPop .45s cubic-bezier(.2, .8, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  #screens *, #screens, #lobby-ui * { animation: none !important; transition: none !important; }
+}
