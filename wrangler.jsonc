@@ -2,5 +2,6 @@
   // Site statique servi par Cloudflare (Workers Static Assets)
   "name": "pokexpedition",
   "compatibility_date": "2026-10-01",
+  "build": { "command": "npm run check" },
   "assets": { "directory": "." }
 }

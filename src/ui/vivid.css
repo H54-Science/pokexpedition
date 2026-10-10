@@ -61,3 +61,16 @@
   .rs.ex-screen .rs-title { flex-basis:100%; order:3; }
   .lb-title>.ex-brand-logo { width:250px; }
 }
+
+/* Keep the refreshed team board and the type-colored cards together. */
+.ex-screen .tb-mon,.ex-screen .tb-slot.full {
+  --card-dark:color-mix(in srgb,var(--card-color) 38%,#0d0925);
+  border-color:var(--card-color);
+  background:linear-gradient(135deg,var(--card-color),var(--card-dark));
+  box-shadow:inset 0 2px #fff4,0 0 14px color-mix(in srgb,var(--card-color) 35%,transparent);
+}
+.ex-screen .tb-mon.on { border-color:#83f3ff; box-shadow:0 0 0 1px #008dff,0 0 16px #00baff99; }
+.ex-screen .tb-foe-card .ex-poker-face { border-color:var(--card-color); }
+.ex-screen .tb-foe-card { filter:drop-shadow(0 0 18px color-mix(in srgb,var(--card-color) 40%,transparent)); }
+.ex-screen .tb-slot .ex-poker-corner b { font:inherit; }
+.load-retry { display:block; margin:16px auto; padding:10px 18px; border:2px solid #91dfff; border-radius:5px; background:#193c70; color:#fff; cursor:pointer; font:700 16px Nunito,sans-serif; }
