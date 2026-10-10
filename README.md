@@ -101,4 +101,5 @@ Le repère source est celui de Blender (Z en haut) ; la racine est tournée de �
 - La pose de liaison n'est pas jouable (Léviator est à l'horizontale, les lianes de Bulbizarre sont sorties) : toujours jouer une animation.
 - Kakuna n'a pas d'animation : il lui faudra un mouvement procédural.
 - Certains Pokémon sont faits de plusieurs maillages (Funécire : corps + flamme ; Lugulabre : corps + flammes semi-transparentes ; Libégon : corps + yeux). `build_models.py` lit la liste des couches dans `data/pixelmon/species/<espece>.json` et les fusionne dans un même .glb.
+- Milobellus, Libégon, Kangourex et Lilia sont modélisés « Y en haut » : liste `Y_UP` dans `build_models.py` (pas de rotation de -90°, plus un quart de tour pour Milobellus).
 - Ogerpon n'a pas de modèle dans Pixelmon. Florges n'a pas de texture chromatique dans la forme utilisée (`red`).

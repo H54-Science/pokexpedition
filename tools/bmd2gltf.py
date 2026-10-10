@@ -108,7 +108,7 @@ class Glb:
 
 FLOAT, USHORT, UBYTE, UINT = 5126, 5123, 5121, 5125
 
-def convert(folder, out, fps=24.0, layers=None):
+def convert(folder, out, fps=24.0, layers=None, y_up=None):
     """layers : [(fichier.bmd, transparence ou None), ...] tel que décrit dans data/pixelmon/species ;
     le 1er est le corps (squelette de référence). Sans layers : le seul .bmd avec triangles."""
     folder = folder.rstrip('/')
@@ -121,6 +121,8 @@ def convert(folder, out, fps=24.0, layers=None):
     assert meshes, 'aucun maillage'
     if not layers:
         layers = [(sorted(meshes)[-1] if len(meshes) > 1 else next(iter(meshes)), None)]
+    low = {k.lower(): k for k in meshes}   # les noms du JSON ne respectent pas toujours la casse
+    layers = [(low.get(fn.lower(), fn), t) for fn, t in layers]
     for fn, _ in layers: assert fn in meshes, f'maillage absent : {fn}'
     nodes, frames, _ = meshes[layers[0][0]]
     ids = [n[0] for n in nodes]; assert ids == list(range(len(nodes)))
@@ -201,9 +203,12 @@ def convert(folder, out, fps=24.0, layers=None):
     n = len(nodes)
     gn.append({'name': 'mesh', 'mesh': 0, 'skin': 0})
     roots = [i for i in range(n) if parents[i] < 0]
-    # Blender (Z en haut) -> glTF (Y en haut) : -90° autour de X
-    gn.append({'name': os.path.basename(folder), 'children': roots + [n],
-               'rotation': [-math.sqrt(0.5), 0.0, 0.0, math.sqrt(0.5)]})
+    # Blender (Z en haut) -> glTF (Y en haut) : -90° autour de X.
+    # Quelques modèles sont déjà modélisés Y en haut (liste Y_UP de build_models.py) : pas de rotation.
+    # y_up = angle (degrés) autour de Y pour remettre le modèle face à +z, ou None.
+    if y_up is None: root_rot = [-math.sqrt(0.5), 0.0, 0.0, math.sqrt(0.5)]
+    else: a = math.radians(y_up) / 2; root_rot = [0.0, math.sin(a), 0.0, math.cos(a)]
+    gn.append({'name': os.path.basename(folder), 'children': roots + [n], 'rotation': root_rot})
     g.g['nodes'] = gn
     g.g['skins'] = [{'joints': list(range(n)), 'inverseBindMatrices': g.acc(ibm.reshape(n, 16), FLOAT, 'MAT4')}]
     g.g['scenes'] = [{'nodes': [n + 1]}]; g.g['scene'] = 0
@@ -230,7 +235,7 @@ def convert(folder, out, fps=24.0, layers=None):
         g.g['animations'].append({'name': aname, 'channels': chans, 'samplers': samps})
 
     g.write(out)
-    return {'bones': n, 'verts': nverts, 'tris': ntris, 'layers': [l[0] for l in layers], 'anims': {k: len(v[1]) for k, v in anims.items()},
+    return {'bones': n, 'y_up': y_up, 'verts': nverts, 'tris': ntris, 'layers': [l[0] for l in layers], 'anims': {k: len(v[1]) for k, v in anims.items()},
             'kb': os.path.getsize(out) // 1024}
 
 if __name__ == '__main__':
