@@ -35,9 +35,9 @@ export function RNG(seed) {
 }
 
 export function mergeMods(list) {
-  const m = { type: {} };
+  const m = { type: {}, rxOf: {} };
   for (const x of list) for (const k in x) {
-    if (k === "type") for (const t in x.type) m.type[t] = (m.type[t] || 0) + x.type[t];
+    if (k === "type" || k === "rxOf") for (const t in x[k]) m[k][t] = (m[k][t] || 0) + x[k][t];
     else if (typeof x[k] === "number") m[k] = (m[k] || 0) + x[k];
     else (m[k] = m[k] || []).push(x[k]);
   }
@@ -422,14 +422,15 @@ export class Combat {
       } else t.aura = { t: type, n: 2 };
     } else if (SWIRL.includes(type) && t.aura) { rx = SWIRL_RX; rxType = t.aura.t; t.aura = null; }
     else if (CRYSTAL.includes(type) && t.aura) { rx = CRYSTAL_RX; rxType = t.aura.t; t.aura = null; }
-    if (rx && rx.mult) amp = rx.mult + n0(this.rm.amp) + (n0(this.rm.rx) + n0(a.mods.rx)) * 0.3;
+    // rxOf : bonus propre à une réaction (bénédictions d'expédition), en plus du bonus général rx
+    if (rx && rx.mult) amp = rx.mult + n0(this.rm.amp) + (n0(this.rm.rx) + n0(a.mods.rx)) * 0.3 + n0(this.rm.rxOf[rx.id]);
     return { rx, amp, rxType };
   }
   reaction(a, t, rx, rxType) {
     this.log.reactions++;
     this.emit({ t: "reaction", id: t.id, src: a.id, rx: rx.id, name: rx.name, color: rx.color, from: rxType });
     if (a.side === "ally" && this.rm.rxCharge) this.gainCharge(a, this.rm.rxCharge);
-    const rb = rxBase(a.L) * (1 + n0(this.rm.rx) + n0(a.mods.rx));
+    const rb = rxBase(a.L) * (1 + n0(this.rm.rx) + n0(a.mods.rx) + n0(this.rm.rxOf[rx.id]));
     const others = this.enemiesOf(a).filter((o) => o !== t);
     switch (rx.id) {
       case "combustion": t.st.burn = { n: 3, dmg: rb * 0.45 }; break;
