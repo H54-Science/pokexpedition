@@ -50,6 +50,7 @@ export function contentErrors() {
 export function normalize(s) {
   for (const S of SETS) { s.frags[S.id] ??= 0; s.pity[S.id] ??= 0; }
   for (let d = 1; d <= Math.max(DIFFS.length, 5); d++) { s.mats[d] ??= 0; s.firstClear[d] ??= false; }
+  for (const e of Object.values(s.coll)) { e.L = Math.max(e.L, levelCap(e.elev)); delete e.xp; }   // plus d'entraînement : niveau = plafond
   if (s.run && (!SET[s.run.set] || !DIFFS[s.run.diff - 1])) s.run = null;   // set ou difficulté retirés : run abandonné
   return s;
 }
@@ -69,7 +70,7 @@ export function newSave(seed = 1) {
     run: null,
     log: [],
   });
-  for (const k of C.start.starters) addCopy(s, k, false, C.start.level);
+  for (const k of C.start.starters) addCopy(s, k, false);
   return s;
 }
 
@@ -84,9 +85,9 @@ export const seedFrom = (r) => Math.floor(r() * 2 ** 31);
 export const owns = (save, k, shiny = false) => !!(save.coll[k] && save.coll[k][shiny ? "shiny" : "normal"]);
 export const isNewFor = (save, k, shiny) => !owns(save, k, shiny);
 
-export function addCopy(save, k, shiny, level = 1) {
+export function addCopy(save, k, shiny) {
   if (owns(save, k, shiny)) throw new Error(`Déjà possédé : ${k}${shiny ? " chromatique" : ""}`);
-  const e = save.coll[k] || (save.coll[k] = { normal: false, shiny: false, L: level, xp: 0, elev: 0, stars: 0 });
+  const e = save.coll[k] || (save.coll[k] = { normal: false, shiny: false, L: levelCap(0), elev: 0, stars: 0 });
   e[shiny ? "shiny" : "normal"] = true;
   return e;
 }

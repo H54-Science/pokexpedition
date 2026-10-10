@@ -245,6 +245,17 @@ export class Hud {
     this.root.appendChild(el); this._ban = el;
     clearTimeout(this._banT); this._banT = setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 260); if (this._ban === el) this._ban = null; }, 1600);
   }
+  // Conseil bloquant (premiers combats) : se ferme avec le bouton, Entrée ou Espace.
+  tip(title, text) {
+    return new Promise((res) => {
+      const done = (e) => { if (e && e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return; if (e) { e.preventDefault(); e.stopPropagation(); } removeEventListener("keydown", done, true); el.remove(); res(); };
+      const el = h("div", { class: "tip", role: "dialog", "aria-label": title },
+        h("small", null, "Conseil"), h("b", null, title), ...[].concat(text).map((t) => h("p", null, t)),
+        h("button", { onclick: () => done() }, "Compris", h("kbd", null, "Entrée")));
+      this.root.appendChild(el);
+      addEventListener("keydown", done, true);
+    });
+  }
   toast(text, ms = 1800) { const el = h("div", { class: "toast" }, text); this.root.appendChild(el); setTimeout(() => el.remove(), ms); }
   flash(alpha = 0.6, ms = 260, color = "#fff") {
     const f = this.flashEl; f.style.background = color; f.style.transition = "none"; f.style.opacity = alpha;

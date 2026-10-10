@@ -1,19 +1,18 @@
-// Écrans hors expédition : Collection (entraînement, élévation, étoiles, chromatiques), Pokémon du hall, Réglages.
+// Écrans hors expédition : Collection (élévation, étoiles, chromatiques, exposition au hall) et Réglages.
 // Même cadre et même habillage que les écrans d'expédition (RunUI.frame) ; la logique reste dans src/meta.
 import { h } from "../core.js";
-import { SPECIES, TYPE_COLOR, fr, xpToNext } from "../data/data.js";
+import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
 import * as M from "../meta/index.js";
-import { RunUI, face } from "./runScreens.js";
+import { RunUI, RF, face } from "./runScreens.js";
 import { icon, pokerFace } from "./theatre.js";
 
 const { CONFIG } = M;
-const RF = { weak: "Faible", nice: "Sympa", legend: "Légendaire" };
 const tchip = (t) => h("span", { class: "rs-type", style: { "--c": TYPE_COLOR[t] } }, t);
 const types = (k) => h("span", { class: "rs-types" }, ...SPECIES[k].t.map(tchip));
 const pips = (n, max) => h("span", { class: "rs-pips" }, ...Array.from({ length: max }, (_, i) => h("i", { class: "rs-pip" + (i < n ? " on" : "") })));
 
 export const CONTROLS = [
-  ["1 à 4", "Menu du hall"], ["Entrée", "Valider"], ["Échap", "Retour / fermer"], ["← →", "Changer de difficulté, de set ou de cible"],
+  ["1 à 3", "Menu du hall"], ["H / ?", "Comment jouer (en combat)"], ["Entrée", "Valider"], ["Échap", "Retour / fermer"], ["← →", "Changer de difficulté, de set ou de cible"],
   ["Q", "Attaque (+1 énergie)"], ["E", "Capacités, puis 1 à 3"], ["I", "Objets, puis 1 à 5"], ["U", "Ultime de l'allié actif"],
   ["1 à 3", "Ultime d'un allié (jauge pleine)"], ["Espace / clic", "Frappe rythmée"], ["A", "Combat automatique"], ["X", "Vitesse ×2"],
 ];
@@ -62,58 +61,40 @@ export class MetaScreens extends RunUI {
     if (!e) return h("div", { class: "cl-detail" },
       h("div", { class: "cl-face" }, pokerFace(k, { content: face(k, "rs-face big cl-shadow") })),
       h("div", { class: "cl-head" }, h("small", null, where), h("b", { class: "cl-name" }, fr(k)), types(k)),
-      h("p", { class: "cl-note" }, S ? `Pas encore capturé. Il apparaît dans les expéditions du set ${S.name}${r.role === "legend" ? ` (au dernier acte, capturable dès le niveau ${CONFIG.expedition.legend.minLevel})` : ""}.` : "Pas encore capturé."));
+      h("p", { class: "cl-note" }, S ? `Pas encore capturé. Il apparaît dans les expéditions du set ${S.name}${r.role === "legend" ? ` (au dernier combat, capturable à partir de la difficulté ${M.legendFrom()?.name || "—"})` : ""}.` : "Pas encore capturé."));
 
-    const form = M.formOf(k, e.elev), cap = M.levelCap(e.elev), c = M.elevationCost(save, k), St = CONFIG.stars, maxElev = CONFIG.elevation.fragments.length;
+    const form = M.formOf(k, e.elev), c = M.elevationCost(save, k), St = CONFIG.stars, maxElev = CONFIG.elevation.fragments.length;
     const shiny = e.shiny && (!e.normal || this.collShiny);
     const shardCost = r && r.role === "legend" ? CONFIG.shards.costLegend : CONFIG.shards.cost;
     const chain = CONFIG.evolutions[k], nextEvo = chain && CONFIG.evolveAt.find((x) => x > e.elev);
     const evoNote = chain && nextEvo != null && CONFIG.evolveAt.indexOf(nextEvo) < chain.length ? `Évolue en ${fr(chain[CONFIG.evolveAt.indexOf(nextEvo)])} à l'élévation ${nextEvo}.` : null;
-    const xp = e.L >= cap ? 1 : Math.min(1, e.xp / xpToNext(e.L));
     const act = (label, id, disabled, sub, main) => h("button", { class: "cl-act" + (main ? " main" : ""), disabled: !!disabled, onclick: () => onAct(id, k) }, h("b", null, label), sub ? h("small", null, sub) : null);
-    const elevSub = !c ? "maximum atteint" : e.L < cap ? `niveau ${cap} requis` : `${c.frags} fragments · ${c.mats} P${c.mat}`;
-    const elevOk = c && e.L >= cap && save.frags[c.set] >= c.frags && save.mats[c.mat] >= c.mats;
+    const elevSub = !c ? "maximum atteint" : `${c.frags} fragments + ${c.mats} ${M.matName(c.mat)}`;
+    const elevOk = c && save.frags[c.set] >= c.frags && save.mats[c.mat] >= c.mats;
     const inHall = hall.includes(k);
     return h("div", { class: "cl-detail" + (shiny ? " shiny" : "") },
       h("div", { class: "cl-face" }, pokerFace(form, { content: face(form, "rs-face big", shiny) }), shiny ? h("span", { class: "rs-shiny-tag" }, "✦ CHROMATIQUE") : null),
       e.shiny && e.normal ? h("button", { class: "cl-filter cl-swap", onclick: () => { this.collShiny = !this.collShiny; again(); } }, shiny ? "Voir la forme normale" : "✦ Voir le chromatique") : null,
       h("div", { class: "cl-head" }, h("small", null, where), h("b", { class: "cl-name" }, fr(form)), form !== k ? h("small", null, `forme évoluée de ${fr(k)}`) : null, types(form)),
       h("div", { class: "cl-stats" },
-        h("div", null, h("small", null, "Niveau"), h("b", null, `${e.L}`, h("em", null, ` / ${cap}`)), h("span", { class: "cl-xp" }, h("i", { style: { width: `${Math.round(xp * 100)}%` } }))),
+        h("div", null, h("small", null, "Niveau"), h("b", null, `${e.L}`), h("small", null, c ? `${M.levelCap(c.n)} après élévation` : "maximum")),
         h("div", null, h("small", null, "Élévation"), h("b", null, `${e.elev}`, h("em", null, ` / ${maxElev}`)), pips(e.elev, maxElev)),
         h("div", null, h("small", null, "Étoiles"), h("b", { class: "cl-stars" }, "★".repeat(e.stars), h("em", null, "★".repeat(St.max - e.stars))), h("small", null, `+${Math.round(e.stars * St.bonusPerStar * 100)} % de stats`))),
       evoNote ? h("p", { class: "cl-note" }, evoNote) : null,
       msg ? h("p", { class: "cl-msg" }, msg) : null,
+      c ? h("p", { class: "cl-note" }, `Élever fait passer ${fr(form)} au niveau ${M.levelCap(c.n)}. Fragments : captures ${S ? S.name : ""} non gardées. ${M.matName(c.mat)} : expéditions ${M.DIFFS[c.mat - 1] ? M.DIFFS[c.mat - 1].name : ""} gagnées.`) : null,
       h("div", { class: "cl-acts" },
-        act("Entraîner", "train", e.L >= cap, e.L >= cap ? "plafond atteint" : `+${CONFIG.trainXp} XP`),
-        act("Jusqu'au plafond", "trainMax", e.L >= cap, `niveau ${cap}`),
-        act("Élever", "elev", !elevOk, elevSub, elevOk),
+        act(c ? `Élever → niv. ${M.levelCap(c.n)}` : "Élever", "elev", !elevOk, elevSub, elevOk),
         act("Étoile", "star", e.stars >= St.max || !r || save.frags[r.set] < St.cost[e.stars], e.stars >= St.max ? "maximum atteint" : `${St.cost[e.stars]} fragments`),
         e.shiny ? null : act("Chromatique", "shards", !e.normal || save.shards < shardCost, `${shardCost} éclats chroma`),
         act(inHall ? "Retirer du hall" : "Exposer au hall", "hall", !inHall && hall.length >= 6, `${hall.length}/6 exposés`)),
       h("p", { class: "cl-wallet" }, S ? h("span", null, `Fragments ${S.name} : `, h("b", null, save.frags[S.id] || 0)) : null,
-        c ? h("span", null, `Matériau P${c.mat} : `, h("b", null, save.mats[c.mat] || 0)) : null));
-  }
-
-  // ───────── réglage : Pokémon exposés dans le hall ─────────
-  hallSettings({ save, chosen, max, onToggle, onBack }) {
-    this.save = save;
-    const keys = Object.keys(save.coll).sort((a, b) => save.coll[b].L - save.coll[a].L || a.localeCompare(b));
-    const grid = h("div", { class: "rs-roster cl-grid" }, ...keys.map((k) => {
-      const form = M.formOf(k, save.coll[k].elev), i = chosen.indexOf(k);
-      return h("button", { class: "rs-mon cl-card" + (i >= 0 ? " on" : ""), "aria-pressed": String(i >= 0), disabled: i < 0 && chosen.length >= max, onclick: () => onToggle(k) },
-        pokerFace(form, { content: face(form) }), i >= 0 ? h("span", { class: "cl-rank" }, i + 1) : null,
-        h("b", null, fr(form)), h("small", null, `N.${save.coll[k].L}`));
-    }));
-    this.frame({ title: "Pokémon du hall", kicker: "Hall", key: "hall", onBack,
-      body: [h("p", { class: "rs-hint" }, `Choisis jusqu'à ${max} Pokémon à exposer dans le hall, dans l'ordre : le 1er au centre du tapis. ${chosen.length}/${max}`), grid],
-      actions: [h("button", { class: "rs-go", onclick: onBack }, "Terminé", h("kbd", null, "Entrée"))] });
-    this.keys({ Escape: onBack, Enter: onBack });
+        c ? h("span", null, `${M.matName(c.mat)} : `, h("b", null, save.mats[c.mat] || 0)) : null));
   }
 
   // ───────── réglages : son, combat, graphismes, sauvegarde, commandes ─────────
   // prefs : { sound, music, qte, speed2, auto, low } ; onSet(clé, valeur)
-  settings({ save, prefs, onSet, onReload, onExport, onImport, onReset, onBack, msg = "" }) {
+  settings({ save, prefs, onSet, onReload, onExport, onImport, onReset, onHelp, onResetTips, onBack, msg = "" }) {
     this.save = save;
     const toggle = (key, label, sub) => h("button", { class: "st-row" + (prefs[key] ? " on" : ""), role: "switch", "aria-checked": String(!!prefs[key]), onclick: () => onSet(key, !prefs[key]) },
       h("span", null, h("b", null, label), sub ? h("small", null, sub) : null), h("i", { class: "st-switch" }, h("em")));
@@ -124,6 +105,9 @@ export class MetaScreens extends RunUI {
       h("b", null, "Réinitialiser la partie"), h("small", null, "collection, vœux et matériaux effacés"));
     this.frame({ title: "Réglages", kicker: "Hall", key: "settings", onBack, cls: "rs-settings",
       body: [msg ? h("div", { class: "rs-banner win" }, msg) : null, h("div", { class: "st-grid" },
+        panel("Comment jouer", "book", h("p", { class: "cl-note" }, "Le but, les expéditions, le combat, les réactions élémentaires et la progression, en une page."),
+          h("div", { class: "cl-acts" }, h("button", { class: "cl-act main", onclick: onHelp }, h("b", null, "Ouvrir le guide"), h("small", null, "aussi en combat : bouton ?")),
+            h("button", { class: "cl-act", onclick: onResetTips }, h("b", null, "Revoir les conseils"), h("small", null, "au prochain combat")))),
         panel("Son", "star", toggle("sound", "Effets sonores"), toggle("music", "Musique")),
         panel("Combat", "sword", toggle("qte", "Frappes rythmées", "Jauge à arrêter au bon moment : plus de dégâts, moins de dégâts subis"),
           toggle("speed2", "Vitesse ×2 par défaut"), toggle("auto", "Combat automatique par défaut")),

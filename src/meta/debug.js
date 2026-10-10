@@ -82,8 +82,7 @@ function renderColl() {
     return `<tr><td>${fr(k)}${form !== k ? ` → ${fr(form)}` : ""}</td><td>${r ? `${M.SET[r.set].name} · ${RF[r.role]}` : "-"}</td>
       <td>${e.normal ? "normal" : ""} ${e.shiny ? '<span class="shiny">✦</span>' : ""}</td>
       <td>N${e.L} / ${M.levelCap(e.elev)}</td><td>élév. ${e.elev}</td><td>${"★".repeat(e.stars)}${"☆".repeat(CONFIG.stars.max - e.stars)}</td>
-      <td><button data-train="${k}">Entraîner</button>
-      <button data-elev="${k}" title="${c ? `${c.frags} fragments + ${c.mats} P${c.mat}` : ""}" ${c ? "" : "disabled"}>Élever${c ? ` (${c.frags} fr., ${c.mats} P${c.mat})` : ""}</button>
+      <td><button data-elev="${k}" title="${c ? `${c.frags} fragments + ${c.mats} P${c.mat}` : ""}" ${c ? "" : "disabled"}>Élever${c ? ` (${c.frags} fr., ${c.mats} P${c.mat})` : ""}</button>
       <button data-star="${k}" ${e.stars < CONFIG.stars.max ? "" : "disabled"}>Étoile${e.stars < CONFIG.stars.max ? ` (${CONFIG.stars.cost[e.stars]} fr.)` : ""}</button>
       ${e.shiny ? "" : `<button data-shard="${k}">✦ éclats</button>`}</td></tr>`;
   }).join("");
@@ -95,7 +94,6 @@ document.addEventListener("click", (e) => {
   const d = b.dataset;
   if (d.exp) act(() => { const r = M.playExpedition(S, +d.exp, M.SETS[0].id); if (!r.cleared) throw new Error(`Expédition ratée : +${r.voeux} vœux quand même.`); });
   if (d.exp10) act(() => { const x = M.DIFFS.map((_, i) => i + 1).reverse().find((y) => M.access(S, y).ok); for (let i = 0; i < 10; i++) M.playExpedition(S, x, M.SETS[i % M.SETS.length].id); });
-  if (d.train) act(() => M.train(S, d.train, 1));
   if (d.elev) act(() => M.elevate(S, d.elev));
   if (d.star) act(() => M.buyStar(S, d.star));
   if (d.shard) act(() => M.redeemShards(S, d.shard));

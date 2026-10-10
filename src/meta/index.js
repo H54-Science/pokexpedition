@@ -7,6 +7,7 @@ export {
   cleared, choices, publicRun, finishRun, stopRun, playExpedition,
 } from "./run.js";
 export { buffPool, buffDef, setWeaknesses } from "./buffs.js";
-export { train, elevate, elevationCost, buyStar, redeemShards } from "./progress.js";
+export { elevate, elevationCost, buyStar, redeemShards } from "./progress.js";
 export { serialize, deserialize, localStore } from "./save.js";
+export { nextGoal, matName, legendFrom } from "./goals.js";
 export { alliesOf, simulate } from "./battle.js";

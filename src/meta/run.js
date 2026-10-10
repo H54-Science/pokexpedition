@@ -3,7 +3,7 @@
 // Gains : vœux à chaque acte gagné (dépensés en bénédictions), captures (on en garde une), fragments,
 // matériaux de palier si les 5 actes sont gagnés.
 import { CONFIG } from "./config.js";
-import { SET, DIFFS, orderOf, withRng, seedFrom, owns, isNewFor, addCopy, levelCap, log } from "./state.js";
+import { SET, DIFFS, orderOf, withRng, seedFrom, owns, isNewFor, addCopy, log } from "./state.js";
 import { simulate, alliesOf, combatConfig } from "./battle.js";
 import { buffPool, buffDef, buffCost, drawCards, modsOf } from "./buffs.js";
 
@@ -213,7 +213,7 @@ export function finishRun(save, keep = null) {
   }
   const sum = { kept: null, frags: 0, shards: 0, voeux: run.voeux, mats: {}, cleared: cleared(run), set: run.set };
   list.forEach((c) => {
-    if (c.i === keep) { const e = addCopy(save, c.k, c.shiny, Math.min(run.level, levelCap(0))); sum.kept = { k: c.k, shiny: c.shiny, L: e.L }; return; }
+    if (c.i === keep) { const e = addCopy(save, c.k, c.shiny); sum.kept = { k: c.k, shiny: c.shiny, L: e.L }; return; }
     sum.frags += EX().fragments[c.role];
     if (c.shiny) sum.shards += EX().shardPerShiny;
   });
