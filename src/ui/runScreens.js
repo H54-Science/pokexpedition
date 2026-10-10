@@ -5,6 +5,7 @@ import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
 import { portrait } from "../render/assets.js";
 import * as M from "../meta/index.js";
 import { ART, paint } from "./art.js";
+import { icon, scenery, eyebrow, stat } from "./theatre.js";
 
 const { CONFIG } = M;
 const RF = { weak: "Faible", nice: "Sympa", legend: "Légendaire" };
@@ -29,9 +30,9 @@ export class RunUI {
     if (this.onKey) removeEventListener("keydown", this.onKey);
     const steps = mode === "capture" ? ["Difficulté", "Set", "Actes"] : ["Difficulté", "Actes"];
     const save = this.save;
-    const root = h("div", { class: `rs rs-${mode}` },
+    const root = h("div", { class: `rs ex-screen rs-${mode}` },
       h("div", { class: "rs-top" },
-        onBack ? h("button", { class: "rs-back", onclick: onBack, title: "Retour (Échap)" }, "‹") : null,
+        onBack ? h("button", { class: "rs-back", onclick: onBack, title: "Retour (Échap)", "aria-label": "Retour" }, "‹") : null,
         h("div", { class: "rs-title" }, h("small", null, MODE[mode]), h("b", null, title)),
         h("ol", { class: "rs-steps" }, ...steps.map((s, i) => h("li", { class: i === step ? "now" : i < step ? "done" : "" }, h("i", null, i + 1), s))),
         h("div", { class: "rs-res" },
@@ -61,9 +62,9 @@ export class RunUI {
       const reward = mode === "expedition"
         ? (() => { const r = M.expeditionRewards(save, d); return [`${r.perAct} vœux par acte`, `Run complet : ${Object.entries(r.clearMats).map(([t, n]) => `P${t}×${n}`).join(" ")}`, r.firstClear ? `1er clear : +${r.firstClear} vœux` : null]; })()
         : [M.legendRate(a.level) > 0 ? `Légendaire : ${Math.round(M.legendRate(a.level) * 100)} % de base` : "Légendaire incapturable", `Coût : ${CONFIG.capture.cost} vœux`];
-      const el = h("button", { class: "rs-diff" + (a.ok ? "" : " lock"), onclick: () => { if (!a.ok) return; if (sel === d) go(); else { sel = d; render(); } }, ondblclick: () => a.ok && go() },
-        h("div", { class: "rs-diff-art" }),
-        h("div", { class: "rs-diff-num" }, A.name),
+      const el = h("button", { class: "rs-diff" + (a.ok ? "" : " lock"), "aria-disabled": String(!a.ok), onclick: () => { if (!a.ok) return; if (sel === d) go(); else { sel = d; render(); } }, ondblclick: () => a.ok && go() },
+        h("div", { class: "rs-diff-art" }, icon(["leaf", "moon", "sword", "crown", "star"][d - 1])),
+        h("div", { class: "rs-diff-num" }, h("small", null, `REPRÉSENTATION ${A.name}`), h("b", null, ["Découverte", "Aventure", "Épreuve", "Maîtrise", "Légende"][d - 1])),
         h("div", { class: "rs-diff-lv" }, h("small", null, "Niveau"), h("b", null, a.level)),
         h("div", { class: "rs-diff-req" }, pips(Math.min(a.have, need), need), h("small", null, `${Math.min(a.have, need)}/${need} Pokémon niv. ${a.level}+`)),
         h("ul", { class: "rs-diff-rew" }, ...reward.filter(Boolean).map((x) => h("li", null, x))),
@@ -73,10 +74,17 @@ export class RunUI {
     });
     const go = () => { this.lastDiff = sel; onPick(sel); };
     const render = () => {
-      cards.forEach(({ d, el }) => el.classList.toggle("sel", d === sel));
+      cards.forEach(({ d, el }) => { el.classList.toggle("sel", d === sel); el.setAttribute("aria-pressed", String(d === sel)); });
       const list = M.eligible(save, sel), a = M.access(save, sel);
       detail.innerHTML = "";
+      const rewards = mode === "expedition" ? M.expeditionRewards(save, sel) : null;
       detail.append(
+        h("div", { class: "ex-zone-banner" }, scenery("night"), h("div", null, eyebrow("LE PROCHAIN CHAPITRE VOUS ATTEND"), h("h2", null, mode === "expedition" ? "Une troupe. Mille histoires." : "Des rencontres extraordinaires."), h("p", null, mode === "expedition" ? "Cinq actes pour faire grandir tes partenaires." : "Une aventure, cinq rencontres, un nouveau partenaire."))),
+        h("div", { class: "ex-stats" }, stat(CONFIG.run.acts, "Actes"), stat(CONFIG.run.teamSize, "Pokémon par combat"), stat(CONFIG.run.uses, "Combats par Pokémon")),
+        h("h3", { class: "ex-section-title" }, "Les promesses de l'aventure"),
+        h("div", { class: "ex-rewards" }, ...(rewards ? [h("div", { class: "ex-reward" }, icon("star"), h("div", null, h("b", null, `+${rewards.perAct}`), h("small", null, "Vœux par acte"))), ...Object.entries(rewards.clearMats).map(([t, n]) => h("div", { class: "ex-reward" }, icon("crown"), h("div", null, h("b", null, `×${n}`), h("small", null, `Matériaux P${t} · run complet`))))] : [h("div", { class: "ex-reward" }, icon("star"), h("div", null, h("b", null, `${CONFIG.capture.cost} vœux`), h("small", null, "Coût de la représentation"))), h("div", { class: "ex-reward" }, icon("crown"), h("div", null, h("b", null, `${Math.round(M.legendRate(a.level) * 100)} %`), h("small", null, "Capture légendaire · taux de base")))])),
+        rewards?.firstClear ? h("p", { class: "ex-note" }, `Première représentation réussie · +${rewards.firstClear} vœux supplémentaires.`) : null,
+        h("h3", { class: "ex-section-title" }, "Les acteurs disponibles"),
         h("div", { class: "rs-detail-head" }, h("b", null, `Difficulté ${ART.diff[sel - 1].name} — adversaires niveau ${a.level}`),
           h("small", null, `${CONFIG.run.acts} actes · ${CONFIG.run.teamSize} Pokémon par combat · ${CONFIG.run.uses} combats max par Pokémon`)),
         h("div", { class: "rs-mini" }, ...list.slice(0, 12).map((k) => h("div", { class: "rs-mini-p" }, face(k), h("small", null, `N.${save.coll[k].L}`))),
@@ -102,7 +110,7 @@ export class RunUI {
       const own = all.filter((k) => M.owns(save, k)).length, sh = all.filter((k) => M.owns(save, k, true)).length;
       const ch = M.legendChance(save, S.id, level), A = ART.set[S.id] || {};
       const el = h("button", { class: "rs-set", onclick: () => { if (sel === S.id) go(); else { sel = S.id; render(); } }, ondblclick: () => go() },
-        h("div", { class: "rs-set-art" }),
+        h("div", { class: "rs-set-art" }, scenery({ abysses: "water", terres: "fire", nuit: "night", feerie: "rest" }[S.id])),
         h("div", { class: "rs-set-legend" }, face(S.legend, "rs-face big")),
         h("div", { class: "rs-set-name" }, h("small", null, "Set"), h("b", null, S.name)),
         h("div", { class: "rs-set-leg" }, h("b", null, fr(S.legend)), types(S.legend)),
@@ -114,7 +122,7 @@ export class RunUI {
     });
     const go = () => { this.lastSet = sel; onPick(sel); };
     const btn = h("button", { class: "rs-go", onclick: go, disabled: save.voeux < CONFIG.capture.cost }, `Lancer — ${CONFIG.capture.cost} vœux`, h("kbd", null, "Entrée"));
-    const render = () => cards.forEach(({ id, el }) => el.classList.toggle("sel", id === sel));
+    const render = () => cards.forEach(({ id, el }) => { el.classList.toggle("sel", id === sel); el.setAttribute("aria-pressed", String(id === sel)); });
     this.frame({ mode: "capture", step: 1, title: `Choisis ton set — difficulté ${ART.diff[diff - 1].name}`, bg: ART.bg.capture, onBack,
       body: [h("div", { class: "rs-sets" }, ...cards.map((c) => c.el)),
         h("p", { class: "rs-hint" }, `5 combats : faible, faible, sympa, faible, légendaire. Chaque victoire capture le Pokémon ; à la fin tu en gardes un seul (nouveau), le reste devient fragments du set.`)],
@@ -137,12 +145,12 @@ export class RunUI {
       const r = save.run.results[i];
       const st = r ? (r.win ? "win" : "lose") : i === run.i ? "now" : "next";
       const known = i <= run.i || run.mode === "capture";
-      const ic = h("i", { class: "rs-node-ic" }, !ART.role[f.role] && known ? face(f.k, "rs-face node") : null); paint(ic, ART.role[f.role]);
+      const ic = h("i", { class: "rs-node-ic" }, !ART.role[f.role] && known ? face(f.k, "rs-face node") : !known ? icon("star") : null); paint(ic, ART.role[f.role]);
       return h("div", { class: `rs-node ${st} ${f.role}` }, ic, h("small", null, `Acte ${i + 1}`), h("b", null, known ? fr(f.k) : "?"),
         h("em", null, r ? (r.win ? (r.captured ? "capturé" : r.legend ? "échappé" : r.voeux ? `+${r.voeux} vœux` : "gagné") : "défaite") : RF[f.role]));
     }));
     // adversaire
-    const foe = h("div", { class: `rs-foe ${act.role}` }, face(act.k, "rs-face big"),
+    const foe = h("div", { class: `rs-foe ${act.role}` }, h("div", { class: "rs-foe-portrait" }, scenery("night"), face(act.k, "rs-face big")),
       h("div", null, h("small", null, `Acte ${run.i + 1} · ${RF[act.role]}`), h("b", null, fr(act.k)), types(act.k), h("p", null, `Niveau ${run.level}`),
         act.role === "legend" ? h("p", { class: "rs-chance" }, `Capture si victoire : ${(M.legendChance(save, run.set, run.level) * 100).toFixed(1)} %`) : null));
     // équipe (3 emplacements : gauche, centre, droite)
@@ -161,7 +169,7 @@ export class RunUI {
       roster.innerHTML = "";
       Object.keys(save.run.uses).sort((a, b) => save.coll[b].L - save.coll[a].L || a.localeCompare(b)).forEach((k) => {
         const left = save.run.uses[k], on = team.includes(k), form = M.formOf(k, save.coll[k].elev);
-        roster.append(h("button", { class: "rs-mon" + (on ? " on" : "") + (left ? "" : " out"), disabled: !left,
+        roster.append(h("button", { class: "rs-mon" + (on ? " on" : "") + (left ? "" : " out"), "aria-pressed": String(on), disabled: !left,
           onclick: () => { if (on) team = team.filter((x) => x !== k); else if (team.length < N) team.push(k); else team[N - 1] = k; render(); } },
           face(form), h("b", null, fr(form)), h("small", null, `N.${save.coll[k].L}`), types(form), pips(left, U)));
       });

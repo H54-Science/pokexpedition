@@ -51,7 +51,7 @@ const back = () => toLobby("keep");
 
 function lobbyAction(id) {
   lobby.pause(true);
-  if (id === "expedition") return runEntry("expedition");
+  if (id === "expedition") return expeditionWelcome();
   if (id === "capture") return runEntry("capture");
   if (id === "collection" || id === "training") return collection();
   if (id === "wardrobe") {
@@ -67,10 +67,14 @@ function lobbyAction(id) {
 const fail = (e, then) => scr.message({ title: "Impossible", lines: [e.message], btn: "OK", onOk: then });
 
 // Expéditions et vœux : Difficulté → (Set) → actes (choix de 3 Pokémon par combat) → fin.
+function expeditionWelcome() {
+  ru.close();
+  scr.welcome({ hasRun: !!meta.run, onPrepare: () => runEntry("expedition"), onBack: back });
+}
 function runEntry(mode) {
   if (meta.run) return meta.run.phase === "choice" ? runEnd() : runBoard();
   ru.difficulty({
-    save: meta, mode, onBack: () => { ru.close(); back(); },
+    save: meta, mode, onBack: () => { ru.close(); mode === "expedition" ? expeditionWelcome() : back(); },
     onPick: (diff) => {
       if (mode === "expedition") return startRun({ mode, diff });
       ru.sets({ save: meta, diff, onBack: () => runEntry(mode), onPick: (set) => startRun({ mode, diff, set }) });

@@ -1,0 +1,417 @@
+﻿[
+    {
+        "key":  "SQUIRTLE",
+        "width":  43,
+        "frames":  26
+    },
+    {
+        "key":  "GYARADOS",
+        "width":  102,
+        "frames":  43
+    },
+    {
+        "key":  "AZUMARILL",
+        "width":  73,
+        "frames":  73
+    },
+    {
+        "key":  "MUDKIP",
+        "width":  49,
+        "frames":  70
+    },
+    {
+        "key":  "PELIPPER",
+        "width":  96,
+        "frames":  71
+    },
+    {
+        "key":  "MILOTIC",
+        "width":  86,
+        "frames":  95
+    },
+    {
+        "key":  "KYOGRE",
+        "width":  109,
+        "frames":  125
+    },
+    {
+        "key":  "WOOPER",
+        "width":  44,
+        "frames":  48
+    },
+    {
+        "key":  "SLAKOTH",
+        "width":  52,
+        "frames":  24
+    },
+    {
+        "key":  "BRELOOM",
+        "width":  71,
+        "frames":  26
+    },
+    {
+        "key":  "CELEBI",
+        "width":  62,
+        "frames":  32
+    },
+    {
+        "key":  "PANSAGE",
+        "width":  50,
+        "frames":  87
+    },
+    {
+        "key":  "EXEGGUTOR",
+        "width":  79,
+        "frames":  45
+    },
+    {
+        "key":  "APPLIN",
+        "width":  42,
+        "frames":  110
+    },
+    {
+        "key":  "RILLABOOM",
+        "width":  96,
+        "frames":  12
+    },
+    {
+        "key":  "ROWLET",
+        "width":  96,
+        "frames":  84
+    },
+    {
+        "key":  "ARCANINE",
+        "width":  77,
+        "frames":  36
+    },
+    {
+        "key":  "SLUGMA",
+        "width":  40,
+        "frames":  32
+    },
+    {
+        "key":  "BLAZIKEN",
+        "width":  75,
+        "frames":  57
+    },
+    {
+        "key":  "SALANDIT",
+        "width":  96,
+        "frames":  56
+    },
+    {
+        "key":  "CAMERUPT",
+        "width":  79,
+        "frames":  53
+    },
+    {
+        "key":  "MAGMAR",
+        "width":  73,
+        "frames":  33
+    },
+    {
+        "key":  "HEATRAN",
+        "width":  86,
+        "frames":  101
+    },
+    {
+        "key":  "BLISSEY",
+        "width":  61,
+        "frames":  48
+    },
+    {
+        "key":  "BEAUTIFLY",
+        "width":  78,
+        "frames":  77
+    },
+    {
+        "key":  "RALTS",
+        "width":  39,
+        "frames":  66
+    },
+    {
+        "key":  "FLORGES",
+        "width":  96,
+        "frames":  24
+    },
+    {
+        "key":  "SYLVEON",
+        "width":  96,
+        "frames":  64
+    },
+    {
+        "key":  "XERNEAS",
+        "width":  96,
+        "frames":  1
+    },
+    {
+        "key":  "RIBOMBEE",
+        "width":  96,
+        "frames":  72
+    },
+    {
+        "key":  "STEENEE",
+        "width":  96,
+        "frames":  52
+    },
+    {
+        "key":  "MACHAMP",
+        "width":  76,
+        "frames":  29
+    },
+    {
+        "key":  "MAGNEMITE",
+        "width":  38,
+        "frames":  52
+    },
+    {
+        "key":  "VOLTORB",
+        "width":  46,
+        "frames":  35
+    },
+    {
+        "key":  "PLUSLE",
+        "width":  49,
+        "frames":  72
+    },
+    {
+        "key":  "MINUN",
+        "width":  49,
+        "frames":  72
+    },
+    {
+        "key":  "ELECTIVIRE",
+        "width":  96,
+        "frames":  51
+    },
+    {
+        "key":  "KLANG",
+        "width":  58,
+        "frames":  85
+    },
+    {
+        "key":  "XURKITREE",
+        "width":  102,
+        "frames":  124
+    },
+    {
+        "key":  "WATCHOG",
+        "width":  69,
+        "frames":  84
+    },
+    {
+        "key":  "CHARIZARD",
+        "width":  91,
+        "frames":  72
+    },
+    {
+        "key":  "NIDOKING",
+        "width":  86,
+        "frames":  48
+    },
+    {
+        "key":  "DRAGONITE",
+        "width":  82,
+        "frames":  51
+    },
+    {
+        "key":  "LAPRAS",
+        "width":  71,
+        "frames":  33
+    },
+    {
+        "key":  "MEWTWO",
+        "width":  90,
+        "frames":  62
+    },
+    {
+        "key":  "ALAKAZAM",
+        "width":  93,
+        "frames":  53
+    },
+    {
+        "key":  "GENGAR",
+        "width":  79,
+        "frames":  44
+    },
+    {
+        "key":  "KANGASKHAN",
+        "width":  79,
+        "frames":  127
+    },
+    {
+        "key":  "KAKUNA",
+        "width":  40,
+        "frames":  39
+    },
+    {
+        "key":  "URSARING",
+        "width":  80,
+        "frames":  62
+    },
+    {
+        "key":  "DUSTOX",
+        "width":  80,
+        "frames":  82
+    },
+    {
+        "key":  "LILEEP",
+        "width":  61,
+        "frames":  71
+    },
+    {
+        "key":  "BANETTE",
+        "width":  55,
+        "frames":  64
+    },
+    {
+        "key":  "SCOLIPEDE",
+        "width":  104,
+        "frames":  116
+    },
+    {
+        "key":  "DEERLING",
+        "width":  50,
+        "frames":  65
+    },
+    {
+        "key":  "OGERPON",
+        "width":  77,
+        "frames":  63
+    },
+    {
+        "key":  "TRAPINCH",
+        "width":  42,
+        "frames":  16
+    },
+    {
+        "key":  "SANDILE",
+        "width":  52,
+        "frames":  52
+    },
+    {
+        "key":  "CACNEA",
+        "width":  59,
+        "frames":  47
+    },
+    {
+        "key":  "HIPPOWDON",
+        "width":  84,
+        "frames":  45
+    },
+    {
+        "key":  "CLAYDOL",
+        "width":  72,
+        "frames":  50
+    },
+    {
+        "key":  "CACTURNE",
+        "width":  70,
+        "frames":  57
+    },
+    {
+        "key":  "KROOKODILE",
+        "width":  95,
+        "frames":  52
+    },
+    {
+        "key":  "FLYGON",
+        "width":  81,
+        "frames":  63
+    },
+    {
+        "key":  "GROUDON",
+        "width":  90,
+        "frames":  49
+    },
+    {
+        "key":  "SWABLU",
+        "width":  74,
+        "frames":  11
+    },
+    {
+        "key":  "NOIBAT",
+        "width":  70,
+        "frames":  28
+    },
+    {
+        "key":  "EMOLGA",
+        "width":  83,
+        "frames":  94
+    },
+    {
+        "key":  "STARAPTOR",
+        "width":  69,
+        "frames":  47
+    },
+    {
+        "key":  "SKARMORY",
+        "width":  70,
+        "frames":  48
+    },
+    {
+        "key":  "ALTARIA",
+        "width":  64,
+        "frames":  81
+    },
+    {
+        "key":  "NOIVERN",
+        "width":  101,
+        "frames":  18
+    },
+    {
+        "key":  "TOGEKISS",
+        "width":  87,
+        "frames":  48
+    },
+    {
+        "key":  "RAYQUAZA",
+        "width":  110,
+        "frames":  57
+    },
+    {
+        "key":  "PUMPKABOO",
+        "width":  96,
+        "frames":  70
+    },
+    {
+        "key":  "LITWICK",
+        "width":  44,
+        "frames":  77
+    },
+    {
+        "key":  "MURKROW",
+        "width":  44,
+        "frames":  30
+    },
+    {
+        "key":  "SABLEYE",
+        "width":  49,
+        "frames":  46
+    },
+    {
+        "key":  "MISMAGIUS",
+        "width":  84,
+        "frames":  14
+    },
+    {
+        "key":  "MIMIKYU",
+        "width":  96,
+        "frames":  63
+    },
+    {
+        "key":  "GOURGEIST",
+        "width":  96,
+        "frames":  43
+    },
+    {
+        "key":  "CHANDELURE",
+        "width":  94,
+        "frames":  83
+    },
+    {
+        "key":  "DARKRAI",
+        "width":  96,
+        "frames":  71
+    }
+]
