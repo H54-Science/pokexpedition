@@ -29,6 +29,15 @@ Depuis le hall, **expédition** (choix de la zone et de la difficulté → troup
 - Sauvegarde automatique dans le navigateur : l'expédition peut être reprise, et chaque victoire débloque la zone suivante.
 - `npm test` simule aussi des expéditions complètes avec un joueur automatique. Taux de victoire : Facile ~97 %, Normal ~73 %, Difficile ~10 %.
 
+### Arène : Sanctuaire des sakura
+
+Les combats se déroulent dans une arène circulaire en pierre, entourée de pagodes, d'un temple, de cerisiers, de lanternes et d'un bassin avec pont rouge.
+- Décor : `models/arenas/sakura-sanctuary.glb` (environ 4,8 Mo, 78 550 triangles, sans textures externes).
+- Intégration : `src/render/sanctuary.js`. Le modèle est chargé au premier combat, en parallèle des Pokémon, puis conservé pour les combats suivants. Un sol de secours reste disponible si le chargement échoue ; la prochaine entrée en combat réessaie.
+- Le repère `ArenaCenter` du GLB aligne le sol à `y = 0`, sans modifier les positions ni les règles de combat. Les caméras Blender ne remplacent pas les plans dynamiques du jeu.
+- Les primitives statiques sont regroupées par matériau et comportement d'ombre pour réduire les appels de rendu. `?q=low` désactive les ombres et réduit les pétales ; le bloom reste désactivé comme auparavant.
+- Le ciel, la brume, les lumières et les pétales animés sont créés dans three.js. Le fichier Blender éditable et les rendus sont conservés hors dépôt.
+
 ### Combat
 | Touche | Action |
 |---|---|

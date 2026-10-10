@@ -6,6 +6,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { Clock, clamp, lerp } from "../core.js";
 import { FX } from "./fx.js";
+import { createSanctuary } from "./sanctuary.js";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -54,86 +55,13 @@ export class Stage {
 
   // ───────── arène ─────────
   buildArena() {
-    const s = this.scene;
-    // ciel : dégradé sur une sphère
-    const skyMat = new THREE.ShaderMaterial({
-      side: THREE.BackSide, depthWrite: false,
-      uniforms: { top: { value: new THREE.Color("#1b2a55") }, mid: { value: new THREE.Color("#6a7fb8") }, bot: { value: new THREE.Color("#f0b48a") } },
-      vertexShader: "varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
-      fragmentShader: "uniform vec3 top; uniform vec3 mid; uniform vec3 bot; varying vec3 vP; void main(){ float h = vP.y; vec3 c = h > 0.0 ? mix(mid, top, smoothstep(0.0, 0.6, h)) : mix(mid, bot, smoothstep(0.0, -0.25, h)); c = mix(c, bot, smoothstep(0.12, -0.02, h) * 0.85); gl_FragColor = vec4(c, 1.0); }",
-    });
-    s.add(new THREE.Mesh(new THREE.SphereGeometry(90, 32, 16), skyMat));
-    s.fog = new THREE.Fog("#8a8fb8", 26, 70);
-    // lumières
-    const hemi = new THREE.HemisphereLight("#d8e4ff", "#5a4a60", 1.5); s.add(hemi);
-    const sun = (this.sun = new THREE.DirectionalLight("#fff0dc", 2.4));
-    sun.position.set(-6, 12, 7); sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    Object.assign(sun.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 });
-    sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02;
-    s.add(sun);
-    const rim = new THREE.DirectionalLight("#8ab0ff", 1.0); rim.position.set(5, 4, -9); s.add(rim);
-    for (const l of [hemi, sun, rim]) l.layers.enable(1);
-    // sol : grande dalle + arène gravée
-    const groundTex = this.arenaTexture();
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(60, 96), new THREE.MeshStandardMaterial({ color: "#3d4a6a", roughness: 0.95 }));
-    ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; s.add(ground);
-    const arena = new THREE.Mesh(new THREE.CircleGeometry(9, 96), new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.8, emissive: "#7aa8ff", emissiveIntensity: 0.0 }));
-    arena.rotation.x = -Math.PI / 2; arena.position.y = 0.01; arena.receiveShadow = true; s.add(arena);
-    // anneau lumineux autour de l'arène
-    const ringMat = new THREE.MeshBasicMaterial({ color: "#9ac4ff", transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false });
-    const ring = new THREE.Mesh(new THREE.RingGeometry(8.85, 9.0, 128), ringMat); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; s.add(ring);
-    // piliers et rochers autour
-    const rockMat = new THREE.MeshStandardMaterial({ color: "#5a5f78", roughness: 1, flatShading: true });
-    const crystalMat = new THREE.MeshStandardMaterial({ color: "#8ab8ff", emissive: "#4a7cff", emissiveIntensity: 1.6, roughness: 0.3, flatShading: true });
-    for (let i = 0; i < 14; i++) {
-      const a = (i / 14) * Math.PI * 2 + 0.2, d = 12 + (i % 3) * 3.5;
-      const h = 1.2 + ((i * 7) % 5) * 0.9;
-      const m = new THREE.Mesh(new THREE.DodecahedronGeometry(1, 0), rockMat);
-      m.scale.set(1.1 + (i % 2) * 0.6, h, 1.1); m.position.set(Math.cos(a) * d, h * 0.45, Math.sin(a) * d); m.rotation.y = i;
-      m.castShadow = true; m.receiveShadow = true; s.add(m);
-      if (i % 3 === 0) {
-        const c = new THREE.Mesh(new THREE.OctahedronGeometry(0.45, 0), crystalMat);
-        c.position.set(Math.cos(a) * (d - 1.3), 0.6, Math.sin(a) * (d - 1.3)); c.scale.y = 2; c.rotation.z = 0.3;
-        s.add(c);
-      }
-    }
-    // poussières en suspension
-    const n = 160, geo = new THREE.BufferGeometry(), pos = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) { pos[i * 3] = (Math.random() - 0.5) * 30; pos[i * 3 + 1] = Math.random() * 7; pos[i * 3 + 2] = (Math.random() - 0.5) * 30; }
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    const motes = new THREE.Points(geo, new THREE.PointsMaterial({ color: "#ffe8c0", size: 0.06, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false }));
-    s.add(motes);
-    this.updaters.add((dt, t) => { motes.rotation.y = t * 0.00002; motes.position.y = Math.sin(t * 0.0003) * 0.2; ringMat.opacity = 0.45 + Math.sin(t * 0.0015) * 0.12; });
-    // assombrissement (ultime) : écran noir semi-transparent devant la caméra
+    this.arena = createSanctuary(this.scene, this.updaters, this.low);
+    this.sun = this.arena.sun;
+    // Assombrissement des ultimes conservé indépendamment du décor.
     this.dim = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ color: "#06040c", transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
     this.dim.renderOrder = 5; this.dim.frustumCulled = false;
   }
-  arenaTexture() {
-    const S = 1024, c = document.createElement("canvas"); c.width = c.height = S;
-    const g = c.getContext("2d");
-    const grd = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
-    grd.addColorStop(0, "#6a7aa0"); grd.addColorStop(0.75, "#4e5c82"); grd.addColorStop(1, "#3d4a6a");
-    g.fillStyle = grd; g.fillRect(0, 0, S, S);
-    // dalles concentriques
-    g.strokeStyle = "rgba(20,26,48,0.55)"; g.lineWidth = 3;
-    for (let r = 1; r <= 5; r++) { g.beginPath(); g.arc(S / 2, S / 2, (r / 5.3) * (S / 2), 0, Math.PI * 2); g.stroke(); }
-    for (let r = 1; r <= 5; r++) {
-      const n = r * 8;
-      for (let i = 0; i < n; i++) {
-        const a = (i / n) * Math.PI * 2 + r * 0.3, r0 = ((r - 1) / 5.3) * (S / 2), r1 = (r / 5.3) * (S / 2);
-        g.beginPath(); g.moveTo(S / 2 + Math.cos(a) * r0, S / 2 + Math.sin(a) * r0); g.lineTo(S / 2 + Math.cos(a) * r1, S / 2 + Math.sin(a) * r1); g.stroke();
-      }
-    }
-    // ligne médiane et cercle central (emblème)
-    g.strokeStyle = "rgba(200,220,255,0.35)"; g.lineWidth = 5;
-    g.beginPath(); g.moveTo(S * 0.06, S / 2); g.lineTo(S * 0.94, S / 2); g.stroke();
-    g.beginPath(); g.arc(S / 2, S / 2, S * 0.09, 0, Math.PI * 2); g.stroke();
-    // usure
-    for (let i = 0; i < 1400; i++) { g.fillStyle = `rgba(${Math.random() < 0.5 ? "255,255,255" : "0,0,0"},${Math.random() * 0.05})`; g.fillRect(Math.random() * S, Math.random() * S, 2 + Math.random() * 6, 2 + Math.random() * 6); }
-    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-    return t;
-  }
+  loadArena() { return this.arena.load(); }
 
   // ───────── repères : tour actif, cible ─────────
   buildMarkers() {
@@ -231,8 +159,8 @@ export class Stage {
   // Plans prédéfinis. Les positions sont calculées à partir des unités.
   shot(name, o = {}) {
     const c = this.cam; let pos, look, fov = 42, k = o.k || 3.2;
-    if (name === "wide") { pos = V(0, 4.6, 10.5); look = V(0, 1.6, -1.2); fov = 42; }
-    else if (name === "intro") { pos = V(-8, 7.5, 15); look = V(0, 1.2, -2.5); fov = 36; }
+    if (name === "wide") { pos = V(0, 5.4, 12.8); look = V(0, 1.7, -1.6); fov = 46; }
+    else if (name === "intro") { pos = V(-10, 8.3, 18); look = V(0, 2.1, -3); fov = 42; }
     else if (name === "victory") { pos = V(4.5, 2.4, 8.2); look = V(0, 1.2, 2.6); fov = 38; }
     else if (name === "shoulder") {
       // Tour d'un allié, selon sa place dans la rangée :

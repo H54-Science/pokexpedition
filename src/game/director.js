@@ -35,11 +35,14 @@ export class Director {
     this.b = new Combat({ seed: cfg.seed, allies: cfg.allies, enemies: cfg.enemies, pool: cfg.pool, danger: cfg.danger, bossHp: cfg.bossHp, bossPow: cfg.bossPow, mods: cfg.mods });
     const units = this.b.units;
     const species = [...new Set(units.map((u) => u.k).concat(cfg.pool || []))];
-    let done = 0; const total = units.length + species.length;
+    let done = 0; const total = units.length + species.length + 1;
     const step = () => progress && progress(++done / total);
     // modèles
     this.models = {};
-    await Promise.all(units.map(async (u) => { this.models[u.id] = await makePokemon(u.k, { boss: u.boss, shiny: u.shiny }); step(); }));
+    await Promise.all([
+      this.stage.loadArena().then(step),
+      ...units.map(async (u) => { this.models[u.id] = await makePokemon(u.k, { boss: u.boss, shiny: u.shiny }); step(); }),
+    ]);
     // portraits (un rendu par espèce, à la suite)
     const pics = {};
     for (const k of species) { pics[k] = await portrait(k); step(); }
