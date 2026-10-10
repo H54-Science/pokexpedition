@@ -4,7 +4,7 @@ import { h } from "../core.js";
 import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
 import * as M from "../meta/index.js";
 import { RunUI, RF, face } from "./runScreens.js";
-import { icon, pokerFace } from "./theatre.js";
+import { icon, pokerFace, cardTheme } from "./theatre.js";
 
 const { CONFIG } = M;
 const tchip = (t) => h("span", { class: "rs-type", style: { "--c": TYPE_COLOR[t] } }, t);
@@ -36,7 +36,7 @@ export class MetaScreens extends RunUI {
       ...M.SETS.map((S) => h("span", { class: "cl-filter-set", style: { "--c": S.color || "#888" } }, chip(S.id, `${S.name} · ${save.frags[S.id] || 0} fr.`))));
     const grid = h("div", { class: "rs-roster cl-grid" }, ...shown.map((k) => {
       const e = save.coll[k], form = e ? M.formOf(k, e.elev) : k, r = M.roleOf(k);
-      return h("button", { class: "rs-mon cl-card" + (e ? "" : " unknown") + (k === sel ? " on" : ""), "aria-pressed": String(k === sel), onclick: () => { this.collSel = k; again(); } },
+      return h("button", { class: "rs-mon cl-card" + (e ? "" : " unknown") + (k === sel ? " on" : ""), "aria-pressed": String(k === sel), style: cardTheme(form), onclick: () => { this.collSel = k; again(); } },
         pokerFace(form, { content: face(form, "rs-face" + (e ? "" : " cl-shadow")) }),
         h("b", null, fr(form)),
         h("small", null, e ? `N.${e.L}${e.stars ? " · " + "★".repeat(e.stars) : ""}` : r ? RF[r.role] : "—"),
@@ -59,7 +59,7 @@ export class MetaScreens extends RunUI {
     const e = save.coll[k], r = M.roleOf(k), S = r && M.SET[r.set];
     const where = S ? `${S.name} · ${RF[r.role]}` : "Hors set";
     if (!e) return h("div", { class: "cl-detail" },
-      h("div", { class: "cl-face" }, pokerFace(k, { content: face(k, "rs-face big cl-shadow") })),
+      h("div", { class: "cl-face", style: cardTheme(k) }, pokerFace(k, { content: face(k, "rs-face big cl-shadow") })),
       h("div", { class: "cl-head" }, h("small", null, where), h("b", { class: "cl-name" }, fr(k)), types(k)),
       h("p", { class: "cl-note" }, S ? `Pas encore capturé. Il apparaît dans les expéditions du set ${S.name}${r.role === "legend" ? ` (au dernier combat, capturable à partir de la difficulté ${M.legendFrom()?.name || "—"})` : ""}.` : "Pas encore capturé."));
 
@@ -73,7 +73,7 @@ export class MetaScreens extends RunUI {
     const elevOk = c && save.frags[c.set] >= c.frags && save.mats[c.mat] >= c.mats;
     const inHall = hall.includes(k);
     return h("div", { class: "cl-detail" + (shiny ? " shiny" : "") },
-      h("div", { class: "cl-face" }, pokerFace(form, { content: face(form, "rs-face big", shiny) }), shiny ? h("span", { class: "rs-shiny-tag" }, "✦ CHROMATIQUE") : null),
+      h("div", { class: "cl-face", style: cardTheme(form) }, pokerFace(form, { content: face(form, "rs-face big", shiny) }), shiny ? h("span", { class: "rs-shiny-tag" }, "✦ CHROMATIQUE") : null),
       e.shiny && e.normal ? h("button", { class: "cl-filter cl-swap", onclick: () => { this.collShiny = !this.collShiny; again(); } }, shiny ? "Voir la forme normale" : "✦ Voir le chromatique") : null,
       h("div", { class: "cl-head" }, h("small", null, where), h("b", { class: "cl-name" }, fr(form)), form !== k ? h("small", null, `forme évoluée de ${fr(k)}`) : null, types(form)),
       h("div", { class: "cl-stats" },

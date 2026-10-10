@@ -5,8 +5,12 @@ import { SPECIES, TYPE_COLOR, fr } from "../data/data.js";
 import { portrait } from "../render/assets.js";
 import * as M from "../meta/index.js";
 import { ART, paint } from "./art.js";
+<<<<<<< Updated upstream
 import { icon, pokerFace } from "./theatre.js";
 import { openHelp } from "./help.js";
+=======
+import { icon, pokerFace, brandLogo, cardTheme } from "./theatre.js";
+>>>>>>> Stashed changes
 
 const { CONFIG, DIFFS } = M;
 export const RF = { weak: "Faible", nice: "Élite", legend: "Légendaire" };
@@ -52,6 +56,7 @@ export class RunUI {
     const root = h("div", { class: `rs ex-screen rs-expedition ${cls}`, "data-key": key || `${step}|${title}` },
       h("div", { class: "rs-top" },
         onBack ? h("button", { class: "rs-back", onclick: onBack, title: "Retour (Échap)", "aria-label": "Retour" }, "‹") : null,
+        brandLogo(),
         h("div", { class: "rs-title" }, h("small", null, kicker), h("b", null, title)),
         step == null ? h("span", { class: "rs-spacer" }) : h("ol", { class: "rs-steps" }, ...steps.map((s, i) => h("li", { class: i === step ? "now" : i < step ? "done" : "" }, h("i", null, i + 1), s))),
         save ? h("div", { class: "rs-res" },
@@ -128,7 +133,7 @@ export class RunUI {
       const all = M.speciesOf(S);
       const own = all.filter((k) => M.owns(save, k)).length, sh = all.filter((k) => M.owns(save, k, true)).length;
       const ch = M.legendChance(save, S.id, level);
-      const el = h("button", { class: "rs-set", onclick: () => { if (sel === S.id) go(); else { sel = S.id; render(); } }, ondblclick: () => go() },
+      const el = h("button", { class: "rs-set", style: cardTheme(S.legend), onclick: () => { if (sel === S.id) go(); else { sel = S.id; render(); } }, ondblclick: () => go() },
         h("div", { class: "rs-set-legend" }, pokerFace(S.legend, { content: face(S.legend, "rs-face big") })),
         h("div", { class: "rs-set-name" }, h("small", null, "Set"), h("b", null, S.name)),
         h("div", { class: "rs-set-leg" }, h("b", null, fr(S.legend)), types(S.legend)),
@@ -187,6 +192,7 @@ export class RunUI {
       const r = save.run.results[i], st = r ? (r.win ? "win" : "lose") : i === run.i ? "now" : "next";
       return h("div", { class: `tb-node ${st} ${f.role}`, title: `Acte ${i + 1} · ${fr(f.k)} · ${RF[f.role]}` }, face(f.k, "rs-face"), h("small", null, i + 1));
     }));
+<<<<<<< Updated upstream
     // adversaire (grand, au centre)
     const note = act.role === "legend" ? (lchance ? `${(lchance * 100).toFixed(0)} % de chance de le capturer` : `Non capturable ici${lf ? ` (à partir de ${lf.name})` : ""}`) : "Capturé si tu gagnes";
     const foe = h("div", { class: `tb-foe ${act.role}` },
@@ -195,10 +201,22 @@ export class RunUI {
     const slots = h("div", { class: "tb-slots" });
     const roster = h("div", { class: "tb-roster-grid" });
     const fightBtn = h("button", { class: "rs-go", onclick: () => team.length && go() }, "Combattre", h("kbd", null, "Entrée"));
+=======
+    // adversaire
+    const foe = h("div", { class: `rs-foe ${act.role}`, style: cardTheme(act.k) }, h("div", { class: "rs-foe-portrait" }, pokerFace(act.k, { content: face(act.k, "rs-face big") })),
+      h("div", null, h("small", null, `Acte ${run.i + 1} · ${RF[act.role]}`), h("b", null, fr(act.k)), types(act.k), h("p", null, `Niveau ${run.level}`),
+        act.role === "legend" ? h("p", { class: "rs-chance" }, lchance ? `Capture si victoire : ${(lchance * 100).toFixed(1)} %` : `Non capturable à ce niveau${lf ? ` (à partir de ${lf.name})` : ""} : bats-le pour finir l'expédition.`)
+          : h("p", { class: "rs-chance soft" }, "Capturé si tu gagnes.")));
+    // équipe (3 emplacements : gauche, centre, droite)
+    const slots = h("div", { class: "rs-slots" });
+    const roster = h("div", { class: "rs-roster" });
+    const fightBtn = h("button", { class: "rs-go", onclick: () => team.length && go() }, "Entrer en combat", h("kbd", null, "Entrée"));
+>>>>>>> Stashed changes
     const go = () => { this.team = team.slice(); onFight(team.slice()); };
     const render = () => {
       slots.replaceChildren(...Array.from({ length: N }, (_, i) => {
         const k = team[i];
+<<<<<<< Updated upstream
         return k ? h("button", { class: "tb-slot full", onclick: () => { team.splice(i, 1); render(); }, title: "Retirer de l'équipe" },
             pokerFace(formK(k), { content: face(formK(k), "rs-face big") }), h("b", null, fr(formK(k))), h("small", null, `N.${save.coll[k].L}`), pips(save.run.uses[k], U), h("i", { class: "tb-x", "aria-hidden": "true" }, "×"))
           : h("div", { class: "tb-slot" }, h("b", null, "+"), h("small", null, "Choisis un Pokémon dans ta réserve"));
@@ -206,6 +224,16 @@ export class RunUI {
       roster.replaceChildren(...Object.keys(save.run.uses).sort((a, b) => save.coll[b].L - save.coll[a].L || a.localeCompare(b)).map((k) => {
         const left = save.run.uses[k], on = team.includes(k);
         return h("button", { class: "tb-mon" + (on ? " on" : "") + (left ? "" : " out"), "aria-pressed": String(on), disabled: !left, title: left ? `${fr(formK(k))} · ${left} combat${left > 1 ? "s" : ""} restant${left > 1 ? "s" : ""}` : "Plus de combat pour cette expédition",
+=======
+        slots.append(k ? h("button", { class: "rs-slot full", style: cardTheme(M.formOf(k, save.coll[k].elev)), onclick: () => { team.splice(i, 1); render(); }, title: "Retirer" },
+          face(M.formOf(k, save.coll[k].elev), "rs-face big"), h("b", null, fr(M.formOf(k, save.coll[k].elev))), h("small", null, `N.${save.coll[k].L} · ${pos}`), pips(save.run.uses[k], U))
+          : h("div", { class: "rs-slot" }, h("small", null, pos), h("b", null, "+")));
+      });
+      roster.innerHTML = "";
+      Object.keys(save.run.uses).sort((a, b) => save.coll[b].L - save.coll[a].L || a.localeCompare(b)).forEach((k) => {
+        const left = save.run.uses[k], on = team.includes(k), form = M.formOf(k, save.coll[k].elev);
+        roster.append(h("button", { class: "rs-mon" + (on ? " on" : "") + (left ? "" : " out"), "aria-pressed": String(on), style: cardTheme(form), disabled: !left, title: left ? `${left} combat${left > 1 ? "s" : ""} restant${left > 1 ? "s" : ""}` : "Plus de combat pour cette expédition",
+>>>>>>> Stashed changes
           onclick: () => { if (on) team = team.filter((x) => x !== k); else if (team.length < N) team.push(k); else team[N - 1] = k; render(); } },
           face(formK(k)), h("b", null, fr(formK(k))), pips(left, U));
       }));
@@ -229,7 +257,7 @@ export class RunUI {
     this.save = save;
     const list = M.choices(save), F = CONFIG.expedition.fragments, setName = M.SET[save.run.set].name;
     let sel = list.find((c) => c.isNew)?.i ?? null;
-    const cards = list.map((c) => h("button", { class: "rs-pick" + (c.shiny ? " shiny" : "") + (c.isNew ? "" : " dup"), disabled: !c.isNew, onclick: () => { sel = c.i; render(); }, ondblclick: () => c.isNew && keep() },
+    const cards = list.map((c) => h("button", { class: "rs-pick" + (c.shiny ? " shiny" : "") + (c.isNew ? "" : " dup"), style: cardTheme(c.k), disabled: !c.isNew, onclick: () => { sel = c.i; render(); }, ondblclick: () => c.isNew && keep() },
       pokerFace(c.k, { content: face(c.k, "rs-face big", c.shiny) }), c.shiny ? h("div", { class: "rs-shiny-tag" }, "✦ CHROMATIQUE") : null,
       h("small", null, RF[c.role]), h("b", null, fr(c.k)), types(c.k),
       h("em", null, c.isNew ? "Nouveau !" : `Déjà possédé → ${F[c.role]} fragment${F[c.role] > 1 ? "s" : ""}${c.shiny ? " + 1 éclat chroma" : ""}`)));

@@ -2,6 +2,9 @@ import { h } from "../core.js";
 import { fr, SPECIES, TYPE_COLOR } from "../data/data.js";
 
 const ICONS = {
+  flame: '<path d="M27 4c4 12-8 13-5 22 4-1 7-6 7-10 10 8 12 20 3 26C12 53 1 30 17 19c-1 8 2 10 5 11-6-12 9-17 5-26Z"/>',
+  drop: '<path d="M24 4C20 15 8 22 8 31a16 16 0 0 0 32 0C40 22 28 15 24 4Z"/><path d="M15 31q0 10 9 10"/>',
+  skull: '<path d="M11 31C-3 10 15 2 24 2s27 8 13 29v11H11Z"/><circle cx="16" cy="23" r="4"/><circle cx="32" cy="23" r="4"/><path d="m24 28-3 5h6Zm-7 9v5m7-5v5m7-5v5"/>',
   star: '<path d="m24 3 5.8 14.7L45 24l-15.2 6.3L24 45l-5.8-14.7L3 24l15.2-6.3Z"/><path d="m24 13 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"/>',
   book: '<path d="M24 12C18 6 9 6 4 8v30c8-3 14-1 20 5 6-6 12-8 20-5V8c-5-2-14-2-20 4v31"/><path d="m11 16 7 3m-7 5 7 3m12-8 7-3m-7 11 7-3"/>',
   crown: '<path d="m6 14 8 8L24 7l10 15 8-8-5 23H11Zm6 29h24M14 31h20"/><circle cx="24" cy="24" r="3"/>',
@@ -20,11 +23,23 @@ export function icon(name, cls = "") {
 export function sprite(k, cls = "", decorative = false) {
   return h("img", { class: "ex-sprite " + cls, src: `assets/pokemon/${k}.png`, alt: decorative ? "" : fr(k), draggable: "false", decoding: "async" });
 }
+export const brandLogo = () => h("img", { class: "ex-brand-logo", src: "assets/ui/pokexpedition-logo.png", alt: "Pokexpédition", draggable: "false", decoding: "async" });
+// Saturated frame colors, independent of the readable red/black playing-card ink.
+const CARD_COLORS = {
+  Normal: "#ffbf62", Feu: "#ff492c", Eau: "#009cff", Plante: "#44dc64",
+  Électrik: "#ffd529", Glace: "#3be2ef", Combat: "#f53955", Poison: "#c43cff",
+  Sol: "#e99532", Vol: "#8388ff", Psy: "#ff459b", Insecte: "#b9e632",
+  Roche: "#dcad42", Spectre: "#9650ff", Dragon: "#664dff", Ténèbres: "#7965c2",
+  Acier: "#82b8df", Fée: "#ff35b7",
+};
+export function cardTheme(k) {
+  return { "--card-color": CARD_COLORS[SPECIES[k]?.t[0]] || "#a353ff" };
+}
 export const eyebrow = (text) => h("div", { class: "ex-eyebrow" }, text);
 export const action = (text, fn, primary = false, disabled = false) => h("button", { class: "ex-button" + (primary ? " primary" : ""), onclick: fn, disabled }, h("span", null, text), icon(primary ? "arrow" : "star"));
 export function shell(title, subtitle, body, { back, tools, footer, cls = "" } = {}) {
   return h("section", { class: "ex-screen " + cls },
-    h("header", { class: "ex-header" }, icon("book"), h("div", { class: "ex-heading" }, h("h1", null, title), h("small", null, subtitle)),
+    h("header", { class: "ex-header" }, brandLogo(), h("div", { class: "ex-heading" }, h("h1", null, title), h("small", null, subtitle)),
       h("div", { class: "ex-header-tools" }, tools), back ? h("button", { class: "ex-circle", onclick: back, "aria-label": "Retour", title: "Retour" }, icon("back")) : null),
     h("div", { class: "ex-paper" }, h("div", { class: "ex-corner ex-corner-left", "aria-hidden": "true" }, "✦"), h("div", { class: "ex-corner ex-corner-right", "aria-hidden": "true" }, "✦"), body),
     footer ? h("footer", { class: "ex-footer" }, footer) : null);
@@ -47,17 +62,17 @@ export function theatreArt() {
 }
 export function landing({ title, subtitle, primary, secondary, back, resume, best }) {
   return h("section", { class: "ex-screen ex-landing" },
-    h("header", { class: "ex-header" }, icon("book"), h("div", { class: "ex-heading" }, h("h1", null, "PokeXpédition"), h("small", null, "LE THÉÂTRE DES POSSIBLES")), h("span", { class: "ex-edition" }, "✦  UNE NOUVELLE AVENTURE"), back ? h("button", { class: "ex-circle", onclick: back, "aria-label": "Retour au hall" }, icon("back")) : null),
+    h("header", { class: "ex-header" }, brandLogo(), h("div", { class: "ex-heading" }, h("h1", null, "PokeXpédition"), h("small", null, "LE THÉÂTRE DES POSSIBLES")), h("span", { class: "ex-edition" }, "✦  UNE NOUVELLE AVENTURE"), back ? h("button", { class: "ex-circle", onclick: back, "aria-label": "Retour au hall" }, icon("back")) : null),
     h("div", { class: "ex-landing-body" }, theatreArt(), h("div", { class: "ex-hero-copy" }, eyebrow("LES PORTES SONT OUVERTES"), h("h2", null, title), h("div", { class: "ex-rule" }, "✦"), h("p", null, subtitle), h("div", { class: "ex-hero-actions" }, action(primary.label, primary.fn, true), resume ? action("Reprendre la représentation", resume) : null, secondary ? action(secondary.label, secondary.fn) : null), best ? h("small", null, `Record infini · ${best} combats`) : null)),
     h("footer", { class: "ex-landing-footer" }, h("span", null, "01  /  L'APPEL DE L'AVENTURE"), h("span", null, "Une troupe. Mille histoires."), icon("star")));
 }
 // Red/black ink follows the primary Pokémon type; sprites retain their colors.
 const RED_TYPES = new Set(["Feu", "Fée", "Combat", "Électrik", "Plante", "Dragon"]);
-const TYPE_ICON = { Feu: "sword", Eau: "moon", Spectre: "moon", Fée: "star", Plante: "leaf", Électrik: "star", Combat: "sword", Acier: "crown", Dragon: "crown", Psy: "star" };
+const TYPE_ICON = { Feu: "flame", Eau: "drop", Spectre: "skull", Fée: "flower", Plante: "leaf", Électrik: "star", Combat: "sword", Acier: "crown", Dragon: "crown", Psy: "star" };
 export function pokerFace(k, { content, kind = "star", unknown = false } = {}) {
   const type = SPECIES[k]?.t[0], symbol = type ? TYPE_ICON[type] || "star" : kind;
   const corner = () => [h("b", null, unknown ? "?" : "A"), icon(symbol)];
-  return h("div", { class: "ex-poker-face" + (RED_TYPES.has(type) ? " ink-red" : "") + (unknown ? " unknown" : ""), style: { "--poker-accent": TYPE_COLOR[type] || "#ae99e1" } },
+  return h("div", { class: "ex-poker-face" + (RED_TYPES.has(type) ? " ink-red" : "") + (unknown ? " unknown" : ""), style: { ...cardTheme(k), "--poker-accent": CARD_COLORS[type] || "#ae99e1" } },
     h("span", { class: "ex-poker-corner", "aria-hidden": "true" }, corner()),
     content || (k ? sprite(k, "", true) : icon(kind, "ex-card-symbol")),
     h("span", { class: "ex-poker-emblem", "aria-hidden": "true", title: type || "Incident" }, icon(symbol)),

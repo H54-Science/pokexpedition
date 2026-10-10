@@ -1,0 +1,63 @@
+/* Reference-inspired identity and colorful poker deck. Combat HUD stays scoped out. */
+.ex-brand-logo { display:block; width:clamp(150px,16vw,250px); height:auto; flex:none; object-fit:contain; filter:drop-shadow(0 3px 8px #7427ff55); }
+.lb-title>.ex-brand-logo { width:clamp(230px,26vw,380px); }
+#loading h1>.ex-brand-logo { width:min(560px,80vw); margin:0 auto 24px; }
+.ex-landing .ex-header .ex-heading h1 { display:none; }
+.ex-header,.rs.ex-screen .rs-top { gap:16px; }
+.rs-title,.ex-heading { min-width:0; }
+.rs.ex-screen .rs-title b { font-size:clamp(19px,2vw,28px); }
+.ex-heading h1 { font-size:clamp(19px,2vw,27px); }
+
+/* Every species carries its primary type palette through frame, seal and caption. */
+.ex-encounter,.ex-pokemon-card,.rs.ex-screen .rs-mon,.rs.ex-screen .rs-set,
+.rs.ex-screen .rs-pick,.rs.ex-screen .rs-foe,.rs.ex-screen .rs-slot.full {
+  --card-light:color-mix(in srgb,var(--card-color,#a353ff) 55%,white);
+  --card-dark:color-mix(in srgb,var(--card-color,#a353ff) 38%,#0d0925);
+  border:3px solid var(--card-color,#a353ff);
+  background:linear-gradient(135deg,var(--card-color,#a353ff),var(--card-dark) 65%);
+  box-shadow:inset 0 2px 0 var(--card-light),inset 0 0 0 2px #140b35,0 4px 0 #090820,0 0 17px color-mix(in srgb,var(--card-color,#a353ff) 35%,transparent);
+}
+.ex-encounter { padding:6px; --command:var(--card-color,#a353ff); border-width:4px; }
+.rs.ex-screen .rs-set:not(.sel) { border-top:6px solid var(--card-color,#a353ff); }
+.ex-poker-face { border-color:var(--card-color,#a353ff); border-radius:3px; background:radial-gradient(ellipse at center,#fffbee 25%,#f1e4ce); box-shadow:inset 0 0 0 2px #fff8e9,inset 0 0 0 4px color-mix(in srgb,var(--card-color,#a353ff) 50%,#f8eddf); }
+.ex-poker-emblem { background:linear-gradient(140deg,var(--poker-accent),color-mix(in srgb,var(--poker-accent) 38%,#140d35)); border:2px solid color-mix(in srgb,var(--poker-accent) 45%,white); color:#fff4ff; box-shadow:inset 0 1px #fff6,0 2px 0 #1b1237; }
+.ex-screen .ex-poker-corner b { color:var(--poker-ink); font:inherit; text-shadow:none; }
+.ex-card-caption { border:3px solid var(--card-light); background:linear-gradient(110deg,var(--card-color,#a353ff),var(--card-dark)); box-shadow:inset 0 2px #fff8,inset 0 0 0 2px #150920,0 4px 0 #0a0821,0 0 17px color-mix(in srgb,var(--card-color,#a353ff) 40%,transparent); }
+.ex-card-caption h3,.ex-card-caption>small,.ex-card-caption p { color:#fff6ff; text-shadow:0 2px 2px #10051f; }
+.ex-command-icon { border-color:var(--card-light)!important; background:linear-gradient(135deg,var(--card-color,#a353ff),var(--card-dark))!important; color:#fff7d6; box-shadow:inset 0 2px #fff8,0 3px 0 #140a2b; }
+.ex-pokemon-card>b,.rs.ex-screen .rs-mon b,.rs.ex-screen .rs-slot.full b { color:#fff; text-shadow:0 2px 1px #0c0824; }
+.ex-pokemon-card>small,.rs.ex-screen .rs-mon small,.rs.ex-screen .rs-slot.full small { color:#f0eaff; }
+.ex-pokemon-art,.ex-pokemon-card.favored .ex-pokemon-art { background:transparent; }
+.rs.ex-screen .rs-foe { background:linear-gradient(115deg,var(--card-dark),#111831ed); }
+.rs.ex-screen .rs-foe small { color:var(--card-light); }
+.rs.ex-screen .rs-foe b { color:#fff; }
+.rs.ex-screen .rs-set-name b,.rs.ex-screen .rs-set-leg b { color:#fff; text-shadow:0 2px 2px #140a32; }
+.rs.ex-screen .rs-set-chance { background:#100b30b8; }
+
+/* Selection remains identifiable beyond the type color. */
+.ex-pokemon-card.selected,.rs.ex-screen .rs-mon.on,.rs.ex-screen .rs-set.sel,.rs.ex-screen .rs-pick.sel,
+.ex-encounter:hover:enabled { border-color:#83f3ff; box-shadow:inset 0 2px #e5fdff,inset 0 0 0 2px #087bd8,0 0 0 2px #009fff,0 0 25px #00baff99; }
+.ex-pokemon-card.selected .ex-poker-face,.rs-mon.on .ex-poker-face,.rs-set.sel .ex-poker-face,.rs-pick.sel .ex-poker-face { border-color:#008dff; }
+.rs.ex-screen .rs-mon:hover:enabled { background:linear-gradient(135deg,var(--card-color),var(--card-dark)); filter:brightness(1.08); }
+.ex-pokemon-card.exhausted,.rs.ex-screen .rs-mon.out { filter:grayscale(.85); }
+.rs.ex-screen .cl-card.unknown { background:linear-gradient(135deg,var(--card-dark),#101630); box-shadow:inset 0 1px #fff2,0 3px 0 #080d27; }
+.cl-face .ex-poker-face { box-shadow:inset 0 0 0 2px #fff8e9,inset 0 0 0 4px color-mix(in srgb,var(--card-color) 50%,#f8eddf),0 0 20px color-mix(in srgb,var(--card-color) 45%,transparent); }
+@media(max-width:1100px) { .rs.ex-screen .rs-top { flex-wrap:wrap; } .rs.ex-screen .rs-steps { flex-basis:100%; order:4; } }
+@media(max-width:800px) {
+  .ex-header { flex-wrap:wrap; gap:10px; padding:12px 20px; }
+  .ex-header>.ex-brand-logo { width:160px; }
+  .ex-header .ex-heading { flex:1 1 45%; }
+  .ex-header-tools { margin-left:0; flex:1; }
+  .rs.ex-screen .rs-top>.ex-brand-logo { width:150px; }
+  .rs.ex-screen .rs-title { flex:1 1 45%; }
+}
+@media(max-width:480px) {
+  .ex-header>.ex-brand-logo { width:145px; }
+  .ex-header .ex-heading { flex-basis:100%; order:3; }
+  .ex-header .ex-heading h1 { font-size:18px; }
+  .ex-header-tools { margin-left:auto; flex:0 1 auto; }
+  .rs.ex-screen .rs-top { padding:12px; gap:10px; }
+  .rs.ex-screen .rs-top>.ex-brand-logo { width:145px; }
+  .rs.ex-screen .rs-title { flex-basis:100%; order:3; }
+  .lb-title>.ex-brand-logo { width:250px; }
+}
