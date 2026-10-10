@@ -8,15 +8,17 @@ Taux de victoire indicatifs : `node tools/balance_meta.mjs [n]`.
 Expéditions (vœux + matériaux) → run de capture (10 vœux) → un Pokémon gardé, reste en fragments / éclats → entraînement → élévation (+ évolution) → expéditions et runs plus hauts.
 
 ## Volontairement pas codé (reporté)
-- **Cartes de buffs et monnaie de run** (3 cartes, relances, achats). La boucle tient sans : le pity sert de levier sur le légendaire. À ajouter quand le run aura un rendu ; les buffs de combat pourront passer par `mods` du moteur, qui existe déjà.
-- **Buff « prochain adversaire = espèce choisie »** et **buffs d'économie** : idem.
+- **Buff « prochain adversaire = espèce choisie »** : pas codé.
 
-## Runs (expéditions et vœux) — règles actuelles
+## Expédition (mode unique, expéditions et vœux fusionnés)
 - Difficulté I à V = adversaires niveau 20/40/60/80/100. Accès si **6 Pokémon** au moins ont ce niveau (`run.minRoster`).
-- 5 actes ; à chaque acte on choisit 1 à 3 Pokémon parmi ceux au niveau ; chacun combat **3 fois** max par run (`run.uses`).
-- Expédition : vœux à chaque acte gagné ; matériaux (P D ×2, P D-1 ×1) et bonus de premier clear seulement pour un run complet.
-- Vœux (capture) : difficulté puis set ; le niveau du run = niveau de la difficulté (le légendaire n'est capturable qu'à partir de la difficulté II).
-- Interface : `src/ui/runScreens.js` + `src/ui/run.css` ; toutes les images à fournir sont déclarées dans `src/ui/art.js` (voir `assets/ui/README.md`).
+- Puis choix du **set** ; 5 actes (faible, faible, sympa, faible, légendaire) ; à chaque acte 1 à 3 Pokémon, chacun combat **3 fois** max par run.
+- Départ gratuit (`expedition.cost`). Vœux gagnés à chaque acte gagné ; matériaux (P D ×2, P D-1 ×1) et bonus de premier clear si les 5 actes sont gagnés ; captures → on en garde une, le reste en fragments / éclats.
+- **Bénédictions** (`src/meta/buffs.js`, réglages `buffs` dans config.js) : 1re carte offerte avant l'acte 1, puis 3 cartes à acheter en vœux après chaque acte gagné, 2 relances par run.
+  Catalogue calculé pour chaque set : types offensifs super efficaces contre lui, les 3 réactions les plus adaptées (bonus si elles utilisent l'élément du légendaire : Floraison / Électrocharge / Catalyse contre Abysses), bénédictions générales, et de capture (prisme chromatique, appât légendaire +5 pts, bourse de vœux).
+  Le moteur a un nouveau bonus par réaction (`rxOf`).
+- Interface : `src/ui/runScreens.js` + `src/ui/run.css` (thème papier dans `src/ui/theatre.css`) ; images dans `src/ui/art.js`.
+- Hall : décor seul avec caméra cinématique et menu à icônes ; jusqu'à 6 Pokémon exposés (réglage « Hall » ou bouton dans la Collection).
 
 ## Choix par défaut (à valider)
 - **Départ** : 20 vœux et 6 Pokémon faibles niveau 20 (Gobou, Carapuce, Funécire, Pitrouille, Kraknoix, Tarsal), répartis dans les 4 sets.
@@ -25,7 +27,7 @@ Expéditions (vœux + matériaux) → run de capture (10 vœux) → un Pokémon 
 - **Progression partagée** : la copie normale et la copie chromatique d'une espèce ont le même niveau, la même élévation et les mêmes étoiles (une seule fiche par espèce, comme le modèle de données demandé).
 - **Pity par set** et non global. Il monte seulement quand le jet de capture est tenté (victoire contre le légendaire, niveau ≥ 30) et raté.
 - **Défaite pendant un run** : le run s'arrête et on passe à la fin avec ce qui est acquis (captures, vœux des actes gagnés).
-- **Sauvegarde v2** : migration depuis v1 (ajoute les starters manquants, supprime l'équipe fixe et le run en cours).
+- **Sauvegarde v3** : migrations v1 → v2 (starters, plus d'équipe fixe) et v2 → v3 (run en cours abandonné).
 - **Combats 1, 2, 4** : 3 faibles différents, tirés sans remise parmi les 4 du set.
 - **Évolution** : seulement pour les lignées dont les deux modèles existent (Funécire→Lugulabre, Kraknoix→Libégon, Tylton→Altaria, Cacnea→Cacturne, Pitrouille→Banshitrouye, Mascaïman→Crocorible, Sonistrelle→Bruyverne). Avec 2 stades, l'évolution a lieu à l'élévation 1. L'espèce de la fiche reste la forme de base.
 - **Élévation** : il faut être au plafond de niveau actuel. Coût : fragments du set de l'espèce + matériau de palier N.

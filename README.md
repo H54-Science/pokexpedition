@@ -3,20 +3,15 @@
 Jeu 3D (navigateur PC + PWA mobile) en three.js. Le combat est inspiré de Honkai Star Rail et repris de Récolte. Les modèles viennent de Pixelmon, convertis en glTF.
 
 ## Jouer
-`index.html` s'ouvre sur le **hall** (lobby 3D) : un théâtre-bibliothèque où l'on se déplace avec son dresseur et son Pokémon partenaire.
-- Commandes : ZQSD ou flèches pour se déplacer, Maj pour courir, Espace pour sauter (on peut monter sur la scène d'un bond), glisser la souris pour la caméra, molette pour le zoom, F (ou E / Entrée, ou clic sur l'étiquette) pour interagir.
-- Stations :
-  - la **scène** ouvre les expéditions ;
-  - **Garde-robe** : tenue du dresseur (skins de PNJ Pixelmon) ;
-  - **Partenaire** : Pokémon qui suit le dresseur ;
-  - **Entraînement** : combat rapide ;
-  - **Vœux** (gacha) et **Coop** : à venir.
-- Code : `src/lobby/lobby.js` (salle, caméra, collisions, stations) et `src/lobby/trainer.js` (dresseur en boîtes texturées par un skin 64×64, marche procédurale). Pendant le lobby, `Stage` délègue son rendu via `stage.override`.
-- Modèle : `models/lobby/hall.glb`, construit par script dans Blender (fichier source `hall.blend` hors dépôt), exporté puis compressé avec `gltf-transform optimize --compress meshopt --texture-compress webp`. Les lumières sont recréées dans three.js et ne viennent pas du .glb.
+`index.html` s'ouvre sur le **hall** : le décor du théâtre-bibliothèque en fond (caméra cinématique), les Pokémon choisis exposés sur le tapis, et un menu à icônes (touches 1 à 4) :
+- **Expédition** : difficulté (6 Pokémon au niveau requis) → set → 5 actes avec bénédictions entre les actes → choix final. Détails dans `NOTES-meta.md`.
+- **Collection** : entraînement, élévation, étoiles, chromatiques, exposition dans le hall.
+- **Hall** : choix des Pokémon exposés (6 max).
+- **Coop** : à venir.
 
-Depuis le hall, **expédition** (choix de la zone et de la difficulté → troupe de 6 à 10 Pokémon → actes) ou **combat rapide**.
+L'ancien mode Théâtre (zones, troupe, actes à incidents) reste accessible avec `?theatre=1`.
 
-### Expédition (inspirée du Théâtre de Genshin) — `src/game/run.js`, logique pure et déterministe
+### Ancien mode Théâtre (`?theatre=1`) — `src/game/run.js`, logique pure et déterministe
 - Difficulté : Facile (6 actes), Normal (7), Difficile (8), Infini (sans fin, record enregistré). Le gardien de la zone est au dernier acte, et deux « adversaires principaux » arrivent vers 40 % et 70 % du parcours.
 - À chaque acte, des cartes d'incident : 2 combats (normal ou difficile), ou le combat clé, et 2 incidents de boutique payés en fleurs ✿ :
   - recrue d'un type : un Pokémon rejoint la troupe ;

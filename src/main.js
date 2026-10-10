@@ -1,5 +1,5 @@
-// Point d'entrée : hall (lobby 3D). Boucle : expéditions (vœux, matériaux) → runs de capture (Vœux) → collection (entraînement, élévation).
-// Le Théâtre (zone → troupe → actes) reste accessible depuis les expéditions.
+// Point d'entrée : hall (décor 3D + menu à icônes). Boucle : expédition (difficulté → set → actes et bénédictions)
+// → captures, vœux, matériaux → collection (entraînement, élévation). L'ancien Théâtre reste accessible via ?theatre=1.
 // Combat rapide pour tester : bouton de l'accueil, ou ?quick=1&team=CHARIZARD,LAPRAS,GENGAR&boss=GROUDON
 import { Stage } from "./render/stage.js";
 import { Hud } from "./ui/hud.js";
@@ -10,8 +10,9 @@ import { SPECIES } from "./data/data.js";
 import { ZONES } from "./data/zones.js";
 import { Sfx } from "./audio.js";
 import * as R from "./game/run.js";
-import { Lobby } from "./lobby/lobby.js";
-import { SKINS, skinThumb } from "./lobby/trainer.js";
+import { Lobby, SHOWCASE_MAX } from "./lobby/lobby.js";
+import { icon } from "./ui/theatre.js";
+import { h } from "./core.js";
 import * as Meta from "./meta/index.js";
 import { MetaScreens } from "./ui/metaScreens.js";
 import { RunUI } from "./ui/runScreens.js";
@@ -45,44 +46,64 @@ async function fight(cfg) {
 }
 
 // ───────── hall ─────────
-// spawn : "door" (entrée), "stage" (sur la scène, après une expédition), "keep" (là où on était)
-function toLobby(spawn = "keep") { scr.hide(); lobby.enter({ spawn }); updateRes(); }
-const back = () => toLobby("keep");
+const MENU = [
+  { id: "expedition", icon: "book", label: "Expédition", sub: "Difficulté, set, bénédictions", c: "#ffcf6a" },
+  { id: "collection", icon: "crown", label: "Collection", sub: "Entraînement, élévation", c: "#8dff9a" },
+  { id: "hall", icon: "star", label: "Hall", sub: "Pokémon exposés", c: "#c58bff" },
+  { id: "coop", icon: "moon", label: "Coop", sub: "Bientôt", c: "#ff8fb3", soon: true },
+];
+function buildMenu() {
+  const nav = document.querySelector(".lb-menu");
+  nav.innerHTML = "";
+  MENU.forEach((m, i) => nav.append(h("button", { class: "lb-item", style: { "--c": m.c }, onclick: () => lobbyAction(m.id) },
+    h("span", { class: "lb-ic" }, icon(m.icon)), h("span", null, h("b", null, m.label), h("small", null, m.sub)), h("kbd", null, i + 1))));
+  addEventListener("keydown", (e) => {
+    if (!lobby.active || document.getElementById("screens").style.display !== "none") return;
+    const m = MENU[+e.key - 1]; if (m) lobbyAction(m.id);
+  });
+}
+const hallKeys = () => store.get("hall", Object.keys(meta.coll).slice(0, 3)).filter((k) => meta.coll[k]).slice(0, SHOWCASE_MAX);
+const refreshHall = () => lobby.setShowcase(hallKeys().map((k) => Meta.formOf(k, meta.coll[k].elev)));
+function toLobby() {
+  scr.hide(); ru.close();
+  lobby.enter(); refreshHall(); updateRes();
+  document.getElementById("lobby-ui").style.display = "";
+}
+const back = () => toLobby();
+function hideHallUi() { document.getElementById("lobby-ui").style.display = "none"; }
 
 function lobbyAction(id) {
-  lobby.pause(true);
+  hideHallUi();
   if (id === "expedition") return expeditionWelcome();
-  if (id === "capture") return runEntry("capture");
-  if (id === "collection" || id === "training") return collection();
-  if (id === "wardrobe") {
-    return scr.wardrobe({
-      skins: SKINS, current: lobby.trainer.skin, thumb: skinThumb, onBack: back,
-      onPick: async (n) => { store.set("skin", n); await lobby.setSkin(n); back(); },
-    });
-  }
+  if (id === "collection") return collection();
+  if (id === "hall") return hallSettings();
   scr.message({ title: "Coop", lines: ["Inviter des amis et partir en expédition à plusieurs : bientôt."], btn: "Retour", onOk: back });
+}
+function hallSettings() {
+  const chosen = hallKeys();
+  ms.hallSettings({
+    save: meta, chosen, max: SHOWCASE_MAX, onBack: back,
+    onToggle: (k) => { const i = chosen.indexOf(k); if (i >= 0) chosen.splice(i, 1); else if (chosen.length < SHOWCASE_MAX) chosen.push(k); store.set("hall", chosen); hallSettings(); },
+  });
 }
 
 // ───────── boucle de progression (src/meta) ─────────
 const fail = (e, then) => scr.message({ title: "Impossible", lines: [e.message], btn: "OK", onOk: then });
 
-// Expéditions et vœux : Difficulté → (Set) → actes (choix de 3 Pokémon par combat) → fin.
+// Expédition : Difficulté → Set → actes (équipe de 3 + bénédictions) → choix final → bilan.
 function expeditionWelcome() {
   ru.close();
-  scr.welcome({ hasRun: !!meta.run, onPrepare: () => runEntry("expedition"), onBack: back });
+  scr.welcome({ hasRun: !!meta.run, onPrepare: () => runEntry(), onBack: back });
 }
-function runEntry(mode) {
+function runEntry() {
   if (meta.run) return meta.run.phase === "choice" ? runEnd() : runBoard();
   ru.difficulty({
-    save: meta, mode, onBack: () => { ru.close(); mode === "expedition" ? expeditionWelcome() : back(); },
-    onPick: (diff) => {
-      if (mode === "expedition") return startRun({ mode, diff });
-      ru.sets({ save: meta, diff, onBack: () => runEntry(mode), onPick: (set) => startRun({ mode, diff, set }) });
-    },
+    save: meta, onBack: () => { ru.close(); expeditionWelcome(); },
+    onPick: (diff) => ru.sets({ save: meta, diff, onBack: () => runEntry(), onPick: (set) => startRun({ diff, set }) }),
   });
 }
 function startRun(opts) {
-  try { Meta.startRun(meta, opts); } catch (e) { return fail(e, () => runEntry(opts.mode)); }
+  try { Meta.startRun(meta, opts); } catch (e) { return fail(e, () => runEntry()); }
   saveMeta(); ru.team = null; runBoard();
 }
 function runBoard(last = null) {
@@ -90,32 +111,36 @@ function runBoard(last = null) {
     save: meta, last,
     onLeave: () => { ru.close(); back(); },
     onStop: () => { Meta.stopRun(meta); saveMeta(); runEnd(); },
+    onBuy: (i) => { let b; try { b = Meta.buyBuff(meta, i); } catch (e) { return fail(e, () => runBoard(last)); } saveMeta(); runBoard({ win: true, text: `Bénédiction : ${b.name}` }); },
+    onReroll: () => { try { Meta.rerollShop(meta); } catch (e) { return fail(e, () => runBoard(last)); } saveMeta(); runBoard(last); },
     onFight: async (team) => {
       let cfg; try { cfg = Meta.nextFightConfig(meta, team); } catch (e) { return fail(e, runBoard); }
       saveMeta(); ru.close();
       const res = await fight(cfg);
       const out = Meta.resolveFight(meta, res.win); saveMeta();
       const name = SPECIES[out.foe].fr;
-      const text = !out.win ? `Défaite contre ${name}` : out.captured ? `${name} capturé !` : out.legend ? `${name} s'est échappé (${Math.round(out.legend.chance * 100)} %)` : out.reward ? `${name} : matériau P${out.reward.mat} ×${out.reward.n}` : out.voeux ? `Victoire ! +${out.voeux} vœux` : "Victoire !";
+      const v = out.voeux ? ` · +${out.voeux} vœux` : "";
+      const text = !out.win ? `Défaite contre ${name}` : out.captured ? `${name} capturé !${v}` : out.legend ? `${name} s'est échappé (${Math.round(out.legend.chance * 100)} %)${v}` : out.reward ? `${name} : matériau P${out.reward.mat} ×${out.reward.n}${v}` : `Victoire !${v}`;
       if (meta.run.phase === "choice") runEnd(); else runBoard({ win: out.win, text });
     },
   });
 }
 function runEnd() {
-  const finish = (keep) => {
-    let sum; try { sum = Meta.finishRun(meta, keep); } catch (e) { return fail(e, runEnd); }
-    saveMeta();
-    ru.summary({ save: meta, sum, onOk: () => { ru.close(); toLobby("keep"); } });
-  };
-  if (meta.run.mode === "expedition") return finish(null);
-  ru.choice({ save: meta, onKeep: finish });
+  ru.choice({
+    save: meta,
+    onKeep: (keep) => {
+      let sum; try { sum = Meta.finishRun(meta, keep); } catch (e) { return fail(e, runEnd); }
+      saveMeta();
+      ru.summary({ save: meta, sum, onOk: () => { ru.close(); toLobby(); } });
+    },
+  });
 }
 
 let collMsg = "";
 function collection(backTo = back) {
   const again = () => collection(backTo);
   ms.collection({
-    save: meta, partner: lobby.partnerKey, msg: collMsg, onBack: () => { collMsg = ""; backTo(); },
+    save: meta, hall: hallKeys(), msg: collMsg, onBack: () => { collMsg = ""; backTo(); },
     onAct: async (act, k) => {
       collMsg = "";
       try {
@@ -124,7 +149,7 @@ function collection(backTo = back) {
         if (act === "elev") { const r = Meta.elevate(meta, k); collMsg = `${SPECIES[k].fr} : élévation ${r.elev}${r.evolved ? ` — évolue en ${SPECIES[r.evolved].fr} !` : ""}`; }
         if (act === "star") Meta.buyStar(meta, k);
         if (act === "shards") { Meta.redeemShards(meta, k); collMsg = `${SPECIES[k].fr} chromatique obtenu !`; }
-        if (act === "partner") { store.set("partner", k); scr.loading("Ton partenaire arrive…"); await lobby.setPartner(Meta.formOf(k, meta.coll[k].elev)); lobby.partnerKey = k; }
+        if (act === "hall") { const c = hallKeys(); const i = c.indexOf(k); if (i >= 0) c.splice(i, 1); else if (c.length < SHOWCASE_MAX) c.push(k); store.set("hall", c); }
       } catch (e) { collMsg = e.message; }
       saveMeta(); again();
     },
@@ -151,7 +176,7 @@ async function quick() {
     enemies: [{ k: boss, L: +q.get("flv") || lv + (BL[SPECIES[boss].tier] || 0), boss: true }],
     pool: [], bossHp: +q.get("hp") || 12, bossPow: +q.get("pow") || 0.7,
   });
-  scr.message({ title: res.win ? "Victoire !" : "K.O.", btn: "Retour au hall", onOk: () => toLobby("keep") });
+  scr.message({ title: res.win ? "Victoire !" : "K.O.", btn: "Retour au hall", onOk: () => toLobby() });
 }
 
 // ───────── préparation ─────────
@@ -225,7 +250,7 @@ function endRun(state) {
   scr.message({
     title: state.won ? "Expédition réussie !" : "Fin de l'expédition",
     lines: [`Combats gagnés : ${state.cleared}`, `Bénédictions : ${state.boons.length}`, state.won && isFinite(state.nActs) ? "Zone suivante débloquée." : ""],
-    btn: "Retour au hall", onOk: () => toLobby("stage"),
+    btn: "Retour au hall", onOk: () => toLobby(),
   });
 }
 const confirmQuit = () => window.confirm("Abandonner l'expédition en cours ?");
@@ -240,15 +265,14 @@ async function start() {
   stage.shot("wide", { snap: true });
   scr = new Screens(document.getElementById("screens"));
   hudRoot().style.display = "none";
-  // hall : modèle, dresseur, partenaire
+  // hall : décor et Pokémon exposés
   const bar = document.querySelector("#loading .bar i");
   meta = Meta.localStore.load((Math.random() * 2 ** 31) | 0);
   ms = new MetaScreens(scr); ru = new RunUI(scr);
-  lobby = new Lobby(stage, { onAction: lobbyAction });
+  lobby = new Lobby(stage);
   await lobby.load((p) => { if (bar) bar.style.width = Math.round(p * 80) + "%"; });
-  await lobby.setSkin(store.get("skin", SKINS[0]));
-  const partner = [store.get("partner", null), ...Object.keys(meta.coll)].find((k) => k && meta.coll[k]);
-  await lobby.setPartner(Meta.formOf(partner, meta.coll[partner].elev)); lobby.partnerKey = partner;
+  await refreshHall();
+  buildMenu();
   if (bar) bar.style.width = "100%";
   window.__game = { stage, scr, R, lobby, Meta, get meta() { return meta; } };
   msg.textContent = "CLIC OU TOUCHE POUR COMMENCER";
@@ -256,7 +280,7 @@ async function start() {
   Sfx.unlock();
   document.getElementById("loading").classList.add("out");
   if (q.has("quick")) return quick();
-  if (q.has("theatre")) { toLobby("door"); lobby.pause(true); return hub(); }   // ancien mode Théâtre (plus relié au hall)
-  toLobby("door");
+  if (q.has("theatre")) { toLobby(); hideHallUi(); return hub(); }   // ancien mode Théâtre (plus relié au hall)
+  toLobby();
 }
 start().catch((e) => { console.error(e); const m = document.querySelector("#loading small"); if (m) m.textContent = "Erreur : " + e.message; });

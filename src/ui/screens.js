@@ -25,21 +25,6 @@ export class Screens {
     this.show(landing({ title: "Le Théâtre\ndes expéditions", subtitle: "Compose ta troupe, choisis ton destin. Derrière chaque carte, une nouvelle histoire attend ses héros.", primary: { label: "Préparer une représentation", fn: onNew }, secondary: onQuick ? { label: "Combat rapide", fn: onQuick } : null, resume: hasRun ? onResume : null, back: onBack, best }));
   }
 
-  // Garde-robe : conserve le fonctionnement du hall.
-  wardrobe({ skins, current, thumb, onPick, onBack }) {
-    const grid = h("div", { class: "s-grid" });
-    for (const n of skins) {
-      const img = h("img", { alt: n }); thumb(n).then(u => img.src = u).catch(() => {});
-      grid.append(h("button", { class: "s-skin" + (n === current ? " on" : ""), onclick: () => onPick(n) }, img, n.replace(/^trainer_gym_/, "").replace(/^leader_gym_/, "champion ").replace(/_/g, " ")));
-    }
-    this.show(h("div", { class: "s-box" }, h("h2", null, "Garde-robe"), grid, h("div", { class: "s-row" }, action("Retour", onBack))));
-  }
-  partner({ list, current, onPick, onBack }) {
-    const grid = h("div", { class: "s-grid" });
-    for (const k of list) grid.append(h("button", { class: "s-skin" + (k === current ? " on" : ""), onclick: () => onPick(k) }, sprite(k), h("b", null, fr(k)), h("span", null, ...SPECIES[k].t.map(tchip))));
-    this.show(h("div", { class: "s-box" }, h("h2", null, "Partenaire"), grid, action("Retour", onBack)));
-  }
-
   zone({ unlocked, onPick, onBack }) {
     let zone = ZONES[0].id, diff = "normal";
     const tabs = h("nav", { class: "ex-zone-tabs", "aria-label": "Zones" }), levels = h("div", { class: "ex-difficulties" }), detail = h("div", { class: "ex-zone-detail" });
