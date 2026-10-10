@@ -1,0 +1,67 @@
+/* Commandes près de l’action, inspirées de la référence Pokémon. */
+#hud .cmdzone { left:56%; right:auto; bottom:215px; width:320px; gap:12px; }
+#hud .cmds { display:flex; flex-direction:column; gap:13px; width:100%; }
+#hud .cmd { --angle:0deg; --edge:#82bfff; --bright:#2674e5; --dark:#10265a; margin:0; width:calc(100% - 40px); height:46px; padding:0 12px 0 0; border:3px solid var(--edge); border-radius:9px 18px 9px 9px; overflow:visible; transform:rotate(var(--angle)) skewX(-12deg); background:linear-gradient(110deg,var(--bright),var(--dark)); box-shadow:inset 0 0 0 3px #0c173dcc,inset 0 5px 0 #ffffff55,inset 0 -7px 0 #03051977,0 0 0 3px #161426,0 5px 0 3px #090d22,0 0 13px color-mix(in srgb,var(--edge) 35%,transparent); }
+#hud .cmd > * { transform:skewX(12deg); }
+#hud .cmd:hover:not(.off) { transform:rotate(var(--angle)) skewX(-12deg) translateY(-3px); }
+#hud .cmd:active:not(.off) { transform:rotate(var(--angle)) skewX(-12deg) translateY(2px); }
+#hud .cmd .ci { width:46px; height:50px; margin-left:-5px; border:3px solid var(--edge); border-radius:9px 5px 13px 5px; background:linear-gradient(130deg,var(--bright),#101326); box-shadow:inset 0 0 0 3px #12162b,0 4px 0 #0a1028; transform:skewX(0deg); }
+#hud .cmd .ci img { width:40px; height:40px; object-fit:contain; image-rendering:pixelated; transform:skewX(12deg); filter:drop-shadow(0 3px 0 #080c22); }
+#hud .cmd b { font-size:22px; margin-left:10px; letter-spacing:1px; text-shadow:2px 3px #111b39; }
+#hud .cmd small { font-size:11px; padding:4px 5px; margin-left:auto; max-width:32%; color:#e9f7ff; }
+#hud .cmd kbd { right:7px; top:-8px; background:#10172b; border:1px solid var(--edge); }
+#hud .cmd .shine { overflow:hidden; border-radius:7px; }
+#hud .cmd.ult { grid-area:ult; width:calc(100% - 70px); height:36px; --angle:-7deg; --edge:#c6a4ef; --bright:#6b358f; --dark:#241536; margin-left:0; }
+#hud .cmd.ult b,#hud .cmd.ult small { color:#efd4ff; }
+#hud .cmd.moves { grid-area:moves; --angle:2deg; width:calc(100% - 50px); margin-left:20px; --edge:#85d7ff; --bright:#1475e8; --dark:#173b83; }
+#hud .cmd.atk { grid-area:atk; width:calc(100% - 30px); --angle:6deg; --edge:#ffc47a; --bright:#f25221; --dark:#8b1817; height:54px; margin-left:30px; }
+#hud .cmd.atk b { color:#fff0a0; font-size:24px; }
+#hud .cmd.atk small { border:1px solid #ffd073; border-radius:5px; background:#4a171a; }
+#hud .cmd.items { grid-area:items; width:calc(100% - 60px); --angle:-3deg; --edge:#ffe194; --bright:#d8982e; --dark:#754221; margin-left:10px; }
+#hud .cmd.items b { color:#fff0bd; }
+#hud .cmdzone .ebar { margin:0; width:100%; }
+#hud .eb-segs i { box-shadow:inset 0 0 0 2px #baf6ff55,inset 0 -4px #152251,0 0 0 1px #839ccc; }
+#hud .eb-segs i.on { box-shadow:inset 0 0 0 2px #e2fdff,inset 0 -4px #307ad4,0 0 12px #67d5ff; }
+#hud .cmdzone.mv { left:auto; right:40px; bottom:210px; width:min(420px,calc(100vw - 60px)); }
+#hud .cmdzone.mv .mvpanel { width:100%; }
+#hud .cmdzone.mv .mcard { margin-left:0; }
+#hud .cmdzone.mv .cmds { display:none; }
+#hud .cmd.ult b { font-size:18px; }
+#hud .cmd.ult .ci { height:40px; width:40px; }
+#hud .cmd.ult .ci img { width:32px; height:32px; }
+#hud .cmd .shine { display:none; }
+#hud .combat-energy { position:absolute; left:46%; bottom:175px; width:280px; margin:0; justify-content:center; transform:translateX(-50%) skewX(-10deg); pointer-events:none; }
+#hud.cine .combat-energy { opacity:0; }
+@media(max-width:800px) {
+  #hud .cmdzone { left:auto; right:18px; bottom:220px; width:min(220px,56vw); }
+  #hud .cmds { gap:12px; }
+  #hud .cmd { height:40px; border-width:2px; padding-right:5px; }
+  #hud .cmd.ult { width:calc(100% - 32px); height:30px; }
+  #hud .cmd.items { width:calc(100% - 25px); margin-left:5px; }
+  #hud .cmd.moves { width:calc(100% - 18px); margin-left:10px; }
+  #hud .cmd.atk { width:calc(100% - 15px); margin-left:15px; height:46px; }
+  #hud .cmd .ci { width:32px; height:44px; border-width:2px; }
+  #hud .cmd .ci img { width:28px; height:28px; }
+  #hud .cmd.ult .ci { width:30px; height:34px; }
+  #hud .cmd.ult .ci img { width:24px; height:24px; }
+  #hud .cmd b,#hud .cmd.atk b { font-size:clamp(13px,3.7vw,18px); margin-left:6px; letter-spacing:0; }
+  #hud .cmd.ult b { font-size:14px; }
+  #hud .cmd small,#hud .cmd kbd { display:none; }
+  #hud .combat-energy { left:50%; width:230px; bottom:145px; }
+  #hud .cmdzone.mv { left:12px; right:12px; bottom:200px; width:auto; }
+}
+@media(max-height:550px) and (min-width:801px) {
+  #hud .cmdzone { bottom:150px; left:auto; right:24px; width:280px; }
+  #hud .cmds { gap:8px; } #hud .cmd { height:35px; } #hud .cmd.atk { height:40px; }
+  #hud .cmd b,#hud .cmd.atk b { font-size:17px; }
+  #hud .cmd .ci { width:38px; height:40px; } #hud .cmd .ci img { width:32px; height:32px; }
+  #hud .cmd small { display:none; } #hud .combat-energy { bottom:125px; }
+}
+/* Énergie : cristal pixel et cinq charges. */
+#hud .eb-lbl { padding-left:24px; position:relative; }
+#hud .eb-lbl::before { content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:22px; height:34px; background:url('../../assets/ui/combat/energy.svg') center/contain no-repeat; image-rendering:pixelated; filter:drop-shadow(0 0 5px #42dfff); }
+#hud .eb-segs { gap:5px; }
+#hud .eb-segs i,#hud .eb-segs i.on { width:31px; height:39px; transform:none; border:0; background:url('../../assets/ui/combat/energy.svg') center/contain no-repeat; box-shadow:none; image-rendering:pixelated; }
+#hud .eb-segs i { filter:grayscale(1) brightness(.35); opacity:.7; }
+#hud .eb-segs i.on { filter:drop-shadow(0 0 5px #4bdfff); opacity:1; }
+@media(max-width:800px) { #hud .eb-segs i,#hud .eb-segs i.on { width:23px; height:31px; } #hud .eb-lbl { padding-left:22px; } }

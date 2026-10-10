@@ -5,13 +5,6 @@ import { SPECIES, TYPE_COLOR, STATUS, describe, fr } from "../data/data.js";
 import { MAX_EN, SLOT_NAME } from "../data/moves.js";
 
 const AURA_G = { Feu: "♨", Eau: "≈", Plante: "❦", Électrik: "ϟ", Glace: "❄" };
-const SVG = (d) => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); const p = document.createElementNS("http://www.w3.org/2000/svg", "path"); p.setAttribute("d", d); s.appendChild(p); return s; };
-const ICON = {
-  atk: "M21 3l-1.2 4.8-9.3 9.3-3.6-3.6 9.3-9.3zM4.6 12.6l6.8 6.8-1.6 1.6-2.2-2.2L4.3 22 2 19.7l3.2-3.3L3 14.2z",
-  moves: "M12 1.5l2.8 7.7 7.7 2.8-7.7 2.8L12 22.5l-2.8-7.7L1.5 12l7.7-2.8z",
-  items: "M8 7V6a4 4 0 0 1 8 0v1h3.5l1 14.5h-17L4.5 7zm2 0h4V6a2 2 0 0 0-4 0zM9 12h6v2H9z",
-  ult: "M12 1l2.3 6.2L20.5 4l-3.2 5.9L23 12l-5.7 2.1 3.2 5.9-6.2-3.2L12 23l-2.3-6.2-6.2 3.2 3.2-5.9L1 12l5.7-2.1L3.5 4l6.2 3.2z",
-};
 function hpRing() {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 100 100");
@@ -40,10 +33,10 @@ export class Hud {
     this.party = h("div", { class: "party" });
     this.cmds = h("div", { class: "cmds" });
     this.mvpanel = h("div", { class: "mvpanel" });
-    this.ebar = h("div", { class: "ebar" });
-    this.cmdzone = h("div", { class: "cmdzone off" }, this.cmds, this.mvpanel, this.ebar);
+    this.ebar = h("div", { class: "ebar combat-energy" });
+    this.cmdzone = h("div", { class: "cmdzone off" }, this.cmds, this.mvpanel);
     this.flashEl = h("div", { class: "flash" });
-    root.append(this.fxl, this.tl, this.bossEl, this.top, this.party, this.cmdzone, this.flashEl);
+    root.append(this.fxl, this.tl, this.bossEl, this.top, this.party, this.cmdzone, this.ebar, this.flashEl);
     this.setPts(3);
   }
 
@@ -179,7 +172,7 @@ export class Hud {
     const opts = handlers.getOpts();
     const basic = opts[0].m;
     const cmd = (cls, icon, label, small, onclick, key) => h("button", { class: "cmd " + cls, onclick },
-      h("span", { class: "ci" }, SVG(ICON[icon])), h("b", null, label), h("small", null, ...small), key ? h("kbd", null, key) : null, h("span", { class: "shine" }));
+      h("span", { class: "ci" }, h("img", { src: `assets/ui/combat/${icon}.svg`, alt: "", draggable: "false" })), h("b", null, label), h("small", null, ...small), key ? h("kbd", null, key) : null, h("span", { class: "shine" }));
     this.ultBtn = cmd("ult", "ult", "ULTIME", [h("span", { class: "pct" }, "")], () => handlers.onUlt(), "U");
     this.itemsBtn = cmd("items", "items", "OBJETS", [h("span", { class: "cnt" }, "")], () => this.openItems(), "I");
     this.movesBtn = cmd("moves", "moves", "CAPACITÉS", [h("span", { class: "cnt" }, "")], () => this.openMoves(), "E");
