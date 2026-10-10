@@ -26,11 +26,11 @@ ok(Math.abs(M.legendRate(65) - 0.165) < 1e-9, "interpolation linéaire");
 
 // ───── taux chromatique ≈ 1/300 sur 100 000 jets ─────
 { const s = M.newSave(9); let sh = 0, n = 0;
-  while (n < 100000) { s.voeux = 99; M.startRun(s, { set: "feerie", level: 10 }); for (const f of s.run.foes) if (f.role !== "legend") { n++; if (f.shiny) sh++; } s.run = null; }
+  while (n < 100000) { s.voeux = 99; M.startRun(s, { mode: "capture", set: "feerie", diff: 1 }); for (const f of s.run.foes) if (f.role !== "legend") { n++; if (f.shiny) sh++; } s.run = null; }
   const r = sh / n; ok(Math.abs(r - 1 / 300) < 0.0006, "taux chromatique " + r); console.log(`chromatique : ${sh}/${n} = 1/${Math.round(1 / r)}`); }
 
 // ───── chromatiques cachés pendant le run ─────
-{ const s = M.newSave(3); M.startRun(s, { set: "abysses", level: 10 }); ok(M.publicRun(s.run).foes.every((f) => f.shiny === undefined), "chromatique caché avant le choix"); }
+{ const s = M.newSave(3); M.startRun(s, { mode: "capture", set: "abysses", diff: 1 }); ok(M.publicRun(s.run).foes.every((f) => f.shiny === undefined), "chromatique caché avant le choix"); }
 
 // ───── plafonds de niveau ─────
 { const s = M.newSave(2); M.train(s, "MUDKIP", 999); ok(s.coll.MUDKIP.L === 20, "plafond 20 à l'élévation 0");
@@ -43,41 +43,49 @@ ok(Math.abs(M.legendRate(65) - 0.165) < 1e-9, "interpolation linéaire");
 // ───── conversion, une seule copie gardée, pas de double possession ─────
 { const s = M.newSave(4);
   // run forcé : 4 captures dont un chromatique
-  s.run = { set: "nuit", level: 10, i: 5, phase: "choice", results: [], foes: [],
+  s.run = { mode: "capture", set: "nuit", level: 10, diff: 1, i: 5, phase: "choice", results: [], foes: [], uses: {}, voeux: 0,
     captures: [{ k: "PUMPKABOO", shiny: false, role: "weak" }, { k: "MURKROW", shiny: true, role: "weak" }, { k: "GENGAR", shiny: false, role: "nice" }, { k: "LITWICK", shiny: false, role: "weak" }] };
   const ch = M.choices(s); ok(ch[3].isNew === false, "Litwick normal déjà possédé = pas nouveau");
   let threw = false; try { M.finishRun(clone(s), 3); } catch (e) { threw = true; } ok(threw, "impossible de garder un doublon");
   const sum = M.finishRun(s, 2);
   ok(sum.kept.k === "GENGAR" && s.coll.GENGAR.normal, "Gengar gardé");
   ok(sum.frags === 1 + 1 + 1 && s.frags.nuit === 3, "fragments : 3 faibles non gardés = 3");
+  ok(ch[0].isNew === false, "Pitrouille (starter) déjà possédé");
   ok(sum.shards === 1 && s.shards === 1, "1 éclat pour le chromatique non gardé");
-  ok(!s.coll.MURKROW && !s.coll.PUMPKABOO, "une seule capture gardée");
+  ok(!s.coll.MURKROW && !s.coll.PUMPKABOO.shiny, "une seule capture gardée");
   s.shards = 5; M.redeemShards(s, "GENGAR"); ok(s.coll.GENGAR.shiny && s.shards === 0, "5 éclats = chromatique");
   console.log("conversion et choix final : ok"); }
 
+// ───── accès par difficulté, actes et utilisations ─────
+{ const s = M.newSave(8);
+  ok(M.access(s, 1).ok && !M.access(s, 2).ok, "6 Pokémon niv. 20 : D1 seulement");
+  let threw = false; try { M.startRun(s, { mode: "expedition", diff: 2 }); } catch (e) { threw = true; } ok(threw, "D2 refusée");
+  for (const k of Object.keys(s.coll).slice(0, 5)) s.coll[k].L = 40;
+  ok(!M.access(s, 2).ok, "5 Pokémon niv. 40 ne suffisent pas"); s.coll[Object.keys(s.coll)[5]].L = 40; ok(M.access(s, 2).ok && !M.access(s, 3).ok, "6 niv. 40 : D2 oui, D3 non");
+  M.startRun(s, { mode: "expedition", diff: 1 });
+  ok(Object.values(s.run.uses).every((u) => u === CONFIG.run.uses) && s.run.foes.length === CONFIG.run.acts, "5 actes, 3 utilisations chacun");
+  const t = Object.keys(s.run.uses).slice(0, 3); M.nextFightConfig(s, t); M.resolveFight(s, true);
+  ok(t.every((k) => s.run.uses[k] === CONFIG.run.uses - 1), "utilisation décomptée");
+  threw = false; try { M.nextFightConfig(s, Object.keys(s.coll).slice(0, 4)); } catch (e) { threw = true; } ok(threw, "4 Pokémon refusés");
+  for (const k of t) s.run.uses[k] = 0; threw = false; try { M.nextFightConfig(s, [t[0]]); } catch (e) { threw = true; } ok(threw, "Pokémon épuisé refusé");
+  console.log("accès, actes et utilisations : ok"); }
+
 // ───── joueur automatique : boucle complète, déterminisme, sauvegarde ─────
 function bot(seed, steps, saveAt = -1) {
-  let s = M.newSave(seed); let snap = null; const stat = { exp: 0, expWin: 0, runs: 0, kept: 0, legends: 0, elev: 0 };
+  let s = M.newSave(seed); let snap = null; const stat = { exp: 0, expClear: 0, runs: 0, kept: 0, legends: 0, elev: 0, maxDiff: 1 };
   for (let step = 0; step < steps; step++) {
     if (step === saveAt) { snap = M.serialize(s); s = M.deserialize(snap); }
     for (const k in s.coll) M.train(s, k, 50);
     for (const k in s.coll) { try { M.elevate(s, k); stat.elev++; } catch (e) {} }
-    // équipe : les 3 plus forts (niveau puis rareté)
-    const ks = Object.keys(s.coll).sort((a, b) => s.coll[b].L - s.coll[a].L || (M.roleOf(b)?.role === "legend") - (M.roleOf(a)?.role === "legend") || (M.roleOf(b)?.role === "nice") - (M.roleOf(a)?.role === "nice"));
-    M.setTeam(s, ks.slice(0, 3));
-    const L = Math.min(...s.team.map((k) => s.coll[k].L));
+    const d = [5, 4, 3, 2, 1].find((x) => M.access(s, x).ok);
+    stat.maxDiff = Math.max(stat.maxDiff, d);
     if (s.voeux >= CONFIG.capture.cost) {
-      const set = M.SETS[step % 4].id;
-      M.startRun(s, { set, level: Math.max(1, L - 5) }); stat.runs++;
+      M.startRun(s, { mode: "capture", set: M.SETS[step % 4].id, diff: d }); stat.runs++;
       while (s.run.phase === "fight") M.fightNext(s);
       const ch = M.choices(s); const best = ch.filter((c) => c.isNew).sort((a, b) => ({ legend: 3, nice: 2, weak: 1 }[b.role] - { legend: 3, nice: 2, weak: 1 }[a.role]))[0];
       const sum = M.finishRun(s, best ? best.i : null);
       if (sum.kept) { stat.kept++; if (M.roleOf(sum.kept.k).role === "legend") stat.legends++; }
-    } else {
-      const d = Math.max(1, Math.min(5, [12, 30, 50, 70, 88].filter((x) => x <= L + 2).length));
-      stat.exp++; if (M.playExpedition(s, d).win) stat.expWin++;
-    }
-    // invariants : pas de double possession possible par construction ; copies cohérentes
+    } else { stat.exp++; if (M.playExpedition(s, d).cleared) stat.expClear++; }
     for (const k in s.coll) ok(s.coll[k].normal || s.coll[k].shiny, "entrée vide " + k);
   }
   return { s, stat, snap };

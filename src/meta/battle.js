@@ -4,7 +4,7 @@ import { CONFIG } from "./config.js";
 import { formOf } from "./state.js";
 
 // Alliés du moteur à partir de l'équipe (forme évoluée, niveau, bonus d'étoiles).
-export function alliesOf(save, team = save.team) {
+export function alliesOf(save, team) {
   return team.filter((k) => save.coll[k]).map((k) => {
     const e = save.coll[k];
     return { k: formOf(k, e.elev), L: e.L, bonus: e.stars * CONFIG.stars.bonusPerStar };

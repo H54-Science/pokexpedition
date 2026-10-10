@@ -79,13 +79,15 @@ export async function makePokemon(k, { boss = false, shiny = false } = {}) {
 // Portrait carré (data URL) : tête et haut du corps, de face.
 let pr = null;
 const portraitCache = new Map();
-export async function portrait(k, size = 128) {
-  if (portraitCache.has(k)) return portraitCache.get(k);
+// full = true : corps entier cadré (cartes des menus) ; sinon tête et haut du corps.
+export async function portrait(k, size = 128, full = false, shiny = false) {
+  const ck = k + (full ? ":full" : "") + (shiny ? ":shiny" : "");
+  if (portraitCache.has(ck)) return portraitCache.get(ck);
   if (!pr) {
     pr = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     pr.setSize(size, size); pr.outputColorSpace = THREE.SRGBColorSpace;
   }
-  const P = await makePokemon(k);
+  const P = await makePokemon(k, { shiny });
   const scene = new THREE.Scene();
   scene.add(new THREE.HemisphereLight(0xffffff, 0x556070, 2.4));
   const d = new THREE.DirectionalLight(0xffffff, 1.4); d.position.set(1, 2, 3); scene.add(d);
@@ -95,10 +97,16 @@ export async function portrait(k, size = 128) {
   const top = box.max.y, h = top - box.min.y;
   const fy = top - h * 0.3; // un peu sous le sommet
   const cam = new THREE.PerspectiveCamera(30, 1, 0.01, 50);
-  const dist = Math.max(h * 0.62, (box.max.x - box.min.x) * 0.5) / Math.tan((15 * Math.PI) / 180) * 0.75;
-  cam.position.set(dist * 0.25, fy + h * 0.05, dist); cam.lookAt(0, fy, 0);
+  if (full) {
+    const w = Math.max(box.max.x - box.min.x, box.max.z - box.min.z), cy = (box.max.y + box.min.y) / 2;
+    const d = (Math.max(h, w) * 0.56) / Math.tan((15 * Math.PI) / 180) + (box.max.z - box.min.z) * 0.5;
+    cam.position.set(d * 0.32, cy + h * 0.08, d); cam.lookAt(0, cy, 0);
+  } else {
+    const dist = Math.max(h * 0.62, (box.max.x - box.min.x) * 0.5) / Math.tan((15 * Math.PI) / 180) * 0.75;
+    cam.position.set(dist * 0.25, fy + h * 0.05, dist); cam.lookAt(0, fy, 0);
+  }
   pr.render(scene, cam);
   const url = pr.domElement.toDataURL("image/png");
-  portraitCache.set(k, url);
+  portraitCache.set(ck, url);
   return url;
 }

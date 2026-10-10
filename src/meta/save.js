@@ -4,7 +4,12 @@ import { newSave } from "./state.js";
 
 // Migrations : MIGRATIONS[n] transforme une sauvegarde v n en v n+1.
 const MIGRATIONS = {
-  // 1: (s) => { s.nouveauChamp = 0; s.v = 2; return s; },
+  // v1 → v2 : runs à 5 actes avec accès par difficulté (6 Pokémon au niveau) ; plus d'équipe fixe.
+  1: (s) => {
+    s.run = null; delete s.team;
+    for (const k of CONFIG.start.starters) if (!s.coll[k]) s.coll[k] = { normal: true, shiny: false, L: CONFIG.start.level, xp: 0, elev: 0, stars: 0 };
+    s.v = 2; return s;
+  },
 };
 
 export const serialize = (save) => JSON.stringify(save);
